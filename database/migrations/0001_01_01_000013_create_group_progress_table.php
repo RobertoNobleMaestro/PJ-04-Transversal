@@ -13,6 +13,8 @@ class CreateGroupProgressTable extends Migration
             $table->foreignId('checkpoint_id')->constrained('checkpoints');
             $table->foreignId('user_id')->constrained('users');
             $table->timestamp('timestamp');
+            $table->boolean('completed')->default(false);
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
