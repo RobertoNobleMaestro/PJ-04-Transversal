@@ -26,7 +26,7 @@
                 </div>
                 <div class="mb-3 d-flex flex-column justify-content-between text-center">
                     <button type="submit" class="text-uppercase btn-form mb-2">Login</button>
-                    <span class="text-uppercase fw-bold">¿Todavía sin cuenta? <a href="{{route('register') }}" class="text-decoration-none">Registrarse</a></span>
+                    <span class="fw-bold">¿Todavía sin cuenta? <a href="{{route('register') }}" class="text-decoration-none">Registrarse</a></span>
                 </div>
                 <br>
                 @if ($errors->any())

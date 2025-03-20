@@ -34,7 +34,7 @@ class AuthController extends Controller{
             if ($user->rol_id == 1) {
                 return redirect()->intended('/admin');
             } elseif ($user->rol_id == 2) {
-                return redirect()->intended('/restaurantes');
+                return redirect()->intended('/inicio');
             }
         }
     
@@ -65,7 +65,7 @@ public function register(Request $request)
     ]);
 
     Auth::login($user);
-    return redirect('/restaurantes');
+    return redirect('/inicio');
 }
     public function logout(Request $request){
         Auth::logout();
