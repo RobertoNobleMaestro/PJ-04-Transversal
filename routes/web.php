@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('/inicio', [AuthController::class, 'showDashboard'])->name('inicio');
     Route::get('/mapa', [AuthController::class, 'goMapa'])->name('mapa');
     Route::get('/gimcana', [AuthController::class, 'goGimcana'])->name('gimcana');
 
