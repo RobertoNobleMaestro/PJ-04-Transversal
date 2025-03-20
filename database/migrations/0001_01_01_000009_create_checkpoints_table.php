@@ -10,7 +10,8 @@ class CreateCheckpointsTable extends Migration
     {
         Schema::create('checkpoints', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('place_id')->constrained('places')->onDelete('cascade');
+            $table->foreignId('place_id')->constrained('places');
+            $table->boolean('validado')->default(false);
             $table->text('pista');
             $table->text('prueba');
             $table->timestamps();
