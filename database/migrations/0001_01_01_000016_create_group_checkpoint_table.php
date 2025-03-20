@@ -14,7 +14,6 @@ class CreateGroupCheckpointTable extends Migration
             $table->foreignId('checkpoint_id')->constrained('checkpoints');
             $table->timestamps();
             // Índices para relaciones rápidas entre grupos y puntos de control
-            $table->index('group_id');
             $table->index('checkpoint_id');
         });
     }
