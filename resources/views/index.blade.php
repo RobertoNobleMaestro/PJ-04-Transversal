@@ -250,8 +250,9 @@ body {
                         <a class="nav-link" href="#contacto"><i class="fas fa-envelope me-1"></i> Contacto</a>
                     </li>
                     <li class="nav-item ms-lg-3">
-                        <a class="btn btn-outline-primary" href="#login"><i class="fas fa-sign-in-alt me-1"></i> Acceder</a>
+                        <a class="btn btn-outline-primary" href="{{ route('login') }}"><i class="fas fa-sign-in-alt me-1"></i> Acceder</a>
                     </li>
+                    
                 </ul>
             </div>
         </div>
@@ -263,7 +264,7 @@ body {
             <h1>Descubre y Juega</h1>
             <p>Explora lugares increíbles y participa en gimcanas interactivas. Crea tu propia aventura o únete a otras existentes.</p>
             <div>
-                <a href="#registro" class="btn btn-primary btn-lg me-2"><i class="fas fa-user-plus me-1"></i> Registrarse</a>
+                <a href="{{ route('register') }}" class="btn btn-primary btn-lg me-2"><i class="fas fa-user-plus me-1"></i> Registrarse</a>
                 <a href="#explorar" class="btn btn-outline-light btn-lg"><i class="fas fa-compass me-1"></i> Explorar</a>
             </div>
         </div>
