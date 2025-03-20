@@ -2,11 +2,14 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MapaController;
+use App\Http\Controllers\GimcanaController;
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/inicio', [AuthController::class, 'showDashboard'])->name('inicio');
-    Route::get('/mapa', [AuthController::class, 'goMapa'])->name('mapa');
-    Route::get('/gimcana', [AuthController::class, 'goGimcana'])->name('gimcana');
+    Route::get('/mapa', [MapaController::class, 'goMapa'])->name('mapa');
+    Route::get('/gimcana', [GimcanaController::class, 'goGimcana'])->name('gimcana');
 
 });
 Route::get('/', [AuthController::class, 'showHome']); 
