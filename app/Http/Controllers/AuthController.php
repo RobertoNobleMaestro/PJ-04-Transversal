@@ -24,7 +24,7 @@ class AuthController extends Controller
     {
         return view('cliente.inicio');
     }
-    
+
     // Método para procesar el login
     public function login(Request $request)
     {
@@ -37,21 +37,17 @@ class AuthController extends Controller
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
             
-            // Regenerar la sesión para mayor seguridad
             $request->session()->regenerate();
 
-            // Guardar el ID y nombre del usuario en la sesión
             session(['id' => $user->id]);
-            session(['nombre' => $user->name]); // Asegúrate de que el campo sea 'name', no 'nombre'
+            session(['nombre' => $user->name]); 
 
-            // Redirigir según el rol
-            if ($user->role_id == 1) { // Si el rol es 1, admin
+            if ($user->role_id == 1) { 
                 return redirect()->intended('/admin');
-            } elseif ($user->role_id == 2) { // Si el rol es 2, usuario normal
+            } elseif ($user->role_id == 2) { 
                 return redirect()->intended('/inicio');
             }
 
-            // Si el usuario no tiene rol asignado, redirigir a la página principal
             return redirect('/');
         }
     
@@ -71,23 +67,20 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required|unique:users,name', // Asegúrate de que el campo sea 'name', no 'nombre'
+            'name' => 'required|unique:users,name', 
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
         ]);
 
-        // Crear un nuevo usuario
         $user = User::create([
-            'name' => $request->name, // Asegúrate de que el campo sea 'name', no 'nombre'
+            'name' => $request->name, 
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role_id' => 2, // Asignamos el rol de usuario normal
+            'role_id' => 2, 
         ]);
 
-        // Autenticar al usuario recién creado
         Auth::login($user);
 
-        // Redirigir al usuario a la página de inicio
         return redirect('/inicio');
     }
 
