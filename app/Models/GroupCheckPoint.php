@@ -9,11 +9,11 @@ class GroupCheckpoint extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['group_id', 'checkpoint_id', 'validado'];
+    protected $fillable = ['groupuser_id', 'checkpoint_id'];
 
-    public function group()
+    public function groupUser()
     {
-        return $this->belongsTo(Group::class);
+        return $this->belongsTo(GroupUser::class, 'groupuser_id');
     }
 
     public function checkpoint()

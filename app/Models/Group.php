@@ -13,7 +13,7 @@ class Group extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'group_user');
     }
 
     public function checkpoints()
@@ -21,8 +21,8 @@ class Group extends Model
         return $this->belongsToMany(Checkpoint::class, 'group_checkpoint');
     }
 
-    public function gamifications()
+    public function groupUsers()
     {
-        return $this->hasMany(Gamification::class);
+        return $this->hasMany(GroupUser::class);
     }
 }
