@@ -10,10 +10,10 @@ class TagSeeder extends Seeder
     public function run(): void
     {
         $tags = [
-            ['name' => 'Familiar'],
-            ['name' => 'Romántico'],
-            ['name' => 'Aventura'],
-            ['name' => 'Historia'],
+            ['nombre' => 'Familiar'],
+            ['nombre' => 'Romántico'],
+            ['nombre' => 'Aventura'],
+            ['nombre' => 'Historia'],
         ];
 
         foreach ($tags as $tag) {
