@@ -12,6 +12,10 @@ class CreatePlaceTagTable extends Migration
             $table->foreignId('place_id')->constrained('places');
             $table->foreignId('tag_id')->constrained('tags');
             $table->timestamps();
+
+            // Índices adicionales para búsquedas rápidas en las relaciones
+            $table->index('place_id');
+            $table->index('tag_id');
         });
     }
 
@@ -19,4 +23,4 @@ class CreatePlaceTagTable extends Migration
     {
         Schema::dropIfExists('place_tag');
     }
-} 
+}

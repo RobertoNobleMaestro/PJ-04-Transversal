@@ -10,11 +10,14 @@ class CreateCheckpointsTable extends Migration
     {
         Schema::create('checkpoints', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('gymkhana_id')->constrained('gymkhanas');
             $table->foreignId('place_id')->constrained('places');
-            $table->text('hint');
-            $table->text('challenge');
+            $table->boolean('validado')->default(false);
+            $table->text('pista');
+            $table->text('prueba');
             $table->timestamps();
+
+            // Índice en la relación con lugares (places)
+            $table->index('place_id');
         });
     }
 
@@ -22,4 +25,4 @@ class CreateCheckpointsTable extends Migration
     {
         Schema::dropIfExists('checkpoints');
     }
-} 
+}
