@@ -20,13 +20,9 @@ class AuthController extends Controller
     {
         return view('index');
     }
-    public function goMapa()
+    public function showDashboard()
     {
-        return view('mapa');
-    }
-    public function goGimcana()
-    {
-        return view('gimcana');
+        return view('cliente.inicio');
     }
 
     // Método para procesar el login
