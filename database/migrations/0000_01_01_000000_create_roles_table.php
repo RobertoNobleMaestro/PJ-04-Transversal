@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -9,8 +10,11 @@ class CreateRolesTable extends Migration
     {
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('nombre')->unique();
             $table->timestamps();
+
+            // Índice por nombre para búsquedas rápidas
+            $table->index('nombre');
         });
     }
 
@@ -18,4 +22,4 @@ class CreateRolesTable extends Migration
     {
         Schema::dropIfExists('roles');
     }
-} 
+}

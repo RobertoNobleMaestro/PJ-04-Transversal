@@ -9,9 +9,13 @@ class CreateFavoritesTable extends Migration
     {
         Schema::create('favorites', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('place_id')->constrained('places');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('place_id')->constrained('places')->onDelete('cascade');
             $table->timestamps();
+
+            // Índices para relaciones rápidas entre usuario y lugar
+            $table->index('user_id');
+            $table->index('place_id');
         });
     }
 
@@ -19,4 +23,4 @@ class CreateFavoritesTable extends Migration
     {
         Schema::dropIfExists('favorites');
     }
-} 
+}

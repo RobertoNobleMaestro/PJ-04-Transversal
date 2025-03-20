@@ -9,14 +9,18 @@ class CreatePlacesTable extends Migration
     {
         Schema::create('places', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->text('description');
-            $table->decimal('latitude', 10, 8);
-            $table->decimal('longitude', 11, 8);
-            $table->string('address');
-            $table->foreignId('category_id')->constrained('categories');
-            $table->foreignId('created_by')->constrained('users');
+            $table->string('nombre');
+            $table->text('descripcion');
+            $table->decimal('coordenadas_lat', 9, 6);
+            $table->decimal('coordenadas_lon', 9, 6);
+            $table->string('direccion');
+            $table->foreignId('categoria_id')->constrained('categories')->onDelete('restrict');
+            $table->text('etiquetas');  // Etiquetas separadas por coma
+            $table->boolean('favorito')->default(false);
+            $table->string('imagen')->nullable();
             $table->timestamps();
+            // Índice compuesto para búsquedas rápidas por coordenadas y categoría
+            $table->index(['coordenadas_lat', 'coordenadas_lon']);
         });
     }
 
@@ -24,4 +28,4 @@ class CreatePlacesTable extends Migration
     {
         Schema::dropIfExists('places');
     }
-} 
+}
