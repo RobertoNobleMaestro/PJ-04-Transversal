@@ -20,9 +20,9 @@ class AuthController extends Controller
     {
         return view('index');
     }
-    public function showHome()
+    public function showDashboard()
     {
-        return view('index');
+        return view('cliente.inicio');
     }
     
     // Método para procesar el login
