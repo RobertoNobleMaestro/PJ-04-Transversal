@@ -10,11 +10,9 @@ class CreateGroupCheckpointTable extends Migration
     {
         Schema::create('group_checkpoint', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('group_id')->constrained('groups')->onDelete('cascade');
-            $table->foreignId('checkpoint_id')->constrained('checkpoints')->onDelete('cascade');
-            $table->boolean('validado')->default(false);
+            $table->foreignId('groupuser_id')->constrained('group_users');
+            $table->foreignId('checkpoint_id')->constrained('checkpoints');
             $table->timestamps();
-
             // Índices para relaciones rápidas entre grupos y puntos de control
             $table->index('group_id');
             $table->index('checkpoint_id');

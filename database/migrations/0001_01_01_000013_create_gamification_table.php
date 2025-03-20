@@ -10,8 +10,8 @@ class CreateGamificationTable extends Migration
     {
         Schema::create('gamification', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('group_id')->constrained('groups')->onDelete('cascade');
-            $table->foreignId('checkpoint_id')->constrained('checkpoints')->onDelete('cascade');
+            $table->foreignId('group_id')->constrained('groups');
+            $table->foreignId('checkpoint_id')->constrained('checkpoints');
             $table->boolean('completed')->default(false);
             $table->timestamps();
 
