@@ -10,8 +10,8 @@ class GroupSeeder extends Seeder
     public function run(): void
     {
         $groups = [
-            ['name' => 'Exploradores'],
-            ['name' => 'Aventureros'],
+            ['nombre' => 'Exploradores'],
+            ['nombre' => 'Aventureros'],
         ];
 
         foreach ($groups as $group) {
