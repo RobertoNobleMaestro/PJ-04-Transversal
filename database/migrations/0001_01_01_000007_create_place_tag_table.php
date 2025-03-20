@@ -9,9 +9,13 @@ class CreatePlaceTagTable extends Migration
     {
         Schema::create('place_tag', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('place_id')->constrained('places');
-            $table->foreignId('tag_id')->constrained('tags');
+            $table->foreignId('place_id')->constrained('places')->onDelete('cascade');
+            $table->foreignId('tag_id')->constrained('tags')->onDelete('cascade');
             $table->timestamps();
+
+            // Índices adicionales para búsquedas rápidas en las relaciones
+            $table->index('place_id');
+            $table->index('tag_id');
         });
     }
 
@@ -19,4 +23,4 @@ class CreatePlaceTagTable extends Migration
     {
         Schema::dropIfExists('place_tag');
     }
-} 
+}
