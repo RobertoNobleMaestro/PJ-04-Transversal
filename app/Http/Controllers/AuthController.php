@@ -20,7 +20,11 @@ class AuthController extends Controller
     {
         return view('index');
     }
-
+    public function showHome()
+    {
+        return view('index');
+    }
+    
     // Método para procesar el login
     public function login(Request $request)
     {
