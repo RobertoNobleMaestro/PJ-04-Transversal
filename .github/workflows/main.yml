@@ -9,6 +9,18 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:5.7  # Puedes usar otra versión si lo necesitas
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: izacvard_g04
+          MYSQL_USER: izacvard_g04
+          MYSQL_PASSWORD: prY*0iRtU{&X
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
       # Paso 1: Clonar el repositorio
       - name: Clonar el repositorio
@@ -37,7 +49,24 @@ jobs:
           composer install --no-interaction --prefer-dist
           ls -l vendor/
 
-      # Paso 5: Ejecutar migraciones
+      # Paso 5: Configurar las variables de entorno para la base de datos
+      - name: Configurar variables de entorno para la base de datos
+        run: |
+          echo "DB_CONNECTION=mysql" >> .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_PORT=3306" >> .env
+          echo "DB_DATABASE=izacvard_g04" >> .env
+          echo "DB_USERNAME=izacvard_g04" >> .env
+          echo "DB_PASSWORD=prY*0iRtU{&X" >> .env
+
+      # Paso 6: Ejecutar migraciones
       - name: Ejecutar migraciones
         run: |
           php artisan migrate:fresh --seed --force
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: izacvard_g04
+          DB_USERNAME: izacvard_g04
+          DB_PASSWORD: prY*0iRtU{&X
