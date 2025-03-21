@@ -10,9 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Paso 1: Clonar el repositorio
       - name: Clonar el repositorio
         uses: actions/checkout@v4
 
+      # Paso 2: Subir archivos por FTP
       - name: Subir archivos por FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -22,12 +24,20 @@ jobs:
           local-dir: "./"
           server-dir: "/"
 
-      - name: Instalar Composer (si es necesario)
+      # Paso 3: Instalar Composer (si es necesario)
+      - name: Instalar Composer
         run: |
           curl -sS https://getcomposer.org/installer | php
           sudo mv composer.phar /usr/local/bin/composer
           composer install --no-interaction --prefer-dist
 
+      # Paso 4: Verificar si las dependencias están instaladas correctamente
+      - name: Verificar si composer y dependencias están instaladas
+        run: |
+          composer install --no-interaction --prefer-dist
+          ls -l vendor/
+
+      # Paso 5: Ejecutar migraciones
       - name: Ejecutar migraciones
         run: |
           php artisan migrate:fresh --seed --force
