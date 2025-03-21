@@ -124,3 +124,29 @@ document.getElementById('coordinatesForm').addEventListener('submit', function (
 
 // Ejemplo random de la casa del usuario
 addUserMarker(41.350, 2.115, 'Casa del Usuario');
+
+
+navigator.geolocation.getCurrentPosition(
+    (position) => {
+        posUsuario = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+        };
+
+        map.setView([posUsuario.lat, posUsuario.lng], 15);
+
+        // Marcar posición del usuario
+        L.marker([posUsuario.lat, posUsuario.lng], { draggable: true }).addTo(map)
+            .bindPopup("Estás aquí")
+            .openPopup()
+            .on('dragend', (e) => {
+                posUsuario = e.target.getLatLng(); // Actualizamos la ubicación del usuario
+                actualizarRuta();
+            });
+
+        // Seguimiento en tiempo real
+        navigator.geolocation.watchPosition(actualizarUbicacion, mostrarError, opcionesGPS);
+    },
+    mostrarError,
+    opcionesGPS
+);
