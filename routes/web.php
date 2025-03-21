@@ -26,4 +26,5 @@ Route::get('/index', [AuthController::class, 'showHome'])->name('index');
 
 Route::controller(GimcanaController::class)->group(function () {
     Route::post('/infogimcana', 'infogimcana');
+    Route::post('/unirseagrupo', 'unirseagrupo');
 });

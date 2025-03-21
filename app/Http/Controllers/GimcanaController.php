@@ -22,9 +22,24 @@ class GimcanaController extends Controller
     {
         $grupos = Group::with('creador');
 
+
+
         if ($request->creador) {
             $creador = $request->creador;
-            $grupos->where('creador.name', 'like', "%$creador%");
+            $grupos->whereHas('creador', function ($query) use ($creador) {
+                $query->where('name', 'like', "%$creador%");
+            });
+        }
+
+        if ($request->codigo) {
+            $codigo = $request->codigo;
+            $grupos->where('codigogrupo', '=', "$codigo");
+        }
+
+        if (isset($request->codigo) || isset($request->creador)) {
+            $grupos->where('miembros', '>=', "0");
+        } else {
+            $grupos->where('miembros', '>', "0");
         }
 
         $grupos = $grupos->get();
@@ -32,5 +47,13 @@ class GimcanaController extends Controller
         $usuarios = User::all();
         $user = Auth::user();
         return response()->json(['grupos' => $grupos, 'usuarios' => $usuarios, 'user' => $user]);
+    }
+
+    public function unirseagrupo()
+    {
+        $grupos = Group::with('creador')->get();
+        $usuarios = User::all();
+        $user = Auth::user();
+        return view('gimcana', compact('grupos', 'usuarios', 'user'));
     }
 }
