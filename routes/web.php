@@ -4,13 +4,17 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MapaController;
 use App\Http\Controllers\GimcanaController;
+use App\Http\Controllers\LugarInteresController;
 
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/inicio', [AuthController::class, 'showDashboard'])->name('inicio');
     Route::get('/mapa', [MapaController::class, 'goMapa'])->name('mapa');
     Route::get('/gimcana', [GimcanaController::class, 'goGimcana'])->name('gimcana');
-
+    Route::get('/profile', [AuthController::class, 'index'])->name('profile');
+    Route::get('/lugares', [LugarInteresController::class, 'index'])->name('lugares');
+    Route::get('/admin-markers', [MapaController::class, 'getAdminMarkers'])->name('admin.markers');
+    Route::post('/user-markers', [MapaController::class, 'storeUserMarker'])->name('user.markers.store');
 });
 Route::get('/', [AuthController::class, 'showHome']); 
 
