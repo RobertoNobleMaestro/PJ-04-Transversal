@@ -10,9 +10,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/inicio', [AuthController::class, 'showDashboard'])->name('inicio');
     Route::get('/mapa', [MapaController::class, 'goMapa'])->name('mapa');
     Route::get('/gimcana', [GimcanaController::class, 'goGimcana'])->name('gimcana');
-
 });
-Route::get('/', [AuthController::class, 'showHome']); 
+Route::get('/', [AuthController::class, 'showHome']);
 
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -23,3 +22,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
 Route::get('/index', [AuthController::class, 'showHome'])->name('index');
+
+
+Route::controller(GimcanaController::class)->group(function () {
+    Route::post('/infogimcana', 'infogimcana');
+});

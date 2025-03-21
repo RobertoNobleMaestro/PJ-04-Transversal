@@ -38,6 +38,11 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
+    public function incidenciasComoCliente()
+    {
+        return $this->hasMany(Group::class, 'creador');
+    }
+
     public function favorites()
     {
         return $this->hasMany(Favorite::class);
