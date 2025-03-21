@@ -37,7 +37,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="crearUsuarioForm">
+                    <form id="crearUsuarioForm" method="POST">
                         <div class="mb-3">
                             <label for="nombre" class="form-label">Nombre</label>
                             <input type="text" class="form-control" id="nombre" name="name" required>
@@ -53,6 +53,9 @@
                         <div class="mb-3">
                             <label for="role_id" class="form-label">Rol</label>
                             <select class="form-select" id="role_id" name="role_id" required>
+                                @foreach($roles as $role)
+                                    <option value="{{ $role->id }}">{{ $role->nombre }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </form>
@@ -74,7 +77,9 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="editarUsuarioForm">
+                @method('PUT')
+                @csrf
+                    <form id="editarUsuarioForm" method="POST">
                         <input type="hidden" id="editarUsuarioId" name="id">
                         <div class="mb-3">
                             <label for="editarNombre" class="form-label">Nombre</label>
@@ -87,9 +92,9 @@
                         <div class="mb-3">
                             <label for="editarRoleId" class="form-label">Rol</label>
                             <select class="form-select" id="editarRoleId" name="role_id" required>
-                                <option value="1">Admin</option>
-                                <option value="2">User</option>
-                                <option value="3">Editor</option>
+                                    @foreach($roles as $role)
+                                        <option value="{{ $role->id }}">{{ $role->nombre }}</option>
+                                    @endforeach
                             </select>
                         </div>
                     </form>
@@ -125,42 +130,38 @@
                     `).join('');
                 });
 
-            // Cargar roles para el modal de creación
-            fetch('/admin/usuarios/Roles')
-                .then(response => response.json())
-                .then(data => {
-                    const roleSelect = document.getElementById('role_id');
-                    roleSelect.innerHTML = data.map(role => `
-                        <option value="${role.id}">${role.nombre}</option>
-                    `).join('');
-                });
-
-            // Cargar roles para el modal de edición
-            fetch('/admin/usuarios/Roles')
-                .then(response => response.json())
-                .then(data => {
-                    const roleSelect = document.getElementById('editarRoleId');
-                    roleSelect.innerHTML = data.map(role => `
-                        <option value="${role.id}">${role.nombre}</option>
-                    `).join('');
-                });
         });
 
         // Función para crear un usuario
         function crearUsuario() {
             const formData = new FormData(document.getElementById('crearUsuarioForm'));
 
-            fetch('/admin/usuarios', {
+            fetch('/admin/usuarios/crear', {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json', // Asegúrate de que el servidor devuelva JSON
                 },
                 body: formData,
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; }); // Manejar errores de validación
+                }
+                return response.json();
+            })
             .then(data => {
                 alert('Usuario creado con éxito');
                 location.reload(); // Recargar la página para ver los cambios
+            })
+            .catch(error => {
+                if (error.errors) {
+                    // Si hay errores de validación, mostrarlos
+                    const errorMessages = Object.values(error.errors).join('\n');
+                    alert('Errores de validación:\n' + errorMessages);
+                } else {
+                    alert('Error: ' + (error.message || 'No se pudo crear el usuario')); // Mostrar mensaje de error
+                }
             });
         }
 
@@ -184,17 +185,32 @@
         function actualizarUsuario() {
             const formData = new FormData(document.getElementById('editarUsuarioForm'));
 
-            fetch(`/admin/usuarios/${document.getElementById('editarUsuarioId').value}`, {
-                method: 'PUT',
+            fetch(`/admin/usuarios/editar/${document.getElementById('editarUsuarioId').value}`, {
+                method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
                 },
-                body: formData,
+                body: JSON.stringify(Object.fromEntries(formData)) // Convertir FormData a JSON
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; }); // Manejar errores de validación
+                }
+                return response.json();
+            })
             .then(data => {
                 alert('Usuario actualizado con éxito');
                 location.reload(); // Recargar la página para ver los cambios
+            })
+            .catch(error => {
+                if (error.errors) {
+                    // Si hay errores de validación, mostrarlos
+                    const errorMessages = Object.values(error.errors).join('\n');
+                    alert('Errores de validación:\n' + errorMessages);
+                } else {
+                    alert('Error: ' + (error.message || 'No se pudo actualizar el usuario')); // Mostrar mensaje de error
+                }
             });
         }
 

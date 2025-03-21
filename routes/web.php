@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/inicio', [AuthController::class, 'showDashboard'])->name('inicio');
+    Route::get('/inicioAdmin', [AuthController::class, 'showInicioAdmin'])->name('inicioAdmin');
     Route::get('/mapa', [MapaController::class, 'goMapa'])->name('mapa');
     Route::get('/gimcana', [GimcanaController::class, 'goGimcana'])->name('gimcana');
 
@@ -29,10 +30,9 @@ Route::get('/index', [AuthController::class, 'showHome'])->name('index');
 Route::get('/admin/usuarios', [UserController::class, 'index'])->name('admin.usuarios.index');
 Route::get('/admin/usuarios/getUsers', [UserController::class, 'getUsers'])->name('admin.usuarios.getUsers');
 Route::get('/admin/usuarios/{id}', [UserController::class, 'show'])->name('admin.usuarios.show');
-Route::post('/admin/usuarios', [UserController::class, 'store'])->name('admin.usuarios.store');
-Route::put('/admin/usuarios/{id}', [UserController::class, 'update'])->name('admin.usuarios.update');
+Route::post('/admin/usuarios/crear', [UserController::class, 'store'])->name('admin.usuarios.store');
+Route::post('/admin/usuarios/editar/{id}', [UserController::class, 'update'])->name('admin.usuarios.update');
 Route::delete('/admin/usuarios/{id}', [UserController::class, 'destroy'])->name('admin.usuarios.destroy');
-Route::get('/admin/usuarios/Roles', [UserController::class, 'Roles']);
 
 // Rutas para el CRUD de gimcanas
 Route::get('/admin/gimcanas', [GimcanaController::class, 'index'])->name('admin.gimcanas.index');
