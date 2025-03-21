@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MapaController;
 use App\Http\Controllers\GimcanaController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PlaceController;
 
 
 Route::middleware(['auth'])->group(function () {
@@ -36,7 +37,16 @@ Route::delete('/admin/usuarios/{id}', [UserController::class, 'destroy'])->name(
 
 // Rutas para el CRUD de gimcanas
 Route::get('/admin/gimcanas', [GimcanaController::class, 'index'])->name('admin.gimcanas.index');
+Route::get('/admin/gimcanas/getGimcanas', [GimcanaController::class, 'getGimcanas'])->name('admin.gimcanas.getGimcanas');
 Route::get('/admin/gimcanas/{id}', [GimcanaController::class, 'show'])->name('admin.gimcanas.show');
 Route::post('/admin/gimcanas', [GimcanaController::class, 'store'])->name('admin.gimcanas.store');
 Route::put('/admin/gimcanas/{id}', [GimcanaController::class, 'update'])->name('admin.gimcanas.update');
 Route::delete('/admin/gimcanas/{id}', [GimcanaController::class, 'destroy'])->name('admin.gimcanas.destroy');
+
+// Rutas para el CRUD de lugares
+// Route::get('/admin/places', [PlaceController::class, 'index'])->name('admin.places.index');
+// Route::get('/admin/places/getPlaces', [PlaceController::class, 'getPlaces'])->name('admin.places.getPlaces');
+// Route::get('/admin/places/{id}', [PlaceController::class, 'show'])->name('admin.places.show');
+// Route::post('/admin/places', [PlaceController::class, 'store'])->name('admin.places.store');
+// Route::put('/admin/places/{id}', [PlaceController::class, 'update'])->name('admin.places.update');
+// Route::delete('/admin/places/{id}', [PlaceController::class, 'destroy'])->name('admin.places.destroy');
