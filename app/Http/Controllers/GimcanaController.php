@@ -18,9 +18,17 @@ class GimcanaController extends Controller
         return view('gimcana', compact('grupos', 'usuarios', 'user'));
     }
 
-    public function infogimcana()
+    public function infogimcana(Request $request)
     {
-        $grupos = Group::with('creador')->get();
+        $grupos = Group::with('creador');
+
+        if ($request->creador) {
+            $creador = $request->creador;
+            $grupos->where('creador.name', 'like', "%$creador%");
+        }
+
+        $grupos = $grupos->get();
+
         $usuarios = User::all();
         $user = Auth::user();
         return response()->json(['grupos' => $grupos, 'usuarios' => $usuarios, 'user' => $user]);

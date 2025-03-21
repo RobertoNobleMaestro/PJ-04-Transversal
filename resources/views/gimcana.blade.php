@@ -72,7 +72,7 @@
 
         <div>
             <p>Buscas un grupo?</p>
-            <form action="" method="post" id="frmbuscargrupo">
+            <form action="" method="post" id="frmbuscargrupo" onsubmit="buscargrupo(event)">
                 @csrf
                 <input type="text" name="creador" id="creador" placeholder="Creador del grupo">
                 <input type="text" name="codigo" id="codigo" placeholder="Código del grupo">
