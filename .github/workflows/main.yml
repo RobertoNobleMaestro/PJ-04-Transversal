@@ -23,4 +23,4 @@ jobs:
           server-dir: "/"
 
       - name: Ejecutar migraciones (Opcional)
-        run: curl -s "https://${{ secrets.FTP_DOMAIN }}/migrar.php"
+        run: php artisan migrate:fresh --seed
