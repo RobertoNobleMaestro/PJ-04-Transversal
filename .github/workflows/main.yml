@@ -22,6 +22,12 @@ jobs:
           local-dir: "./"
           server-dir: "/"
 
+      - name: Instalar Composer (si es necesario)
+        run: |
+          curl -sS https://getcomposer.org/installer | php
+          sudo mv composer.phar /usr/local/bin/composer
+          composer install --no-interaction --prefer-dist
+
       - name: Ejecutar migraciones
         run: |
           php artisan migrate:fresh --seed --force
