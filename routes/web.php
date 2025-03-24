@@ -61,4 +61,5 @@ Route::controller(GimcanaGroupController::class)->group(function () {
     Route::post('/eliminargrupo', 'eliminargrupo');
     Route::post('/expulsargrupo', 'expulsargrupo');
     Route::post('/creargrupo', 'creargrupo');
+    Route::post('/cargagimcanas', 'cargagimcanas');
 });

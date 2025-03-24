@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Group;
 use App\Models\GroupUser;
+use App\Models\Gimcana;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Laravel\Pail\ValueObjects\Origin\Console;
 
 class GimcanaGroupController extends Controller
 {
@@ -18,6 +20,12 @@ class GimcanaGroupController extends Controller
         $gruposusuarios = GroupUser::with('usuarios')->where('group_id', $usuario[0]->group_id)->get();
         $creador = Group::where('id', $usuario[0]->group_id)->with('creador')->get();
         return response()->json(['gruposusuarios' => $gruposusuarios, 'creador' => $creador, 'usuarioactivo' => $usuarioactivo]);
+    }
+
+    public function cargagimcanas()
+    {
+        $gimcanas = Gimcana::all();
+        return response()->json($gimcanas);
     }
 
     public function goGimcana()
@@ -38,7 +46,7 @@ class GimcanaGroupController extends Controller
 
     public function infogimcana(Request $request)
     {
-        $grupos = Group::with('creador');
+        $grupos = Group::with('creador')->with('gimcana');
         if ($request->codigo) {
             $codigo = $request->codigo;
             $grupos->where('codigogrupo', '=', "$codigo");
@@ -49,12 +57,24 @@ class GimcanaGroupController extends Controller
                 $query->where('name', 'like', "%$creador%");
             });
         }
+
+        if ($request->gimcana) {
+            $gimcana = $request->gimcana;
+            $grupos->whereHas('gimcana', function ($query) use ($gimcana) {
+                $query->where('nombre', 'like', "%$gimcana%");
+            });
+        }
+
         if (isset($request->codigo) || isset($request->creador)) {
             $grupos->where('miembros', '>=', "0");
         } else {
             $grupos->where('miembros', '>', "0");
         }
+
+
+        // echo $grupos->toSql();
         $grupos = $grupos->get();
+        // die();
 
         $usuarios = User::all();
         $user = Auth::user();
@@ -163,6 +183,7 @@ class GimcanaGroupController extends Controller
                 $resultado->nombre = $request->nombreGrupo;
                 $resultado->codigogrupo = $codigo;
                 $resultado->creador = Auth::user()->id;
+                $resultado->gimcana_id = $request->gimcana;
                 $resultado->miembros = $request->integrantes - 1;
                 // Guardar el nuevo grupo
                 $resultado->save();

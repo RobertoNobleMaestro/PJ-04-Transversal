@@ -58,7 +58,9 @@
                     @csrf
                     <input type="text" name="creador" id="creador" placeholder="Creador del grupo">
                     <input type="text" name="codigo" id="codigo" placeholder="Código del grupo">
+                    <input type="text" name="gimcana" id="gimcana" placeholder="Nombre gimcana">
                     <button type="submit">Buscar</button>
+                    <button type="limpiar">Limpiar</button>
                 </form>
                 <button id="btnAbrirModal">Crear grupo</button>
             </div>
@@ -84,6 +86,14 @@
                 <input type="text" name="nombreGrupo" id="nombreGrupo">
                 <label for="integrantes">Número de Integrantes:</label>
                 <input type="text" name="integrantes" id="integrantes">
+                <label for="gimcana">Gimcana</label>
+                <select name="gimcana" id="selectgimcana">
+                    {{-- <input type="text" name="buscargimcana" id="buscargimcana"> --}}
+                    <option value="">Selecciona una gimcana</option>
+                    <option value="1">Gimcana 1</option>
+                    <option value="2">Gimcana 2</option>
+                    <option value="3">Gimcana 3</option>
+                </select>
                 <button type="submit" id="btnCrearGrupo">Crear</button>
                 <button type="button" id="btnCerrarModal">Cancelar</button>
             </form>
