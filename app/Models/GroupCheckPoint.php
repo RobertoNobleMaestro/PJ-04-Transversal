@@ -20,4 +20,9 @@ class GroupCheckpoint extends Model
     {
         return $this->belongsTo(Checkpoint::class);
     }
+
+    public function validarCheckpoint()
+    {
+        $this->update(['validado' => true]);
+    }
 }
