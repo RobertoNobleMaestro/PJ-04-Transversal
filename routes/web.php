@@ -6,6 +6,7 @@ use App\Http\Controllers\MapaController;
 use App\Http\Controllers\GimcanaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PlaceController;
+use Illuminate\Support\Facades\Artisan;
 
 
 Route::middleware(['auth'])->group(function () {
@@ -50,3 +51,14 @@ Route::delete('/admin/gimcanas/{id}', [GimcanaController::class, 'destroy'])->na
 // Route::post('/admin/places', [PlaceController::class, 'store'])->name('admin.places.store');
 // Route::put('/admin/places/{id}', [PlaceController::class, 'update'])->name('admin.places.update');
 // Route::delete('/admin/places/{id}', [PlaceController::class, 'destroy'])->name('admin.places.destroy');
+
+Route::get('/run-migrations', function () {
+    if (request('key') !== env('DEPLOY_KEY')) {
+        abort(403);
+    }
+
+    Artisan::call('migrate --force');
+    Artisan::call('db:seed --force');
+
+    return "Migraciones ejecutadas correctamente.";
+});
