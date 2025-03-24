@@ -12,8 +12,8 @@ const categoryIcons = {
     'default': { icon: 'fa-map-marker-alt', color: '#007bff', size: 24 }
 };
 
-// Inicializar el mapa
-var map = L.map('map').setView([defaultLocation.lat, defaultLocation.lng], 13);
+// Inicializar el mapa centrado en la ubicación por defecto
+var map = L.map('map').setView([defaultLocation.lat, defaultLocation.lng], 15);
 
 // Capa base de OpenStreetMap
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -25,6 +25,7 @@ var routeControl;
 var userMarker;
 var userPosition = null;
 var placeMarkers = [];
+var watchId = null;
 var opcionesGPS = {
     enableHighAccuracy: true,
     maximumAge: 10000,
@@ -65,6 +66,15 @@ function createCustomMarker(place) {
         </div>
     `);
 
+    // Evento para crear ruta al hacer clic en un marcador
+    marker.on('click', function(e) {
+        if (userPosition) {
+            updateRoute(e.latlng);
+        } else {
+            alert("Primero activa tu ubicación con el botón de localización");
+        }
+    });
+
     return marker;
 }
 
@@ -90,7 +100,8 @@ function updateUserPosition(position) {
         lng: position.coords.longitude
     };
 
-    centerMap(userPosition.lat, userPosition.lng, 15);
+    // Centrar el mapa en la nueva posición
+    centerMap(userPosition.lat, userPosition.lng);
 
     if (!userMarker) {
         // Crear icono personalizado para el usuario (coche negro)
@@ -102,23 +113,18 @@ function updateUserPosition(position) {
         });
 
         userMarker = L.marker([userPosition.lat, userPosition.lng], {
-            draggable: true,
             icon: userIcon,
             zIndexOffset: 1000 // Para asegurar que aparece sobre otros marcadores
         }).addTo(map)
-        .bindPopup("<b>Tu ubicación</b>")
-        .openPopup()
-        .on('dragend', function(e) {
-            userPosition = e.target.getLatLng();
-            updateRoute();
-        });
+        .bindPopup("<b>Tu ubicación actual</b>")
+        .openPopup();
     } else {
         userMarker.setLatLng([userPosition.lat, userPosition.lng]);
     }
     
-    // Asegurar que el marcador del usuario está encima de los demás
-    if (userMarker) {
-        userMarker.setZIndexOffset(1000);
+    // Actualizar la ruta si existe
+    if (routeControl) {
+        updateRoute(routeControl.getWaypoints()[1]);
     }
 }
 
@@ -156,9 +162,22 @@ function updateRoute(endPoint) {
     }
 }
 
-// Evento para el botón de ubicación
-document.getElementById('locateMe').addEventListener('click', function() {
+// Función para iniciar el seguimiento de la ubicación
+function startTracking() {
     if (navigator.geolocation) {
+        // Detener cualquier seguimiento previo
+        if (watchId) {
+            navigator.geolocation.clearWatch(watchId);
+        }
+        
+        // Iniciar nuevo seguimiento
+        watchId = navigator.geolocation.watchPosition(
+            updateUserPosition,
+            handleGeolocationError,
+            opcionesGPS
+        );
+        
+        // Obtener posición actual inmediatamente
         navigator.geolocation.getCurrentPosition(
             updateUserPosition,
             handleGeolocationError,
@@ -166,6 +185,29 @@ document.getElementById('locateMe').addEventListener('click', function() {
         );
     } else {
         alert("Geolocalización no soportada por tu navegador");
+    }
+}
+
+// Función para detener el seguimiento de la ubicación
+function stopTracking() {
+    if (watchId && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+    }
+}
+
+// Evento para el botón de ubicación
+document.getElementById('locateMe').addEventListener('click', function() {
+    if (this.classList.contains('active')) {
+        // Si ya está activo, detener el seguimiento
+        stopTracking();
+        this.classList.remove('active');
+        this.innerHTML = '<i class="fas fa-location-arrow"></i>';
+    } else {
+        // Si no está activo, iniciar el seguimiento
+        startTracking();
+        this.classList.add('active');
+        this.innerHTML = '<i class="fas fa-stop"></i>';
     }
 });
 
@@ -207,14 +249,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Cargar lugares en el mapa
     loadPlacesOnMap();
 
-    // Intentar obtener la ubicación del usuario al cargar
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            updateUserPosition,
-            handleGeolocationError,
-            opcionesGPS
-        );
-    }
+    // Iniciar automáticamente el seguimiento de la ubicación
+    startTracking();
+    document.getElementById('locateMe').classList.add('active');
+    document.getElementById('locateMe').innerHTML = '<i class="fas fa-stop"></i>';
 
     // Ajustar el tamaño del mapa al cargar y redimensionar
     setTimeout(() => map.invalidateSize(), 100);
@@ -225,5 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
 map.on('click', function(e) {
     if (userPosition) {
         updateRoute(e.latlng);
+    } else {
+        alert("Primero activa tu ubicación con el botón de localización");
     }
 });

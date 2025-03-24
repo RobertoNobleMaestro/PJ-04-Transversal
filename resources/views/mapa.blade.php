@@ -73,6 +73,9 @@
             height: auto;
             margin-top: 5px;
         }
+        .user-car-marker {
+            filter: drop-shadow(0 0 4px rgba(0,0,0,0.5));
+        }
 
         @media (min-width: 768px) {
             .map-controls {
