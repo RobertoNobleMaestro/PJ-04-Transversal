@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Gimcana;
 use App\Models\Group;
@@ -18,66 +17,103 @@ class GimcanaSeeder extends Seeder
     {
         // Verificar si el usuario ya existe antes de crearlo
         $user = User::firstOrCreate(
-            ['email' => 'admin@example.com'], // Buscar por correo electrónico
+            ['email' => 'admin@example.com'],
             [
                 'name' => 'Admin',
                 'password' => bcrypt('password'),
-                'role_id' => 1, // Asegúrate de que exista un rol con ID 1
+                'role_id' => 1, 
             ]
         );
 
-        // Crear algunos grupos y checkpoints de prueba
+        // Crear grupos de prueba
         $group1 = Group::create([
-            'codigogrupo' => 'GRP001', // Proporciona un valor para 'codigogrupo'
-            'nombre' => 'Grupo 1',
-            'creador' => $user->id, // Proporciona el ID del usuario como valor para 'creador'
+            'codigogrupo' => 'GRP001',
+            'nombre' => 'Exploradores Urbanos',
+            'creador' => $user->id,
         ]);
 
         $group2 = Group::create([
-            'codigogrupo' => 'GRP002', // Proporciona un valor para 'codigogrupo'
-            'nombre' => 'Grupo 2',
-            'creador' => $user->id, // Proporciona el ID del usuario como valor para 'creador'
+            'codigogrupo' => 'GRP002',
+            'nombre' => 'Descubridores de Hospitalet',
+            'creador' => $user->id,
         ]);
 
-        $checkpoint1 = Checkpoint::create([
-            'place_id' => 1, // Asegúrate de que exista un lugar con ID 1
-            'pista' => 'Pista 1',
-            'prueba' => 'Prueba 1',
-        ]);
+        // Checkpoints actualizados según los lugares de Hospitalet
+        $checkpoints = [
+            [
+                'place_id' => 1, // Museu de L'Hospitalet
+                'pista' => 'Encuentra la pieza más antigua de la exposición.',
+                'prueba' => 'Toma una foto y dinos qué es.',
+            ],
+            [
+                'place_id' => 2, // Parc de Can Buxeres
+                'pista' => 'Localiza la fuente central del parque.',
+                'prueba' => 'Graba un video del sonido del agua.',
+            ],
+            [
+                'place_id' => 3, // La Farga Centro Comercial
+                'pista' => 'Encuentra la tienda con más colores en su escaparate.',
+                'prueba' => 'Toma una foto del escaparate.',
+            ],
+            [
+                'place_id' => 4, // Plaça de l'Ajuntament
+                'pista' => 'Busca la placa conmemorativa más antigua.',
+                'prueba' => 'Escribe el año que aparece en la placa.',
+            ],
+            [
+                'place_id' => 5, // Mercat de Collblanc
+                'pista' => 'Encuentra un puesto que venda frutas exóticas.',
+                'prueba' => 'Dinos el nombre de una fruta que nunca hayas probado.',
+            ],
+            [
+                'place_id' => 6, // Teatre Joventut
+                'pista' => 'Mira la cartelera del teatro y encuentra una obra sobre historia.',
+                'prueba' => 'Escribe el nombre de la obra y su fecha.',
+            ],
+            [
+                'place_id' => 7, // Estadio Municipal de Fútbol
+                'pista' => 'Busca el cartel con la historia del estadio.',
+                'prueba' => 'Escribe el año en que fue inaugurado.',
+            ],
+            [
+                'place_id' => 8, // Rambla Just Oliveras
+                'pista' => 'Encuentra la escultura más moderna en la rambla.',
+                'prueba' => 'Describe su forma en tres palabras.',
+            ],
+        ];
 
-        $checkpoint2 = Checkpoint::create([
-            'place_id' => 2, // Asegúrate de que exista un lugar con ID 2
-            'pista' => 'Pista 2',
-            'prueba' => 'Prueba 2',
-        ]);
-
-        $checkpoint3 = Checkpoint::create([
-            'place_id' => 3, // Asegúrate de que exista un lugar con ID 3
-            'pista' => 'Pista 3',
-            'prueba' => 'Prueba 3',
-        ]);
-
-        $checkpoint4 = Checkpoint::create([
-            'place_id' => 4, // Asegúrate de que exista un lugar con ID 4
-            'pista' => 'Pista 4',
-            'prueba' => 'Prueba 4',
-        ]);
+        // Guardar checkpoints en la base de datos
+        $createdCheckpoints = [];
+        foreach ($checkpoints as $checkpoint) {
+            $createdCheckpoints[] = Checkpoint::create($checkpoint);
+        }
 
         // Crear gimcanas de prueba
         $gimcana1 = Gimcana::create([
-            'nombre' => 'Gimcana 1',
+            'nombre' => 'Aventura Urbana en Hospitalet',
             'group_id' => $group1->id,
             'completed' => false,
         ]);
 
         $gimcana2 = Gimcana::create([
-            'nombre' => 'Gimcana 2',
+            'nombre' => 'Descubre Hospitalet',
             'group_id' => $group2->id,
             'completed' => true,
         ]);
 
-        // Asociar 4 checkpoints a cada gimcana
-        $gimcana1->checkpoints()->attach([$checkpoint1->id, $checkpoint2->id, $checkpoint3->id, $checkpoint4->id]);
-        $gimcana2->checkpoints()->attach([$checkpoint1->id, $checkpoint2->id, $checkpoint3->id, $checkpoint4->id]);
+        // Asociar checkpoints a cada gimcana
+        $gimcana1->checkpoints()->attach([
+            $createdCheckpoints[0]->id, 
+            $createdCheckpoints[1]->id, 
+            $createdCheckpoints[2]->id, 
+            $createdCheckpoints[3]->id
+        ]);
+
+        $gimcana2->checkpoints()->attach([
+            $createdCheckpoints[4]->id, 
+            $createdCheckpoints[5]->id, 
+            $createdCheckpoints[6]->id, 
+            $createdCheckpoints[7]->id
+        ]);
     }
 }

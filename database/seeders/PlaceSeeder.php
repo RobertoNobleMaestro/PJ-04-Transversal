@@ -37,7 +37,7 @@ class PlaceSeeder extends Seeder
                 'direccion' => "Carrer de Barcelona, 2, 08901 L'Hospitalet de Llobregat, Barcelona",
                 'coordenadas_lat' => 41.3594,
                 'coordenadas_lon' => 2.0993,
-                'categoria_id' => 2, // Centro Comercial/Restaurantes
+                'categoria_id' => 2, // Centro Comercial
                 'favorito' => false,
                 'imagen' => 'centro-comercial.jpg',
             ],
@@ -51,26 +51,51 @@ class PlaceSeeder extends Seeder
                 'favorito' => false,
                 'imagen' => 'plaza.jpg',
             ],
+            // NUEVOS LUGARES
+            [
+                'nombre' => "Mercat de Santa Eulàlia",
+                'descripcion' => "Mercado con productos frescos y locales.",
+                'direccion' => "Carrer Pareto, 08902 L'Hospitalet de Llobregat, Barcelona",
+                'coordenadas_lat' => 41.3630,
+                'coordenadas_lon' => 2.1045,
+                'categoria_id' => 5, // Mercado
+                'favorito' => false,
+                'imagen' => 'mercado.jpg',
+            ],
+            [
+                'nombre' => "Parc de la Torrassa",
+                'descripcion' => "Un parque con zonas deportivas y áreas verdes.",
+                'direccion' => "Carrer de Albareda, 08903 L'Hospitalet de Llobregat, Barcelona",
+                'coordenadas_lat' => 41.3705,
+                'coordenadas_lon' => 2.1070,
+                'categoria_id' => 3, // Parque
+                'favorito' => false,
+                'imagen' => 'parc-torrassa.jpg',
+            ],
+            [
+                'nombre' => "Teatre Joventut",
+                'descripcion' => "Un teatro con espectáculos culturales y obras de teatro.",
+                'direccion' => "Carrer de la Joventut, 4, 08904 L'Hospitalet de Llobregat, Barcelona",
+                'coordenadas_lat' => 41.3648,
+                'coordenadas_lon' => 2.1091,
+                'categoria_id' => 6, // Teatro
+                'favorito' => false,
+                'imagen' => 'teatro.jpg',
+            ],
+            [
+                'nombre' => "Estadi Municipal de Futbol de L’Hospitalet",
+                'descripcion' => "Campo de fútbol donde juega el CE L’Hospitalet.",
+                'direccion' => "Carrer de la Feixa Llarga, 08907 L'Hospitalet de Llobregat, Barcelona",
+                'coordenadas_lat' => 41.3556,
+                'coordenadas_lon' => 2.1134,
+                'categoria_id' => 7, // Estadio
+                'favorito' => false,
+                'imagen' => 'estadio.jpg',
+            ],
         ];
 
         foreach ($places as $place) {
-            $createdPlace = Place::create($place);
-
-            // Asignar etiquetas según la categoría
-            switch ($place['categoria_id']) {
-                case 1: // Museo
-                    $createdPlace->tags()->attach([1, 4]); // Historia, Cultura
-                    break;
-                case 2: // Restaurantes
-                    $createdPlace->tags()->attach([2]); // Gastronomía
-                    break;
-                case 3: // Parque
-                    $createdPlace->tags()->attach([3]); // Naturaleza
-                    break;
-                case 4: // Monumento
-                    $createdPlace->tags()->attach([1, 4]); // Historia, Arquitectura
-                    break;
-            }
+            Place::create($place);
         }
     }
 }
