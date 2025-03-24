@@ -17,26 +17,6 @@
     {{-- SweetAlert --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<style>
-    .card {
-        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-        transition: 0.3s;
-        width: 40%;
-        border-radius: 5px;
-    }
-
-    .card:hover {
-        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-    }
-
-    img {
-        border-radius: 5px 5px 0 0;
-    }
-
-    .container {
-        padding: 2px 16px;
-    }
-</style>
 
 <body>
     <!-- Navegación -->
@@ -71,41 +51,49 @@
         </div>
     </nav>
     <section>
-        <div>
-            <h1>Buscas un grupo?</h1>
-            <form action="" method="post" id="frmbuscargrupo" onsubmit="buscargrupo(event)">
-                @csrf
-                <input type="text" name="creador" id="creador" placeholder="Creador del grupo">
-                <input type="text" name="codigo" id="codigo" placeholder="Código del grupo">
-                <button type="submit">Buscar</button>
-            </form>
+        <div id="infogrupos">
+            <div>
+                <h1>Buscas un grupo?</h1>
+                <form action="" method="post" id="frmbuscargrupo" onsubmit="buscargrupo(event)">
+                    @csrf
+                    <input type="text" name="creador" id="creador" placeholder="Creador del grupo">
+                    <input type="text" name="codigo" id="codigo" placeholder="Código del grupo">
+                    <button type="submit">Buscar</button>
+                </form>
+                <button id="btnAbrirModal">Crear grupo</button>
+            </div>
+            <div>
+                <h1>Unirse a una gimcana</h1>
+                <div id="datos_grupos">
+                </div>
+            </div>
         </div>
-        <div>
-            <h1>Unirse a una gimcana</h1>
-            <div id="datos_grupos">
-                @foreach ($grupos as $grupo)
-                    <div class="card">
-                        <div class="container">
-                            <h2>{{ $grupo->nombre }}</h2>
-                            <p>Creador: {{ $grupo->creador }}</p>
-                            @if ($grupo->miembros == 0)
-                                <p>Grupo lleno</p>
-                            @else
-                                <p>Quedan {{ $grupo->miembros }} plazas</p>
-                                <form action="" method="post">
-                                    <input type="hidden" name="codigo" id="codigo" value="{{ $grupo->id }}">
-                                    <button type="submit">Unirse</button>
-                                </form>
-                            @endif
-                        </div>
-                    </div>
-                @endforeach
+
+        <div id="infogrupo">
+            <div id="datos_grupo" class="container">
             </div>
         </div>
     </section>
+    <div id="modalCrearGrupo" class="modal">
+        <div class="modal-content">
+            <h2>Crear Nuevo Grupo</h2>
+            <form id="formCrearGrupo">
+                <label for="nombreGrupo">Nombre del Grupo</label>
+                @csrf
+                <input type="hidden" name="id" id="id">
+                <input type="text" name="nombreGrupo" id="nombreGrupo">
+                <label for="integrantes">Número de Integrantes:</label>
+                <input type="text" name="integrantes" id="integrantes">
+                <button type="submit" id="btnCrearGrupo">Crear</button>
+                <button type="button" id="btnCerrarModal">Cancelar</button>
+            </form>
+        </div>
+    </div>
     <footer></footer>
 </body>
 
 </html>
 
+<script src="{{ asset('js/gimcana/modal.js') }}"></script>
 <script src="{{ asset('js/gimcana/datos.js') }}"></script>
+<script src="{{ asset('js/gimcana/gimcana.js') }}"></script>
