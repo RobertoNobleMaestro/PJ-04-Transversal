@@ -26,4 +26,4 @@ jobs:
 
       # Ejecutar migraciones en el servidor
       - name: Ejecutar migraciones en el servidor
-        run: curl -X GET "https://tudominio.com/run-migrations?key=${{ secrets.DEPLOY_KEY }}"
+        run: curl -X GET "https://g04.daw2j23.es/run-migrations?key=${{ secrets.DEPLOY_KEY }}"
