@@ -26,19 +26,19 @@ var userMarker;
 var userPosition = null;
 var placeMarkers = [];
 var watchId = null;
-var timeoutId = null;
 var isTracking = false;
+
+// Opciones de geolocalización ajustadas
 var opcionesGPS = {
     enableHighAccuracy: true,
     maximumAge: 10000,
-    timeout: 10000
+    timeout: 15000 // Aumentamos el tiempo de espera a 15 segundos
 };
 
 // Función para crear iconos personalizados
 function createCustomIcon(place) {
     const categoryName = place.category?.name || 'default';
     const iconConfig = categoryIcons[categoryName] || categoryIcons['default'];
-    
     return L.divIcon({
         className: 'custom-marker',
         html: `<i class="fas ${iconConfig.icon}" style="color: ${iconConfig.color}; font-size: ${iconConfig.size}px;"></i>`,
@@ -52,7 +52,6 @@ function createCustomIcon(place) {
 function createCustomMarker(place) {
     const categoryName = place.category?.name || 'default';
     const iconConfig = categoryIcons[categoryName] || categoryIcons['default'];
-
     const marker = L.marker([place.coordenadas_lat, place.coordenadas_lon], {
         icon: createCustomIcon(place)
     }).addTo(map)
@@ -67,7 +66,6 @@ function createCustomMarker(place) {
             ${place.imagen ? `<img src="/storage/${place.imagen}" alt="${place.nombre}" class="img-fluid">` : ''}
         </div>
     `);
-
     // Evento para crear ruta al hacer clic en un marcador
     marker.on('click', function(e) {
         if (userPosition) {
@@ -76,14 +74,12 @@ function createCustomMarker(place) {
             alert("Primero activa tu ubicación con el botón de localización");
         }
     });
-
     return marker;
 }
 
 // Función para cargar todos los lugares en el mapa
 function loadPlacesOnMap() {
     if (!placesData || placesData.length === 0) return;
-
     placesData.forEach(place => {
         const marker = createCustomMarker(place);
         placeMarkers.push(marker);
@@ -101,29 +97,13 @@ function updateUserPosition(position) {
         lat: position.coords.latitude,
         lng: position.coords.longitude
     };
-
     // Centrar el mapa en la nueva posición
     centerMap(userPosition.lat, userPosition.lng);
-
     if (!userMarker) {
-        // Crear icono personalizado para el usuario (coche negro)
-        const userIcon = L.divIcon({
-            className: 'user-car-marker',
-            html: '<i class="fas fa-car" style="color: #000000; font-size: 22px;"></i>',
-            iconSize: [32, 32],
-            popupAnchor: [0, -16]
-        });
-
-        userMarker = L.marker([userPosition.lat, userPosition.lng], {
-            icon: userIcon,
-            zIndexOffset: 1000
-        }).addTo(map)
-        .bindPopup("<b>Tu ubicación actual</b>")
-        .openPopup();
+        createUserMarker();
     } else {
         userMarker.setLatLng([userPosition.lat, userPosition.lng]);
     }
-    
     // Actualizar la ruta si existe
     if (routeControl) {
         updateRoute(routeControl.getWaypoints()[1]);
@@ -132,17 +112,62 @@ function updateUserPosition(position) {
 
 // Función para manejar errores de geolocalización
 function handleGeolocationError(error) {
-    console.warn(`Error de geolocalización: ${error.message}`);
-    alert("No se pudo obtener tu ubicación. Usando ubicación por defecto.");
+    switch (error.code) {
+        case error.PERMISSION_DENIED:
+            console.warn("Permiso denegado por el usuario.");
+            alert("Debes permitir el acceso a tu ubicación para usar esta función.");
+            break;
+        case error.POSITION_UNAVAILABLE:
+            console.warn("La información de ubicación no está disponible.");
+            alert("No se pudo obtener tu ubicación. Usando ubicación por defecto.");
+            break;
+        case error.TIMEOUT:
+            console.warn("Se ha excedido el tiempo de espera para obtener la ubicación.");
+            alert("Tu ubicación tardó demasiado en cargarse. Usando ubicación por defecto.");
+            break;
+        default:
+            console.warn(`Error desconocido: ${error.message}`);
+            alert("Ocurrió un error desconocido. Usando ubicación por defecto.");
+    }
+    // Usar ubicación por defecto si falla la geolocalización
+    useDefaultLocation();
+}
+
+// Función para usar una ubicación por defecto
+function useDefaultLocation() {
+    userPosition = {
+        lat: defaultLocation.lat,
+        lng: defaultLocation.lng
+    };
+    centerMap(userPosition.lat, userPosition.lng);
+    if (!userMarker) {
+        createUserMarker();
+    } else {
+        userMarker.setLatLng([userPosition.lat, userPosition.lng]);
+    }
+}
+
+// Función para crear el marcador del usuario
+function createUserMarker() {
+    const userIcon = L.divIcon({
+        className: 'user-car-marker',
+        html: '<i class="fas fa-car" style="color: #000000; font-size: 22px;"></i>',
+        iconSize: [32, 32],
+        popupAnchor: [0, -16]
+    });
+    userMarker = L.marker([userPosition.lat, userPosition.lng], {
+        icon: userIcon,
+        zIndexOffset: 1000
+    }).addTo(map)
+    .bindPopup("<b>Tu ubicación actual</b>")
+    .openPopup();
 }
 
 // Función para actualizar la ruta
 function updateRoute(endPoint) {
     if (!userPosition) return;
-
     const end = endPoint || (routeControl ? routeControl.getWaypoints()[1] : null);
     if (!end) return;
-
     if (routeControl) {
         routeControl.setWaypoints([
             L.latLng(userPosition.lat, userPosition.lng),
@@ -168,30 +193,18 @@ function updateRoute(endPoint) {
 function startTracking() {
     if (navigator.geolocation) {
         isTracking = true;
-        
-        // Actualizar la posición inmediatamente
+        // Obtener la ubicación inicial
         navigator.geolocation.getCurrentPosition(
             updateUserPosition,
             handleGeolocationError,
             opcionesGPS
         );
-
-        // Configurar la actualización periódica cada 10 segundos
-        timeoutId = setInterval(() => {
-            navigator.geolocation.getCurrentPosition(
-                updateUserPosition,
-                handleGeolocationError,
-                opcionesGPS
-            );
-        }, 10000);
-
-        // También iniciar el seguimiento continuo
+        // Iniciar el seguimiento continuo
         watchId = navigator.geolocation.watchPosition(
             updateUserPosition,
             handleGeolocationError,
             opcionesGPS
         );
-        
         // Actualizar UI
         updateTrackingUI(true);
     } else {
@@ -202,17 +215,10 @@ function startTracking() {
 // Función para detener el seguimiento de la ubicación
 function stopTracking() {
     isTracking = false;
-    
     if (watchId && navigator.geolocation) {
         navigator.geolocation.clearWatch(watchId);
         watchId = null;
     }
-
-    if (timeoutId) {
-        clearInterval(timeoutId);
-        timeoutId = null;
-    }
-    
     // Actualizar UI
     updateTrackingUI(false);
 }
@@ -222,7 +228,6 @@ function updateTrackingUI(isActive) {
     // Para móvil
     const mobileIcon = document.getElementById('locationIcon');
     const mobileBtn = document.getElementById('toggleLocation');
-    
     if (mobileIcon && mobileBtn) {
         if (isActive) {
             mobileIcon.classList.add('location-active');
@@ -232,7 +237,6 @@ function updateTrackingUI(isActive) {
             mobileBtn.title = "Iniciar seguimiento";
         }
     }
-    
     // Para desktop
     const desktopBtn = document.getElementById('locateMe');
     if (desktopBtn) {
@@ -267,7 +271,6 @@ document.getElementById('locateMe')?.addEventListener('click', function() {
 document.getElementById('searchButton')?.addEventListener('click', function() {
     const query = document.getElementById('searchInput').value.trim();
     if (!query) return;
-
     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
         .then(response => response.json())
         .then(data => {
@@ -275,7 +278,6 @@ document.getElementById('searchButton')?.addEventListener('click', function() {
                 const lat = parseFloat(data[0].lat);
                 const lng = parseFloat(data[0].lon);
                 centerMap(lat, lng);
-
                 // Crear marcador temporal de búsqueda
                 L.marker([lat, lng], {
                     icon: L.divIcon({
@@ -300,7 +302,6 @@ document.getElementById('searchButton')?.addEventListener('click', function() {
 document.getElementById('searchButtonMobile')?.addEventListener('click', function() {
     const query = document.getElementById('searchInputMobile').value.trim();
     if (!query) return;
-
     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
         .then(response => response.json())
         .then(data => {
@@ -308,7 +309,6 @@ document.getElementById('searchButtonMobile')?.addEventListener('click', functio
                 const lat = parseFloat(data[0].lat);
                 const lng = parseFloat(data[0].lon);
                 centerMap(lat, lng);
-
                 // Crear marcador temporal de búsqueda
                 L.marker([lat, lng], {
                     icon: L.divIcon({
@@ -319,7 +319,6 @@ document.getElementById('searchButtonMobile')?.addEventListener('click', functio
                 }).addTo(map)
                 .bindPopup(`<b>${query}</b>`)
                 .openPopup();
-                
                 // Ocultar la barra de búsqueda después de la búsqueda
                 document.getElementById('mobileSearchContainer').classList.remove('visible');
             } else {
@@ -341,7 +340,6 @@ document.getElementById('toggleSearch')?.addEventListener('click', function() {
 document.addEventListener('DOMContentLoaded', function() {
     // Cargar lugares en el mapa
     loadPlacesOnMap();
-
     // Ajustar el tamaño del mapa al cargar y redimensionar
     setTimeout(() => map.invalidateSize(), 100);
     window.addEventListener('resize', () => map.invalidateSize());
