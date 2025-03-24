@@ -19,8 +19,14 @@ class PlaceController extends Controller
             return [
                 'id' => $place->id,
                 'nombre' => $place->nombre,
+                'descripcion' => $place->descripcion,
+                'direccion' => $place->direccion,
+                'coordenadas_lat' => $place->coordenadas_lat,
+                'coordenadas_lon' => $place->coordenadas_lon,
                 'categoria' => $place->category ? ['nombre' => $place->category->nombre] : null,
-                'etiquetas' => $place->tags->pluck('nombre')->toArray()
+                'etiquetas' => $place->tags->pluck('nombre')->toArray(),
+                'favorito' => $place->favorito,
+                'imagen' => $place->imagen
             ];
         }));
     }

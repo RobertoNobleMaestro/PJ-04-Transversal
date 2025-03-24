@@ -42,6 +42,7 @@ Route::get('/admin/gimcanas/{id}', [GimcanaController::class, 'show'])->name('ad
 Route::post('/admin/gimcanas', [GimcanaController::class, 'store'])->name('admin.gimcanas.store');
 Route::put('/admin/gimcanas/{id}', [GimcanaController::class, 'update'])->name('admin.gimcanas.update');
 Route::delete('/admin/gimcanas/{id}', [GimcanaController::class, 'destroy'])->name('admin.gimcanas.destroy');
+Route::get('/admin/gimcanas/{gimcana}/checkpoints', [GimcanaController::class, 'getCheckpoints'])->name('gimcanas.checkpoints');
 
 // Rutas para el CRUD de lugares
 Route::get('/admin/places', [PlaceController::class, 'index'])->name('admin.places.index');

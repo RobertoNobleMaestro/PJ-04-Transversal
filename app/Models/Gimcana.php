@@ -23,7 +23,7 @@ class Gimcana extends Model
 
     public function checkpoints()
     {
-        return $this->belongsToMany(Checkpoint::class, 'gimcana_checkpoint');
+        return $this->belongsToMany(Checkpoint::class, 'gimcana_checkpoint')->withTimestamps();
     }
 
     // Agrega esta relación para acceder al creador a través del grupo
