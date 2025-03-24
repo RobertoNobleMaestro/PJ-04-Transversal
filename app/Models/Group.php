@@ -25,4 +25,9 @@ class Group extends Model
     {
         return $this->hasMany(GroupUser::class);
     }
+
+    public function gimcanas()
+    {
+        return $this->belongsToMany(Gimcana::class, 'gimcana_group');
+    }
 }
