@@ -54,25 +54,21 @@ Route::delete('/admin/gimcanas/{id}', [GimcanaController::class, 'destroy'])->na
 // Route::delete('/admin/places/{id}', [PlaceController::class, 'destroy'])->name('admin.places.destroy');
 
 Route::get('/run-migrations-safe', function () {
-    // Permitir acceso desde cualquier origen (útil si accedes desde GitHub Actions)
-    header("Access-Control-Allow-Origin: *");
-    header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-
-    // Verificar clave de seguridad
+    // Verifica si la clave es la correcta
     if (request('key') !== env('DEPLOY_KEY')) {
         return response()->json(['error' => 'Acceso no autorizado'], Response::HTTP_FORBIDDEN);
     }
 
     try {
-        // Ejecutar migraciones y seeders con fuerza
-        Artisan::call('migrate', ['--force' => true]);
-        Artisan::call('db:seed', ['--force' => true]);
+        // Ejecutar las migraciones con el comando 'migrate:fresh --seed'
+        $output = Artisan::call('migrate:fresh --seed --force');
 
+        // Retornar la salida de Artisan para más detalles
         return response()->json([
-            'message' => 'Migraciones ejecutadas correctamente',
-            'output' => Artisan::output()
+            'message' => 'Migraciones ejecutadas correctamente.',
+            'output' => $output
         ]);
     } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        return response()->json(['error' => 'Error al ejecutar migraciones: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 });
