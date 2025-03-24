@@ -25,11 +25,15 @@
 
     <!-- Pestañas -->
     <ul class="nav nav-tabs mb-4" id="gimcanasTabs" role="tablist">
-        <li class="nav-item">
-            <button class="nav-link active" data-status="gimcanas" data-bs-toggle="tab" data-bs-target="#gimcanas" type="button">Gimcanas</button>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="gimcanas-tab" data-bs-toggle="tab" data-bs-target="#gimcanas" type="button" role="tab">
+                Gimcanas
+            </button>
         </li>
-        <li class="nav-item">
-            <button class="nav-link" data-status="lugares" data-bs-toggle="tab" data-bs-target="#lugares" type="button">Lugares</button>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="lugares-tab" data-bs-toggle="tab" data-bs-target="#lugares" type="button" role="tab">
+                Lugares
+            </button>
         </li>
     </ul>
 
@@ -59,8 +63,9 @@
                     <thead>
                         <tr>
                             <th>ID</th>
+                            <th>Nombre</th>
                             <th>Grupo</th>
-                            <th>Lugar</th>
+                            <th>Creador</th>
                             <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
@@ -129,6 +134,13 @@
                         <option value="">Seleccione un técnico</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label for="checkpoints">Checkpoints:</label>
+                    <select id="checkpoints" name="checkpoints[]" class="form-select" multiple required>
+                        <option value="">Seleccione 4 checkpoints</option>
+                        <!-- Opciones de checkpoints se cargarán dinámicamente -->
+                    </select>
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-cancelar">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Asignar</button>
@@ -141,10 +153,34 @@
 </html>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Cargar gimcanas y lugares al iniciar la página
         document.addEventListener('DOMContentLoaded', function() {
+            // Cargar solo la tabla de gimcanas inicialmente ya que es la pestaña activa
             cargarGimcanas();
-            cargarLugares();
+            
+            // Agregar event listeners a las pestañas
+            document.querySelectorAll('.nav-link').forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Remover active de todas las pestañas
+                    document.querySelectorAll('.nav-link').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-pane').forEach(p => {
+                        p.classList.remove('show', 'active');
+                    });
+                    
+                    // Activar la pestaña seleccionada
+                    this.classList.add('active');
+                    const targetId = this.getAttribute('data-bs-target').replace('#', '');
+                    const targetPane = document.getElementById(targetId);
+                    targetPane.classList.add('show', 'active');
+                    
+                    // Cargar los datos según la pestaña seleccionada
+                    if (targetId === 'gimcanas') {
+                        cargarGimcanas();
+                    } else if (targetId === 'lugares') {
+                        cargarLugares();
+                    }
+                });
+            });
         });
 
         // Función para cargar gimcanas
@@ -152,13 +188,13 @@
             fetch('/admin/gimcanas/getGimcanas')
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data); // Verifica la estructura de la respuesta
                     const tableBody = document.getElementById('tabla-gimcanas');
                     tableBody.innerHTML = data.map(gimcana => `
                         <tr>
                             <td>${gimcana.id}</td>
-                            <td>${gimcana.group?.nombre ?? 'Sin grupo'}</td>
-                            <td>${gimcana.checkpoint?.place?.nombre ?? 'Sin lugar'}</td>
+                            <td>${gimcana.nombre}</td>
+                            <td>${gimcana.group?.codigogrupo ?? 'Sin código'}</td>
+                            <td>${gimcana.creator?.name ?? 'Sin creador'}</td>
                             <td>${gimcana.completed ? 'Completada' : 'En progreso'}</td>
                             <td>
                                 <button class="btn btn-warning btn-sm" onclick="editarGimcana(${gimcana.id})">Editar</button>
@@ -179,15 +215,18 @@
                         <tr>
                             <td>${place.id}</td>
                             <td>${place.nombre}</td>
-                            <td>${place.categoria.nombre}</td>
-                            <td>${place.etiquetas.join(', ')}</td>
+                            <td>${place.categoria?.nombre ?? 'Sin categoría'}</td>
+                            <td>${place.etiquetas?.join(', ') ?? ''}</td>
                             <td>
                                 <button class="btn btn-warning btn-sm" onclick="editarLugar(${place.id})">Editar</button>
                                 <button class="btn btn-danger btn-sm" onclick="eliminarLugar(${place.id})">Eliminar</button>
                             </td>
                         </tr>
                     `).join('');
-                });
+                })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
         }
 
         // Función para editar una gimcana

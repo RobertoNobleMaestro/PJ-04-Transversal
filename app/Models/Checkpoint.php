@@ -20,9 +20,9 @@ class Checkpoint extends Model
         return $this->belongsToMany(Group::class, 'group_checkpoint');
     }
 
-    public function gimcana()
+    public function gimcanas()
     {
-        return $this->belongsTo(Gimcana::class);
+        return $this->belongsToMany(Gimcana::class, 'gimcana_checkpoint');
     }
 }
 

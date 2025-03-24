@@ -15,7 +15,6 @@ class CreatePlacesTable extends Migration
             $table->decimal('coordenadas_lon', 9, 6);
             $table->string('direccion');
             $table->foreignId('categoria_id')->constrained('categories')->onDelete('restrict');
-            $table->text('etiquetas');  // Etiquetas separadas por coma
             $table->boolean('favorito')->default(false);
             $table->string('imagen')->nullable();
             $table->timestamps();

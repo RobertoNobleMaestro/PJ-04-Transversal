@@ -51,20 +51,33 @@ class GimcanaSeeder extends Seeder
             'prueba' => 'Prueba 2',
         ]);
 
+        $checkpoint3 = Checkpoint::create([
+            'place_id' => 3, // Asegúrate de que exista un lugar con ID 3
+            'pista' => 'Pista 3',
+            'prueba' => 'Prueba 3',
+        ]);
+
+        $checkpoint4 = Checkpoint::create([
+            'place_id' => 4, // Asegúrate de que exista un lugar con ID 4
+            'pista' => 'Pista 4',
+            'prueba' => 'Prueba 4',
+        ]);
+
         // Crear gimcanas de prueba
-        Gimcana::create([
+        $gimcana1 = Gimcana::create([
+            'nombre' => 'Gimcana 1',
             'group_id' => $group1->id,
-            'checkpoint_id' => $checkpoint1->id,
             'completed' => false,
         ]);
 
-        Gimcana::create([
+        $gimcana2 = Gimcana::create([
+            'nombre' => 'Gimcana 2',
             'group_id' => $group2->id,
-            'checkpoint_id' => $checkpoint2->id,
             'completed' => true,
         ]);
 
-        // Mensaje de confirmación
-        $this->command->info('¡Gimcanas creadas con éxito!');
+        // Asociar 4 checkpoints a cada gimcana
+        $gimcana1->checkpoints()->attach([$checkpoint1->id, $checkpoint2->id, $checkpoint3->id, $checkpoint4->id]);
+        $gimcana2->checkpoints()->attach([$checkpoint1->id, $checkpoint2->id, $checkpoint3->id, $checkpoint4->id]);
     }
 }

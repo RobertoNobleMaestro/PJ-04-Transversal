@@ -10,8 +10,8 @@ class CreateGimcanaTable extends Migration
     {
         Schema::create('gimcanas', function (Blueprint $table) {
             $table->id();
+            $table->text('nombre');
             $table->foreignId('group_id')->constrained('groups');
-            $table->foreignId('checkpoint_id')->constrained('checkpoints');
             $table->boolean('completed')->default(false);
             $table->timestamps();
         });

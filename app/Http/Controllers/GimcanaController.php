@@ -17,7 +17,7 @@ class GimcanaController extends Controller
 
     public function getGimcanas()
     {
-        $gimcanas = Gimcana::with(['checkpoint.place'])->get();
+        $gimcanas = Gimcana::with(['group', 'checkpoints.place', 'creator'])->get();
         return response()->json($gimcanas);
     }
 
@@ -34,18 +34,18 @@ class GimcanaController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
-            'checkpoints' => 'required|array',
+            'group_id' => 'required|exists:groups,id',
+            'checkpoints' => 'required|array|min:4|max:4', // Asegura que se envíen exactamente 4 checkpoints
+            'completed' => 'boolean',
         ]);
 
-        $gimcana = Gimcana::create(['nombre' => $request->nombre]);
+        $gimcana = Gimcana::create([
+            'nombre' => $request->nombre,
+            'group_id' => $request->group_id,
+            'completed' => $request->completed,
+        ]);
 
-        foreach ($request->checkpoints as $checkpointData) {
-            $gimcana->checkpoints()->create([
-                'place_id' => $checkpointData['place_id'],
-                'pista' => $checkpointData['pista'],
-                'prueba' => $checkpointData['prueba'],
-            ]);
-        }
+        $gimcana->checkpoints()->attach($request->checkpoints);
 
         return response()->json($gimcana, 201);
     }
@@ -55,20 +55,19 @@ class GimcanaController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
-            'checkpoints' => 'required|array',
+            'group_id' => 'required|exists:groups,id',
+            'checkpoints' => 'required|array|min:4|max:4', // Asegura que se envíen exactamente 4 checkpoints
+            'completed' => 'boolean',
         ]);
 
-        $gimcana = Gimcana::find($id);
-        $gimcana->update(['nombre' => $request->nombre]);
+        $gimcana = Gimcana::findOrFail($id);
+        $gimcana->update([
+            'nombre' => $request->nombre,
+            'group_id' => $request->group_id,
+            'completed' => $request->completed,
+        ]);
 
-        $gimcana->checkpoints()->delete();
-        foreach ($request->checkpoints as $checkpointData) {
-            $gimcana->checkpoints()->create([
-                'place_id' => $checkpointData['place_id'],
-                'pista' => $checkpointData['pista'],
-                'prueba' => $checkpointData['prueba'],
-            ]);
-        }
+        $gimcana->checkpoints()->sync($request->checkpoints);
 
         return response()->json($gimcana);
     }
