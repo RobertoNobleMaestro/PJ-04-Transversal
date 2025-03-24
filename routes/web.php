@@ -53,38 +53,21 @@ Route::delete('/admin/gimcanas/{id}', [GimcanaController::class, 'destroy'])->na
 // Route::put('/admin/places/{id}', [PlaceController::class, 'update'])->name('admin.places.update');
 // Route::delete('/admin/places/{id}', [PlaceController::class, 'destroy'])->name('admin.places.destroy');
 
-// Route::get('/run-migrations-safe', function () {
-//     // Verifica si la clave es la correcta
-//     if (request('key') !== env('DEPLOY_KEY')) {
-//         return response()->json(['error' => 'Acceso no autorizado'], Response::HTTP_FORBIDDEN);
-//     }
-
-//     try {
-//         // Ejecutar las migraciones con el comando 'migrate:fresh --seed'
-//         $output = Artisan::call('migrate:fresh --seed --force');
-
-//         // Retornar la salida de Artisan para más detalles
-//         return response()->json([
-//             'message' => 'Migraciones ejecutadas correctamente.',
-//             'output' => $output
-//         ]);
-//     } catch (\Exception $e) {
-//         return response()->json(['error' => 'Error al ejecutar migraciones: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-//     }
-// });
-
 Route::get('/run-migrations-safe', function () {
+    // Verifica la clave proporcionada
+    if (request('key') !== env('DEPLOY_KEY')) {
+        abort(403, 'Acceso no autorizado');
+    }
+
     try {
-        // Llama a las migraciones sin comprobar la clave
-        Log::info('Iniciando migración');
+        // Llama a las migraciones si la clave es correcta
         $result = Artisan::call('migrate:fresh --seed --force');
         $output = Artisan::output();
-        Log::info('Migración completada', ['output' => $output]);
 
         return response()->json(['message' => 'Migraciones ejecutadas correctamente', 'output' => $output]);
     } catch (\Exception $e) {
-        Log::error('Error al ejecutar migraciones: ' . $e->getMessage());
         return response()->json(['error' => 'Error al ejecutar migraciones: ' . $e->getMessage()], 500);
     }
 });
+
 
