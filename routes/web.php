@@ -8,16 +8,16 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PlaceController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Http\Response;
+use App\Http\Controllers\GimcanaGroupController;
 
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/inicio', [AuthController::class, 'showDashboard'])->name('inicio');
     Route::get('/inicioAdmin', [AuthController::class, 'showInicioAdmin'])->name('inicioAdmin');
     Route::get('/mapa', [MapaController::class, 'goMapa'])->name('mapa');
-    Route::get('/gimcana', [GimcanaController::class, 'goGimcana'])->name('gimcana');
-
+    Route::get('/gimcana', [GimcanaGroupController::class, 'goGimcana'])->name('gimcana');
 });
-Route::get('/', [AuthController::class, 'showHome']); 
+Route::get('/', [AuthController::class, 'showHome']);
 
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -78,3 +78,14 @@ Route::get('/admin/places/{id}', [PlaceController::class, 'show'])->name('admin.
 Route::post('/admin/places', [PlaceController::class, 'store'])->name('admin.places.store');
 Route::put('/admin/places/{id}', [PlaceController::class, 'update'])->name('admin.places.update');
 Route::delete('/admin/places/{id}', [PlaceController::class, 'destroy'])->name('admin.places.destroy');
+
+Route::controller(GimcanaGroupController::class)->group(function () {
+    Route::post('/infogimcana', 'infogimcana');
+    Route::post('/unirseagrupo', 'unirseagrupo');
+    Route::post('/compronargrupousuario', 'compronargrupousuario');
+    Route::post('/mostrardatosgrupo', 'mostrardatosgrupo');
+    Route::post('/salirgrupo', 'salirgrupo');
+    Route::post('/eliminargrupo', 'eliminargrupo');
+    Route::post('/expulsargrupo', 'expulsargrupo');
+    Route::post('/creargrupo', 'creargrupo');
+});
