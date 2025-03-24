@@ -13,6 +13,7 @@ class CreateGroupsTable extends Migration
             $table->string('codigogrupo')->nullable();
             $table->string('nombre');
             $table->foreignId('creador')->constrained('users');
+            $table->foreignId('gimcana_id')->constrained('gimcanas');
             $table->integer('miembros')->default(2);
             $table->timestamps();
         });

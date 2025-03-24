@@ -41,6 +41,6 @@ class Gimcana extends Model
 
     public function groups()
     {
-        return $this->belongsToMany(Group::class, 'gimcana_group');
+        return $this->hasMany(Group::class);
     }
 }
