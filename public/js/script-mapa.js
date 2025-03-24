@@ -1,153 +1,229 @@
-var map = L.map('map').setView([41.349, 2.1104], 15);
-
-// Agregar capa de mapa
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: 'OpenStreetMap contributors'
-}).addTo(map);
-
-// Variable para almacenar el control de la ruta
-var routeControl;
-
-// Variable para la ubicación del usuario
-var posUsuario = { lat: 0, lng: 0 };
-
-// Opciones para la geolocalización
-const opcionesGPS = {
-    enableHighAccuracy: true,
-    maximumAge: 10000,
-    timeout: 5000
+// Configuración de iconos por categoría
+const categoryIcons = {
+    'Monumento': { icon: 'fa-landmark', color: '#FF5733', size: 24 },
+    'Museo': { icon: 'fa-museum', color: '#33A8FF', size: 24 },
+    'Parque': { icon: 'fa-tree', color: '#4CAF50', size: 24 },
+    'Playa': { icon: 'fa-umbrella-beach', color: '#FFC107', size: 24 },
+    'Restaurante': { icon: 'fa-utensils', color: '#E91E63', size: 24 },
+    'Hotel': { icon: 'fa-hotel', color: '#9C27B0', size: 22 },
+    'Tienda': { icon: 'fa-store', color: '#795548', size: 22 },
+    'Cafetería': { icon: 'fa-coffee', color: '#607D8B', size: 20 },
+    'Bar': { icon: 'fa-glass-martini-alt', color: '#3F51B5', size: 20 },
+    'default': { icon: 'fa-map-marker-alt', color: '#007bff', size: 24 }
 };
 
-// Función para actualizar la ubicación en el mapa
-function actualizarUbicacion(position) {
-    posUsuario = {
+// Inicializar el mapa
+var map = L.map('map').setView([defaultLocation.lat, defaultLocation.lng], 13);
+
+// Capa base de OpenStreetMap
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+// Variables globales
+var routeControl;
+var userMarker;
+var userPosition = null;
+var placeMarkers = [];
+var opcionesGPS = {
+    enableHighAccuracy: true,
+    maximumAge: 10000,
+    timeout: 10000
+};
+
+// Función para crear iconos personalizados
+function createCustomIcon(place) {
+    const categoryName = place.category?.name || 'default';
+    const iconConfig = categoryIcons[categoryName] || categoryIcons['default'];
+    
+    return L.divIcon({
+        className: 'custom-marker',
+        html: `<i class="fas ${iconConfig.icon}" style="color: ${iconConfig.color}; font-size: ${iconConfig.size}px;"></i>`,
+        iconSize: [30, 30],
+        popupAnchor: [0, -15],
+        className: `marker-${categoryName.toLowerCase().replace(/\s+/g, '-')}`
+    });
+}
+
+// Función para crear marcadores personalizados
+function createCustomMarker(place) {
+    const categoryName = place.category?.name || 'default';
+    const iconConfig = categoryIcons[categoryName] || categoryIcons['default'];
+
+    const marker = L.marker([place.coordenadas_lat, place.coordenadas_lon], {
+        icon: createCustomIcon(place)
+    }).addTo(map)
+    .bindPopup(`
+        <div class="marker-popup">
+            <h5>${place.nombre}</h5>
+            <span class="badge mb-2" style="background-color: ${iconConfig.color};">
+                ${categoryName}
+            </span>
+            <p>${place.descripcion}</p>
+            <p><i class="fas fa-map-marker-alt me-1"></i>${place.direccion}</p>
+            ${place.imagen ? `<img src="/storage/${place.imagen}" alt="${place.nombre}" class="img-fluid">` : ''}
+        </div>
+    `);
+
+    return marker;
+}
+
+// Función para cargar todos los lugares en el mapa
+function loadPlacesOnMap() {
+    if (!placesData || placesData.length === 0) return;
+
+    placesData.forEach(place => {
+        const marker = createCustomMarker(place);
+        placeMarkers.push(marker);
+    });
+}
+
+// Función para centrar el mapa en un lugar específico
+function centerMap(lat, lng, zoom = 15) {
+    map.setView([lat, lng], zoom);
+}
+
+// Función para actualizar la ubicación del usuario
+function updateUserPosition(position) {
+    userPosition = {
         lat: position.coords.latitude,
         lng: position.coords.longitude
     };
 
-    // Actualizamos la vista del mapa en la ubicación del usuario
-    map.setView([posUsuario.lat, posUsuario.lng], 15);
+    centerMap(userPosition.lat, userPosition.lng, 15);
 
-    // Si ya hay un marcador del usuario, lo movemos
+    if (!userMarker) {
+        // Crear icono personalizado para el usuario (coche negro)
+        const userIcon = L.divIcon({
+            className: 'user-car-marker',
+            html: '<i class="fas fa-car" style="color: #000000; font-size: 22px;"></i>',
+            iconSize: [32, 32],
+            popupAnchor: [0, -16]
+        });
+
+        userMarker = L.marker([userPosition.lat, userPosition.lng], {
+            draggable: true,
+            icon: userIcon,
+            zIndexOffset: 1000 // Para asegurar que aparece sobre otros marcadores
+        }).addTo(map)
+        .bindPopup("<b>Tu ubicación</b>")
+        .openPopup()
+        .on('dragend', function(e) {
+            userPosition = e.target.getLatLng();
+            updateRoute();
+        });
+    } else {
+        userMarker.setLatLng([userPosition.lat, userPosition.lng]);
+    }
+    
+    // Asegurar que el marcador del usuario está encima de los demás
     if (userMarker) {
-        userMarker.setLatLng([posUsuario.lat, posUsuario.lng]);
+        userMarker.setZIndexOffset(1000);
     }
 }
 
 // Función para manejar errores de geolocalización
-function mostrarError(error) {
+function handleGeolocationError(error) {
     console.warn(`Error de geolocalización: ${error.message}`);
+    alert("No se pudo obtener tu ubicación. Usando ubicación por defecto.");
 }
 
-// Obtener la ubicación inicial del usuario
-navigator.geolocation.getCurrentPosition(
-    (position) => {
-        posUsuario = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-        };
+// Función para actualizar la ruta
+function updateRoute(endPoint) {
+    if (!userPosition) return;
 
-        // Mover el mapa a la ubicación inicial del usuario
-        map.setView([posUsuario.lat, posUsuario.lng], 15);
+    const end = endPoint || (routeControl ? routeControl.getWaypoints()[1] : null);
+    if (!end) return;
 
-        // Marcar la ubicación del usuario
-        var userMarker = L.marker([posUsuario.lat, posUsuario.lng], { draggable: true }).addTo(map)
-            .bindPopup("Estás aquí")
-            .openPopup()
-            .on('dragend', (e) => {
-                posUsuario = e.target.getLatLng(); // Actualizamos la ubicación del usuario
-                actualizarRuta(); // Actualizamos la ruta si se mueve el marcador
-            });
-
-        // Seguimiento en tiempo real de la ubicación del usuario
-        navigator.geolocation.watchPosition(actualizarUbicacion, mostrarError, opcionesGPS);
-    },
-    mostrarError,
-    opcionesGPS
-);
-
-// Función para agregar el marcador del usuario
-function addUserMarker(lat, lng, label) {
-    var iconColor = '#FF5733'; // Color del marcador
-
-    var marker = L.marker([lat, lng], {
-        icon: L.divIcon({
-            className: 'custom-marker',
-            html: `<i class="fas fa-map-pin" style="color: ${iconColor};"></i>`, // Personalizar el color
-            iconSize: [30, 30]
-        })
-    }).addTo(map)
-    .bindPopup('<b>' + label + '</b>')
-    .on('click', () => {
-        // Dibujar la ruta entre la ubicación del usuario y el marcador
-        if (routeControl) {
-            routeControl.setWaypoints([L.latLng(posUsuario.lat, posUsuario.lng), L.latLng(lat, lng)]);
-        } else {
-            // Crear una nueva ruta
-            routeControl = L.Routing.control({
-                waypoints: [
-                    L.latLng(posUsuario.lat, posUsuario.lng), // Ubicación del usuario
-                    L.latLng(lat, lng)          // Ubicación del marcador
-                ],
-                routeWhileDragging: true,
-                createMarker: function() { return null; } // No mostrar un marcador extra en la ruta
-            }).addTo(map);
-        }
-    });
-
-    // Marcadores en la lista debajo de la barra de búsqueda
-    var markerDiv = document.createElement('div');
-    markerDiv.classList.add('marker-item');
-    markerDiv.innerHTML = `<i class="fas fa-map-pin me-2" style="color: ${iconColor};"></i> ${label}`;
-    document.getElementById('userMarkers').appendChild(markerDiv);
-}
-
-// Lógica para la barra de búsqueda
-document.getElementById('searchButton').addEventListener('click', function () {
-    var query = document.getElementById('searchInput').value;
-
-    if (query) {
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.length > 0) {
-                    var lat = data[0].lat;
-                    var lon = data[0].lon;
-                    map.setView([lat, lon], 15); // Mover el mapa a la ubicación buscada
-
-                    var marker = L.marker([lat, lon], {
-                        icon: L.divIcon({
-                            className: 'custom-marker',
-                            html: `<i class="fas fa-map-pin" style="color: #007bff;"></i>`, // Personalizar el color
-                            iconSize: [30, 30]
-                        })
-                    }).addTo(map)
-                    .bindPopup('<b>' + query + '</b>')
-                    .openPopup();
-
-                    // Agregar el marcador a la lista de marcadores
-                    addUserMarker(lat, lon, query);
-                }
-            });
-    }
-});
-
-// Formulari per afegir marcadors manualment
-document.getElementById('coordinatesForm').addEventListener('submit', function (event) {
-    event.preventDefault();
-
-    var lat = parseFloat(document.getElementById('lat').value);
-    var lon = parseFloat(document.getElementById('lon').value);
-
-    if (!isNaN(lat) && !isNaN(lon)) {
-        var label = "Nuevo marcador";
-        
-        // Añadir el marcador con las coordenadas introducidas
-        addUserMarker(lat, lon, label);
+    if (routeControl) {
+        routeControl.setWaypoints([
+            L.latLng(userPosition.lat, userPosition.lng),
+            end
+        ]);
     } else {
-        alert("Las coordenadas no son válidas.");
+        routeControl = L.Routing.control({
+            waypoints: [
+                L.latLng(userPosition.lat, userPosition.lng),
+                end
+            ],
+            routeWhileDragging: true,
+            show: false,
+            addWaypoints: false,
+            draggableWaypoints: false,
+            fitSelectedRoutes: true,
+            createMarker: function() { return null; }
+        }).addTo(map);
+    }
+}
+
+// Evento para el botón de ubicación
+document.getElementById('locateMe').addEventListener('click', function() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            updateUserPosition,
+            handleGeolocationError,
+            opcionesGPS
+        );
+    } else {
+        alert("Geolocalización no soportada por tu navegador");
     }
 });
 
-// Ejemplo random de la casa del usuario
-addUserMarker(41.350, 2.115, 'Casa del Usuario');
+// Búsqueda con Nominatim
+document.getElementById('searchButton').addEventListener('click', function() {
+    const query = document.getElementById('searchInput').value.trim();
+    if (!query) return;
+
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0) {
+                const lat = parseFloat(data[0].lat);
+                const lng = parseFloat(data[0].lon);
+                centerMap(lat, lng);
+
+                // Crear marcador temporal de búsqueda
+                L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        className: 'custom-marker',
+                        html: '<i class="fas fa-search" style="color: #6c757d; font-size: 20px;"></i>',
+                        iconSize: [30, 30]
+                    })
+                }).addTo(map)
+                .bindPopup(`<b>${query}</b>`)
+                .openPopup();
+            } else {
+                alert("No se encontraron resultados para la búsqueda");
+            }
+        })
+        .catch(error => {
+            console.error("Error en la búsqueda:", error);
+            alert("Error al realizar la búsqueda");
+        });
+});
+
+// Inicialización
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar lugares en el mapa
+    loadPlacesOnMap();
+
+    // Intentar obtener la ubicación del usuario al cargar
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            updateUserPosition,
+            handleGeolocationError,
+            opcionesGPS
+        );
+    }
+
+    // Ajustar el tamaño del mapa al cargar y redimensionar
+    setTimeout(() => map.invalidateSize(), 100);
+    window.addEventListener('resize', () => map.invalidateSize());
+});
+
+// Evento para hacer clic en el mapa y crear rutas
+map.on('click', function(e) {
+    if (userPosition) {
+        updateRoute(e.latlng);
+    }
+});
