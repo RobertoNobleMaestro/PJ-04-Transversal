@@ -87,12 +87,9 @@
                 <label for="integrantes">Número de Integrantes:</label>
                 <input type="text" name="integrantes" id="integrantes">
                 <label for="gimcana">Gimcana</label>
+                <input type="text" name="buscargimcana" id="buscargimcana" placeholder="Busca una gimcana">
                 <select name="gimcana" id="selectgimcana">
-                    {{-- <input type="text" name="buscargimcana" id="buscargimcana"> --}}
-                    <option value="">Selecciona una gimcana</option>
-                    <option value="1">Gimcana 1</option>
-                    <option value="2">Gimcana 2</option>
-                    <option value="3">Gimcana 3</option>
+                    <option value="">Cargando..</option>
                 </select>
                 <button type="submit" id="btnCrearGrupo">Crear</button>
                 <button type="button" id="btnCerrarModal">Cancelar</button>

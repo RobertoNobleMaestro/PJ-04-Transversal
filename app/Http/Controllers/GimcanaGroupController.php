@@ -22,9 +22,13 @@ class GimcanaGroupController extends Controller
         return response()->json(['gruposusuarios' => $gruposusuarios, 'creador' => $creador, 'usuarioactivo' => $usuarioactivo]);
     }
 
-    public function cargagimcanas()
+    public function cargagimcanas(Request $request)
     {
-        $gimcanas = Gimcana::all();
+        if (isset($request->nombre)) {
+            $gimcanas = Gimcana::where('nombre', 'like', "%$request->nombre%")->get();
+        } else {
+            $gimcanas = Gimcana::all();
+        }
         return response()->json($gimcanas);
     }
 
