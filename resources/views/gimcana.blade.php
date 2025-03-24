@@ -60,7 +60,7 @@
                     <input type="text" name="codigo" id="codigo" placeholder="Código del grupo">
                     <input type="text" name="gimcana" id="gimcana" placeholder="Nombre gimcana">
                     <button type="submit">Buscar</button>
-                    <button type="limpiar">Limpiar</button>
+                    <button type="button" id="limpiarfiltros">Limpiar</button>
                 </form>
                 <button id="btnAbrirModal">Crear grupo</button>
             </div>

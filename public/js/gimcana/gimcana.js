@@ -16,10 +16,11 @@ function buscargrupo(event) {
         })
 }
 
-function borrarfiltros() {
-    document.getElementById("formnewuser").reset();
-    mostrarrestaurantes();
+document.getElementById("limpiarfiltros").addEventListener("click", function (event) {
+    document.getElementById("frmbuscargrupo").reset();
+    mostrardatos();
 }
+);
 
 function mostrardatos() {
     var form = document.getElementById("frmbuscargrupo");
@@ -91,10 +92,7 @@ function unirseagrupo(id, nombre) {
                         title: resto,
                         icon: primeraParte,
                     });
-                    document.getElementById('infogrupos').style.display = 'block';
-                    if (primeraParte == 'success') {
-                        compronargrupousuario()
-                    }
+                    compronargrupousuario()
                 })
         }
     });
