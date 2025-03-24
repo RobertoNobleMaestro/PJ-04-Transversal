@@ -46,8 +46,12 @@ function grupos(datos) {
         grupos += '    <div class="container">';
         grupos += '        <h2>' + dato.nombre + '</h2>';
         grupos += '        <p>Creador: ' + dato.creador.name + '</p>';
+        grupos += '        <p>Gincama: ' + dato.gimcana.nombre + '</p>';
         if (dato.miembros == 0) {
             grupos += '    <p>Grupo completo</p>';
+        } else if (dato.miembros == 1) {
+            grupos += '    <p>Queda ' + dato.miembros + ' plaza</p>';
+            grupos += '    <button type="button" onclick="unirseagrupo(' + dato.id + ', \'' + dato.nombre + '\')">Unirse</button>';
         } else {
             grupos += '    <p>Quedan ' + dato.miembros + ' plazas</p>';
             grupos += '    <button type="button" onclick="unirseagrupo(' + dato.id + ', \'' + dato.nombre + '\')">Unirse</button>';
