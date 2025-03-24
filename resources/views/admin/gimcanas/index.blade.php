@@ -62,7 +62,6 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Nombre</th>
                             <th>Grupo</th>
                             <th>Creador</th>
@@ -105,10 +104,13 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Nombre</th>
+                            <th>Dirección</th>
+                            <th>Coordenadas de longitud</th>
+                            <th>Coordenadas de latitud</th>
                             <th>Categoría</th>
                             <th>Etiquetas</th>
+                            <th>Imagen</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -191,17 +193,53 @@
                     const tableBody = document.getElementById('tabla-gimcanas');
                     tableBody.innerHTML = data.map(gimcana => `
                         <tr>
-                            <td>${gimcana.id}</td>
                             <td>${gimcana.nombre}</td>
                             <td>${gimcana.group?.codigogrupo ?? 'Sin código'}</td>
                             <td>${gimcana.creator?.name ?? 'Sin creador'}</td>
                             <td>${gimcana.completed ? 'Completada' : 'En progreso'}</td>
                             <td>
+                                <button class="btn btn-info btn-sm" onclick="verCheckpoints(${gimcana.id})">Ver Checkpoints</button>
                                 <button class="btn btn-warning btn-sm" onclick="editarGimcana(${gimcana.id})">Editar</button>
                                 <button class="btn btn-danger btn-sm" onclick="eliminarGimcana(${gimcana.id})">Eliminar</button>
                             </td>
                         </tr>
                     `).join('');
+                });
+        }
+
+        // Función para ver los checkpoints de una gimcana
+        function verCheckpoints(gimcanaId) {
+            fetch(`/admin/gimcanas/${gimcanaId}/checkpoints`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        Swal.fire('Info', 'Esta gimcana no tiene checkpoints asociados.', 'info');
+                        return;
+                    }
+
+                    const checkpointsList = data.map((checkpoint, index) => `
+                        <li class="list-group-item">
+                            <strong>Checkpoint ${index + 1}:</strong> ${checkpoint.pista}
+                            <br>
+                            <small>Prueba: ${checkpoint.prueba}</small>
+                            ${checkpoint.place ? `<br><small>Lugar: ${checkpoint.place.nombre}</small>` : ''}
+                        </li>
+                    `).join('');
+
+                    Swal.fire({
+                        title: 'Checkpoints de la Gimcana',
+                        html: `
+                            <div style="text-align: left;">
+                                <ol class="list-group">${checkpointsList}</ol>
+                            </div>
+                        `,
+                        confirmButtonText: 'Cerrar',
+                        width: '600px'
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'No se pudieron cargar los checkpoints', 'error');
                 });
         }
 
@@ -213,10 +251,13 @@
                     const tableBody = document.getElementById('tabla-lugares');
                     tableBody.innerHTML = data.map(place => `
                         <tr>
-                            <td>${place.id}</td>
                             <td>${place.nombre}</td>
+                            <td>${place.direccion ?? 'Sin dirección'}</td>
+                            <td>${place.coordenadas_lat ?? 'Sin coordenadas'}</td>
+                            <td>${place.coordenadas_lon ?? 'Sin coordenadas'}</td>
                             <td>${place.categoria?.nombre ?? 'Sin categoría'}</td>
                             <td>${place.etiquetas?.join(', ') ?? ''}</td>
+                            <td>${place.imagen ?? 'Sin imagen'}</td>
                             <td>
                                 <button class="btn btn-warning btn-sm" onclick="editarLugar(${place.id})">Editar</button>
                                 <button class="btn btn-danger btn-sm" onclick="eliminarLugar(${place.id})">Eliminar</button>
