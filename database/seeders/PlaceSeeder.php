@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Place;
+use App\Models\Tag;
 
 class PlaceSeeder extends Seeder
 {
@@ -17,7 +18,6 @@ class PlaceSeeder extends Seeder
                 'coordenadas_lat' => 41.3599,
                 'coordenadas_lon' => 2.0991,
                 'categoria_id' => 1, // Museo
-                'etiquetas' => 'Historia, Cultura',
                 'favorito' => false,
                 'imagen' => 'museo.jpg',
             ],
@@ -28,7 +28,6 @@ class PlaceSeeder extends Seeder
                 'coordenadas_lat' => 41.3671,
                 'coordenadas_lon' => 2.1025,
                 'categoria_id' => 3, // Parque
-                'etiquetas' => 'Naturaleza, Relax',
                 'favorito' => false,
                 'imagen' => 'parque.jpg',
             ],
@@ -39,7 +38,6 @@ class PlaceSeeder extends Seeder
                 'coordenadas_lat' => 41.3594,
                 'coordenadas_lon' => 2.0993,
                 'categoria_id' => 2, // Centro Comercial/Restaurantes
-                'etiquetas' => 'Compras, Gastronomía',
                 'favorito' => false,
                 'imagen' => 'centro-comercial.jpg',
             ],
@@ -50,14 +48,29 @@ class PlaceSeeder extends Seeder
                 'coordenadas_lat' => 41.3590,
                 'coordenadas_lon' => 2.0975,
                 'categoria_id' => 4, // Monumento
-                'etiquetas' => 'Historia, Arquitectura',
                 'favorito' => false,
                 'imagen' => 'plaza.jpg',
             ],
         ];
 
         foreach ($places as $place) {
-            Place::create($place);
+            $createdPlace = Place::create($place);
+
+            // Asignar etiquetas según la categoría
+            switch ($place['categoria_id']) {
+                case 1: // Museo
+                    $createdPlace->tags()->attach([1, 4]); // Historia, Cultura
+                    break;
+                case 2: // Restaurantes
+                    $createdPlace->tags()->attach([2]); // Gastronomía
+                    break;
+                case 3: // Parque
+                    $createdPlace->tags()->attach([3]); // Naturaleza
+                    break;
+                case 4: // Monumento
+                    $createdPlace->tags()->attach([1, 4]); // Historia, Arquitectura
+                    break;
+            }
         }
     }
 }

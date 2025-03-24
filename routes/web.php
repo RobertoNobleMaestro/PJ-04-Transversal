@@ -71,3 +71,9 @@ Route::get('/run-migrations-safe', function () {
 });
 
 
+Route::get('/admin/places', [PlaceController::class, 'index'])->name('admin.places.index');
+Route::get('/admin/places/getPlaces', [PlaceController::class, 'getPlaces'])->name('admin.places.getPlaces');
+Route::get('/admin/places/{id}', [PlaceController::class, 'show'])->name('admin.places.show');
+Route::post('/admin/places', [PlaceController::class, 'store'])->name('admin.places.store');
+Route::put('/admin/places/{id}', [PlaceController::class, 'update'])->name('admin.places.update');
+Route::delete('/admin/places/{id}', [PlaceController::class, 'destroy'])->name('admin.places.destroy');
