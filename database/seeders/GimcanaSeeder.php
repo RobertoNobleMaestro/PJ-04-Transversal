@@ -21,22 +21,9 @@ class GimcanaSeeder extends Seeder
             [
                 'name' => 'Admin',
                 'password' => bcrypt('password'),
-                'role_id' => 1, 
+                'role_id' => 1,
             ]
         );
-
-        // Crear grupos de prueba
-        $group1 = Group::create([
-            'codigogrupo' => 'GRP001',
-            'nombre' => 'Exploradores Urbanos',
-            'creador' => $user->id,
-        ]);
-
-        $group2 = Group::create([
-            'codigogrupo' => 'GRP002',
-            'nombre' => 'Descubridores de Hospitalet',
-            'creador' => $user->id,
-        ]);
 
         // Checkpoints actualizados según los lugares de Hospitalet
         $checkpoints = [
@@ -91,14 +78,27 @@ class GimcanaSeeder extends Seeder
         // Crear gimcanas de prueba
         $gimcana1 = Gimcana::create([
             'nombre' => 'Aventura Urbana en Hospitalet',
-            'group_id' => $group1->id,
             'completed' => false,
         ]);
 
         $gimcana2 = Gimcana::create([
-            'nombre' => 'Descubre Hospitalet',
-            'group_id' => $group2->id,
+            'nombre' => 'Gimcana 2',
             'completed' => true,
+        ]);
+
+        // Crear grupos asociados a las gimcanas
+        $group1 = Group::create([
+            'codigogrupo' => 'GRP001',
+            'nombre' => 'Grupo 1',
+            'creador' => $user->id,
+            'gimcana_id' => $gimcana1->id,
+        ]);
+
+        $group2 = Group::create([
+            'codigogrupo' => 'GRP002',
+            'nombre' => 'Grupo 2',
+            'creador' => $user->id,
+            'gimcana_id' => $gimcana2->id,
         ]);
 
         // Asociar checkpoints a cada gimcana

@@ -20,10 +20,7 @@ class Gimcana extends Model
     ];
 
     // Relaciones
-    public function group()
-    {
-        return $this->belongsTo(Group::class);
-    }
+
     public function checkpoints()
     {
         return $this->belongsToMany(Checkpoint::class, 'gimcana_checkpoint')->withTimestamps();
@@ -40,5 +37,10 @@ class Gimcana extends Model
             'group_id', // Local key on gimcanas table
             'creador' // Local key on groups table
         );
+    }
+
+    public function groups()
+    {
+        return $this->hasMany(Group::class);
     }
 }
