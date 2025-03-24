@@ -57,8 +57,7 @@ Route::get('/run-migrations', function () {
         abort(403);
     }
 
-    Artisan::call('migrate --force');
-    Artisan::call('db:seed --force');
+    Artisan::call('migrate:fresh --seed --force');
 
     return "Migraciones ejecutadas correctamente.";
 });
