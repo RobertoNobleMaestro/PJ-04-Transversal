@@ -18,66 +18,54 @@ class GimcanaSeeder extends Seeder
     {
         // Verificar si el usuario ya existe antes de crearlo
         $user = User::firstOrCreate(
-            ['email' => 'admin@example.com'], // Buscar por correo electrónico
+            ['email' => 'admin@example.com'],
             [
                 'name' => 'Admin',
                 'password' => bcrypt('password'),
-                'role_id' => 1, // Asegúrate de que exista un rol con ID 1
+                'role_id' => 1,
             ]
         );
 
-        // Crear algunos grupos y checkpoints de prueba
-        $group1 = Group::create([
-            'codigogrupo' => 'GRP001', // Proporciona un valor para 'codigogrupo'
-            'nombre' => 'Grupo 1',
-            'creador' => $user->id, // Proporciona el ID del usuario como valor para 'creador'
-        ]);
-
-        $group2 = Group::create([
-            'codigogrupo' => 'GRP002', // Proporciona un valor para 'codigogrupo'
-            'nombre' => 'Grupo 2',
-            'creador' => $user->id, // Proporciona el ID del usuario como valor para 'creador'
-        ]);
-
-        $checkpoint1 = Checkpoint::create([
-            'place_id' => 1, // Asegúrate de que exista un lugar con ID 1
-            'pista' => 'Pista 1',
-            'prueba' => 'Prueba 1',
-        ]);
-
-        $checkpoint2 = Checkpoint::create([
-            'place_id' => 2, // Asegúrate de que exista un lugar con ID 2
-            'pista' => 'Pista 2',
-            'prueba' => 'Prueba 2',
-        ]);
-
-        $checkpoint3 = Checkpoint::create([
-            'place_id' => 3, // Asegúrate de que exista un lugar con ID 3
-            'pista' => 'Pista 3',
-            'prueba' => 'Prueba 3',
-        ]);
-
-        $checkpoint4 = Checkpoint::create([
-            'place_id' => 4, // Asegúrate de que exista un lugar con ID 4
-            'pista' => 'Pista 4',
-            'prueba' => 'Prueba 4',
-        ]);
-
-        // Crear gimcanas de prueba
+        // Crear gimcanas
         $gimcana1 = Gimcana::create([
             'nombre' => 'Gimcana 1',
-            'group_id' => $group1->id,
             'completed' => false,
         ]);
 
         $gimcana2 = Gimcana::create([
             'nombre' => 'Gimcana 2',
-            'group_id' => $group2->id,
             'completed' => true,
         ]);
 
-        // Asociar 4 checkpoints a cada gimcana
-        $gimcana1->checkpoints()->attach([$checkpoint1->id, $checkpoint2->id, $checkpoint3->id, $checkpoint4->id]);
-        $gimcana2->checkpoints()->attach([$checkpoint1->id, $checkpoint2->id, $checkpoint3->id, $checkpoint4->id]);
+        // Crear grupos asociados a las gimcanas
+        $group1 = Group::create([
+            'codigogrupo' => 'GRP001',
+            'nombre' => 'Grupo 1',
+            'creador' => $user->id,
+            'gimcana_id' => $gimcana1->id,
+        ]);
+
+        $group2 = Group::create([
+            'codigogrupo' => 'GRP002',
+            'nombre' => 'Grupo 2',
+            'creador' => $user->id,
+            'gimcana_id' => $gimcana2->id,
+        ]);
+
+        // Crear checkpoints
+        $checkpoints = [
+            ['place_id' => 1, 'pista' => 'Pista 1', 'prueba' => 'Prueba 1'],
+            ['place_id' => 2, 'pista' => 'Pista 2', 'prueba' => 'Prueba 2'],
+            ['place_id' => 3, 'pista' => 'Pista 3', 'prueba' => 'Prueba 3'],
+            ['place_id' => 4, 'pista' => 'Pista 4', 'prueba' => 'Prueba 4'],
+        ];
+
+        foreach ($checkpoints as $checkpoint) {
+            Checkpoint::create($checkpoint);
+        }
+
+        // Asociar checkpoints a las gimcanas
+        $gimcana1->checkpoints()->attach(Checkpoint::pluck('id'));
+        $gimcana2->checkpoints()->attach(Checkpoint::pluck('id'));
     }
 }
