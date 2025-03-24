@@ -199,9 +199,111 @@
                 display: block;
             }
         }
+        
+        /* Estilos para el panel de favoritos */
+        .favorites-panel {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100%;
+            background-color: white;
+            z-index: 1000;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .favorites-panel.active {
+            right: 0;
+        }
+        
+        .favorites-header {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .favorites-content {
+            padding: 10px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .favorites-list {
+            max-height: 100%;
+            overflow-y: auto;
+        }
+        
+        .favorites-footer {
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .favorite-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+        
+        .favorite-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .favorite-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #f8f9fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+        
+        .favorite-icon i {
+            font-size: 20px;
+        }
+        
+        .favorite-info {
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .favorite-name {
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .favorite-address {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .favorite-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .route-info {
+            padding: 10px;
+        }
+        
+        .route-info h5 {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- Header móvil -->
     <div class="mobile-header">
         <div class="logo-container">
@@ -215,6 +317,11 @@
             <button id="toggleSearch" class="header-btn" title="Buscar">
                 <i class="fas fa-search"></i>
             </button>
+            @auth
+            <button id="toggleFavorites" class="header-btn" title="Mis favoritos">
+                <i class="fas fa-heart"></i>
+            </button>
+            @endauth
         </div>
     </div>
     
@@ -241,6 +348,12 @@
             <i class="fas fa-puzzle-piece footer-icon"></i>
             <span>Gimcana</span>
         </a>
+        @auth
+        <a href="{{ route('favorites.index') }}" class="footer-tab">
+            <i class="fas fa-heart footer-icon"></i>
+            <span>Favoritos</span>
+        </a>
+        @endauth
         <a href="{{ route('profile') }}" class="footer-tab">
             <i class="fas fa-user footer-icon"></i>
             <span>Perfil</span>
@@ -267,6 +380,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('gimcana') }}"><i class="fas fa-puzzle-piece me-1"></i> Gimcana</a>
                     </li>
+                    @auth
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('favorites.index') }}"><i class="fas fa-heart me-1"></i> Favoritos</a>
+                    </li>
+                    @endauth
                     <li class="nav-item ms-lg-3">
                         @auth
                             <a class="nav-link" href="{{ route('profile') }}">
@@ -296,6 +414,29 @@
     <button id="locateMe" class="btn btn-outline-primary locate-btn desktop-only">
         <i class="fas fa-location-arrow"></i>
     </button>
+
+    <!-- Panel de favoritos -->
+    <div id="favorites-panel" class="favorites-panel">
+        <div class="favorites-header">
+            <h5><i class="fas fa-heart text-danger me-2"></i>Mis Favoritos</h5>
+            <button id="closeFavorites" class="btn-close"></button>
+        </div>
+        <div class="favorites-content">
+            <div id="favorites-list" class="favorites-list">
+                <!-- Los favoritos se cargarán aquí dinámicamente -->
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="favorites-footer">
+            <button id="viewAllFavorites" class="btn btn-sm btn-primary w-100">
+                <i class="fas fa-list me-1"></i>Ver todos mis favoritos
+            </button>
+        </div>
+    </div>
 
     <script>
         var placesData = @json($places);

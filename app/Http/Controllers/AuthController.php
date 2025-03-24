@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
     // Mostrar formulario de login
+    public function showInicioAdmin()
+    {
+        return view('admin.inicioAdmin');
+    }
     public function showLoginForm()
     {
         return view('auth.login');
@@ -48,7 +52,7 @@ class AuthController extends Controller
             session(['nombre' => $user->name]); 
 
             if ($user->role_id == 1) { 
-                return redirect()->intended('/admin');
+                return redirect()->intended('/inicioAdmin');
             } elseif ($user->role_id == 2) { 
                 return redirect()->intended('/inicio');
             }

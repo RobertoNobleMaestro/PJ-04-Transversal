@@ -10,13 +10,12 @@ class CreateGroupsTable extends Migration
     {
         Schema::create('groups', function (Blueprint $table) {
             $table->id();
+            $table->string('codigogrupo')->nullable();
             $table->string('nombre');
-            $table->timestamp('fecha_creacion')->useCurrent();
-            //limite de miembros por cada grupo
-            $table->integer('miembros')->default(4);
+            $table->foreignId('creador')->constrained('users');
+            $table->foreignId('gimcana_id')->constrained('gimcanas');
+            $table->integer('miembros')->default(2);
             $table->timestamps();
-            // Índice por nombre para búsquedas rápidas
-            $table->index('nombre');
         });
     }
 
