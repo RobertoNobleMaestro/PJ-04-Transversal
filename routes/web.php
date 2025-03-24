@@ -3,13 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MapaController;
-use App\Http\Controllers\GimcanaController;
+use App\Http\Controllers\GimcanaGroupController;
 
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/inicio', [AuthController::class, 'showDashboard'])->name('inicio');
     Route::get('/mapa', [MapaController::class, 'goMapa'])->name('mapa');
-    Route::get('/gimcana', [GimcanaController::class, 'goGimcana'])->name('gimcana');
+    Route::get('/gimcana', [GimcanaGroupController::class, 'goGimcana'])->name('gimcana');
 });
 Route::get('/', [AuthController::class, 'showHome']);
 
@@ -24,7 +24,7 @@ Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('regi
 Route::get('/index', [AuthController::class, 'showHome'])->name('index');
 
 
-Route::controller(GimcanaController::class)->group(function () {
+Route::controller(GimcanaGroupController::class)->group(function () {
     Route::post('/infogimcana', 'infogimcana');
     Route::post('/unirseagrupo', 'unirseagrupo');
     Route::post('/compronargrupousuario', 'compronargrupousuario');
