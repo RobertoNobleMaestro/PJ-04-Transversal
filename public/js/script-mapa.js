@@ -26,6 +26,8 @@ var userMarker;
 var userPosition = null;
 var placeMarkers = [];
 var watchId = null;
+var timeoutId = null;
+var isTracking = false;
 var opcionesGPS = {
     enableHighAccuracy: true,
     maximumAge: 10000,
@@ -114,7 +116,7 @@ function updateUserPosition(position) {
 
         userMarker = L.marker([userPosition.lat, userPosition.lng], {
             icon: userIcon,
-            zIndexOffset: 1000 // Para asegurar que aparece sobre otros marcadores
+            zIndexOffset: 1000
         }).addTo(map)
         .bindPopup("<b>Tu ubicación actual</b>")
         .openPopup();
@@ -165,24 +167,33 @@ function updateRoute(endPoint) {
 // Función para iniciar el seguimiento de la ubicación
 function startTracking() {
     if (navigator.geolocation) {
-        // Detener cualquier seguimiento previo
-        if (watchId) {
-            navigator.geolocation.clearWatch(watchId);
-        }
+        isTracking = true;
         
-        // Iniciar nuevo seguimiento
+        // Actualizar la posición inmediatamente
+        navigator.geolocation.getCurrentPosition(
+            updateUserPosition,
+            handleGeolocationError,
+            opcionesGPS
+        );
+
+        // Configurar la actualización periódica cada 10 segundos
+        timeoutId = setInterval(() => {
+            navigator.geolocation.getCurrentPosition(
+                updateUserPosition,
+                handleGeolocationError,
+                opcionesGPS
+            );
+        }, 10000);
+
+        // También iniciar el seguimiento continuo
         watchId = navigator.geolocation.watchPosition(
             updateUserPosition,
             handleGeolocationError,
             opcionesGPS
         );
         
-        // Obtener posición actual inmediatamente
-        navigator.geolocation.getCurrentPosition(
-            updateUserPosition,
-            handleGeolocationError,
-            opcionesGPS
-        );
+        // Actualizar UI
+        updateTrackingUI(true);
     } else {
         alert("Geolocalización no soportada por tu navegador");
     }
@@ -190,29 +201,70 @@ function startTracking() {
 
 // Función para detener el seguimiento de la ubicación
 function stopTracking() {
+    isTracking = false;
+    
     if (watchId && navigator.geolocation) {
         navigator.geolocation.clearWatch(watchId);
         watchId = null;
     }
+
+    if (timeoutId) {
+        clearInterval(timeoutId);
+        timeoutId = null;
+    }
+    
+    // Actualizar UI
+    updateTrackingUI(false);
 }
 
-// Evento para el botón de ubicación
-document.getElementById('locateMe').addEventListener('click', function() {
-    if (this.classList.contains('active')) {
-        // Si ya está activo, detener el seguimiento
+// Función para actualizar la interfaz de usuario del seguimiento
+function updateTrackingUI(isActive) {
+    // Para móvil
+    const mobileIcon = document.getElementById('locationIcon');
+    const mobileBtn = document.getElementById('toggleLocation');
+    
+    if (mobileIcon && mobileBtn) {
+        if (isActive) {
+            mobileIcon.classList.add('location-active');
+            mobileBtn.title = "Detener seguimiento";
+        } else {
+            mobileIcon.classList.remove('location-active');
+            mobileBtn.title = "Iniciar seguimiento";
+        }
+    }
+    
+    // Para desktop
+    const desktopBtn = document.getElementById('locateMe');
+    if (desktopBtn) {
+        if (isActive) {
+            desktopBtn.classList.add('active');
+            desktopBtn.innerHTML = '<i class="fas fa-stop"></i>';
+        } else {
+            desktopBtn.classList.remove('active');
+            desktopBtn.innerHTML = '<i class="fas fa-location-arrow"></i>';
+        }
+    }
+}
+
+// Eventos para los botones de ubicación
+document.getElementById('toggleLocation')?.addEventListener('click', function() {
+    if (isTracking) {
         stopTracking();
-        this.classList.remove('active');
-        this.innerHTML = '<i class="fas fa-location-arrow"></i>';
     } else {
-        // Si no está activo, iniciar el seguimiento
         startTracking();
-        this.classList.add('active');
-        this.innerHTML = '<i class="fas fa-stop"></i>';
+    }
+});
+
+document.getElementById('locateMe')?.addEventListener('click', function() {
+    if (isTracking) {
+        stopTracking();
+    } else {
+        startTracking();
     }
 });
 
 // Búsqueda con Nominatim
-document.getElementById('searchButton').addEventListener('click', function() {
+document.getElementById('searchButton')?.addEventListener('click', function() {
     const query = document.getElementById('searchInput').value.trim();
     if (!query) return;
 
@@ -244,15 +296,51 @@ document.getElementById('searchButton').addEventListener('click', function() {
         });
 });
 
+// Búsqueda móvil
+document.getElementById('searchButtonMobile')?.addEventListener('click', function() {
+    const query = document.getElementById('searchInputMobile').value.trim();
+    if (!query) return;
+
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0) {
+                const lat = parseFloat(data[0].lat);
+                const lng = parseFloat(data[0].lon);
+                centerMap(lat, lng);
+
+                // Crear marcador temporal de búsqueda
+                L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        className: 'custom-marker',
+                        html: '<i class="fas fa-search" style="color: #6c757d; font-size: 20px;"></i>',
+                        iconSize: [30, 30]
+                    })
+                }).addTo(map)
+                .bindPopup(`<b>${query}</b>`)
+                .openPopup();
+                
+                // Ocultar la barra de búsqueda después de la búsqueda
+                document.getElementById('mobileSearchContainer').classList.remove('visible');
+            } else {
+                alert("No se encontraron resultados para la búsqueda");
+            }
+        })
+        .catch(error => {
+            console.error("Error en la búsqueda:", error);
+            alert("Error al realizar la búsqueda");
+        });
+});
+
+// Toggle para la barra de búsqueda móvil
+document.getElementById('toggleSearch')?.addEventListener('click', function() {
+    document.getElementById('mobileSearchContainer').classList.toggle('visible');
+});
+
 // Inicialización
 document.addEventListener('DOMContentLoaded', function() {
     // Cargar lugares en el mapa
     loadPlacesOnMap();
-
-    // Iniciar automáticamente el seguimiento de la ubicación
-    startTracking();
-    document.getElementById('locateMe').classList.add('active');
-    document.getElementById('locateMe').innerHTML = '<i class="fas fa-stop"></i>';
 
     // Ajustar el tamaño del mapa al cargar y redimensionar
     setTimeout(() => map.invalidateSize(), 100);
