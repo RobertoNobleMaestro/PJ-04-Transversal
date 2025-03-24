@@ -22,10 +22,11 @@ class GimcanaGroupController extends Controller
 
     public function goGimcana()
     {
-        $grupos = Group::with('creador')->get();
-        $usuarios = User::all();
-        $user = Auth::user();
-        return view('gimcana', compact('grupos', 'usuarios', 'user'));
+        // $grupos = Group::with('creador')->get();
+        // $usuarios = User::all();
+        // $user = Auth::user();
+        // return view('gimcana', compact('grupos', 'usuarios', 'user'));
+        return view('gimcana');
     }
 
     public function compronargrupousuario()

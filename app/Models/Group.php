@@ -30,4 +30,9 @@ class Group extends Model
     {
         return $this->hasMany(GroupUser::class);
     }
+
+    public function gimcana()
+    {
+        return $this->belongsTo(Gimcana::class);
+    }
 }

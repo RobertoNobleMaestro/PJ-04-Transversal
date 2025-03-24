@@ -50,7 +50,7 @@ function grupos(datos) {
             grupos += '    <p>Grupo completo</p>';
         } else {
             grupos += '    <p>Quedan ' + dato.miembros + ' plazas</p>';
-            grupos += `    <button type="button" onclick=unirseagrupo(${dato.id},'${dato.nombre}')>Unirse</button>`;
+            grupos += '    <button type="button" onclick="unirseagrupo(' + dato.id + ', \'' + dato.nombre + '\')">Unirse</button>';
         }
         grupos += '     </div>';
         grupos += '</div>';

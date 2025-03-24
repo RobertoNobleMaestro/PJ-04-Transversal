@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             CheckpointSeeder::class,
             FavoriteSeeder::class,
             GroupUserSeeder::class,
+            GimcanaSeeder::class,
         ]);
     }
 }

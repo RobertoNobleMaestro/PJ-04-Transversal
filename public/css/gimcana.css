@@ -1,0 +1,250 @@
+/* Estilos para el modal de asignación */
+#modal-asignar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+#modal-asignar.show {
+    opacity: 1;
+    display: flex;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 500px;
+    transform: translateY(-20px);
+    transition: transform 0.3s ease-in-out;
+}
+
+#modal-asignar.show .modal-content {
+    transform: translateY(0);
+}
+
+.modal-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #1F2937;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.modal-body {
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #374151;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.form-group select {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 2px solid #E5E7EB;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background-color: #F9FAFB;
+    transition: all 0.3s ease;
+}
+
+.form-group select:focus {
+    border-color: #4a90e2;
+    outline: none;
+    background-color: white;
+    box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.1);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #E5E7EB;
+}
+
+/* Estilos para botones */
+.btn {
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.btn-primary {
+    background-color: #4a90e2;
+    border: none;
+    color: white;
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.2);
+}
+
+.btn-primary:hover {
+    background-color: #357abd;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: #6B7280;
+    border: none;
+    color: white;
+    box-shadow: 0 4px 15px rgba(107, 114, 128, 0.2);
+}
+
+.btn-secondary:hover {
+    background-color: #4B5563;
+    transform: translateY(-1px);
+}
+
+/* Estilos para el badge del técnico asignado */
+.badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    background-color: #E5E7EB;
+    color: #374151;
+}
+
+.badge.bg-info {
+    background-color: #4a90e2 !important;
+    color: white;
+}
+
+.container {
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+/* Estilos mejorados para las pestañas */
+.nav-tabs {
+    border-bottom: none;
+    gap: 1rem;
+    padding: 0 0.5rem;
+}
+
+.nav-tabs .nav-link {
+    color: #6B7280;
+    font-weight: 600;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    background-color: #F3F4F6;
+    font-size: 0.9rem;
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: #E5E7EB;
+    color: #374151;
+}
+
+.nav-tabs .nav-link.active {
+    color: white;
+    background-color: #4a90e2;
+    border: none;
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.2);
+}
+
+/* Estilos para las tablas */
+.table {
+    margin-top: 1rem;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.table thead {
+    background-color: #F8FAFC;
+}
+
+.table th {
+    color: #1F2937;
+    font-weight: 600;
+    padding: 0.8rem;
+    border-bottom: 2px solid #E5E7EB;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+}
+
+.table td {
+    padding: 0.8rem;
+    border-bottom: 1px solid #F3F4F6;
+    color: #4B5563;
+    font-size: 0.9rem;
+}
+
+.table tbody tr:hover {
+    background-color: #F9FAFB;
+}
+
+/* Estilos para el header del usuario */
+.user-header {
+    background-color: #F8FAFC;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+.user-info h4 {
+    color: #1F2937;
+    font-weight: 600;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+    .container {
+        padding: 1rem;
+        margin: 0.5rem;
+    }
+
+    .nav-tabs {
+        gap: 0.5rem;
+    }
+
+    .nav-tabs .nav-link {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    .table-responsive {
+        margin: 0 -1rem;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+}

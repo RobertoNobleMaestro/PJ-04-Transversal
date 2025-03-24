@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,7 +8,7 @@ class Checkpoint extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['place_id', 'pista', 'prueba'];
+    protected $fillable = ['place_id', 'pista', 'prueba', 'gimcana_id'];
 
     public function place()
     {
@@ -20,4 +19,10 @@ class Checkpoint extends Model
     {
         return $this->belongsToMany(Group::class, 'group_checkpoint');
     }
+
+    public function gimcanas()
+    {
+        return $this->belongsToMany(Gimcana::class, 'gimcana_checkpoint');
+    }
 }
+

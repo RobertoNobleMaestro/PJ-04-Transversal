@@ -3,184 +3,82 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Group;
-use App\Models\GroupUser;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use App\Models\Gimcana;
+use App\Models\Checkpoint;
+use App\Models\Place;
 
 class GimcanaController extends Controller
 {
-    public function mostrardatosgrupo()
+    // Listar todas las gimcanas
+    public function index()
     {
-        $usuarioactivo = Auth::user()->id;
-        $usuario = GroupUser::where('user_id', Auth::user()->id)->get();
-        $gruposusuarios = GroupUser::with('usuarios')->where('group_id', $usuario[0]->group_id)->get();
-        $creador = Group::where('id', $usuario[0]->group_id)->with('creador')->get();
-        return response()->json(['gruposusuarios' => $gruposusuarios, 'creador' => $creador, 'usuarioactivo' => $usuarioactivo]);
+        return view('admin.gimcanas.index');
     }
 
-    public function goGimcana()
+    public function getGimcanas()
     {
-        $grupos = Group::with('creador')->get();
-        $usuarios = User::all();
-        $user = Auth::user();
-        return view('gimcana', compact('grupos', 'usuarios', 'user'));
+        $gimcanas = Gimcana::with(['group', 'checkpoints.place', 'creator'])->get();
+        return response()->json($gimcanas);
     }
 
-    public function compronargrupousuario()
+    // Mostrar una gimcana específica
+    public function show($id)
     {
-        $user = Auth::user()->id;
-        $usuarioengrupo = GroupUser::where('user_id', $user)->get();
-        return response()->json(['usuarioengrupo' => $usuarioengrupo]);
+        $gimcana = Gimcana::with(['checkpoints.place'])->find($id);
+        $checkpoint = $gimcana->checkpoint;
+        return response()->json($gimcana);
     }
 
-    public function infogimcana(Request $request)
+    // Crear una nueva gimcana
+    public function store(Request $request)
     {
-        $grupos = Group::with('creador');
-        if ($request->codigo) {
-            $codigo = $request->codigo;
-            $grupos->where('codigogrupo', '=', "$codigo");
-        }
-        if ($request->creador) {
-            $creador = $request->creador;
-            $grupos->whereHas('creador', function ($query) use ($creador) {
-                $query->where('name', 'like', "%$creador%");
-            });
-        }
-        if (isset($request->codigo) || isset($request->creador)) {
-            $grupos->where('miembros', '>=', "0");
-        } else {
-            $grupos->where('miembros', '>', "0");
-        }
-        $grupos = $grupos->get();
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'group_id' => 'required|exists:groups,id',
+            'checkpoints' => 'required|array|min:4|max:4', // Asegura que se envíen exactamente 4 checkpoints
+            'completed' => 'boolean',
+        ]);
 
-        $usuarios = User::all();
-        $user = Auth::user();
-        return response()->json(['grupos' => $grupos, 'usuarios' => $usuarios, 'user' => $user]);
+        $gimcana = Gimcana::create([
+            'nombre' => $request->nombre,
+            'group_id' => $request->group_id,
+            'completed' => $request->completed,
+        ]);
+
+        $gimcana->checkpoints()->attach($request->checkpoints);
+
+        return response()->json($gimcana, 201);
     }
 
-    public function unirseagrupo(Request $request)
+    // Actualizar una gimcana
+    public function update(Request $request, $id)
     {
-        try {
-            $grupo = Group::where('id', $request->id)->get();
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'group_id' => 'required|exists:groups,id',
+            'checkpoints' => 'required|array|min:4|max:4', // Asegura que se envíen exactamente 4 checkpoints
+            'completed' => 'boolean',
+        ]);
 
-            if ($grupo[0]->miembros == 0) {
-                echo "error El grupo " . $request->nombre . " está lleno";
-                die();
-            } else {
-                $grupoUsuario = new GroupUser();
-                $grupoUsuario->group_id = $request->id;
-                $grupoUsuario->user_id = Auth::user()->id;
-                $grupoUsuario->save();
+        $gimcana = Gimcana::findOrFail($id);
+        $gimcana->update([
+            'nombre' => $request->nombre,
+            'group_id' => $request->group_id,
+            'completed' => $request->completed,
+        ]);
 
-                $grupo[0]->miembros = $grupo[0]->miembros - 1;
-                $grupo[0]->save();
-            }
-            echo "success Te has unido al grupo " . $request->nombre;
-        } catch (\Throwable $th) {
-            echo "error No se ha podido unir al grupo " . $request->nombre;
-        }
+        $gimcana->checkpoints()->sync($request->checkpoints);
+
+        return response()->json($gimcana);
     }
 
-    public function salirgrupo(Request $request)
+    // Eliminar una gimcana
+    public function destroy($id)
     {
-        try {
-            $grupo = Group::where('id', $request->id)->get();
-            $grupo[0]->miembros = $grupo[0]->miembros + 1;
-            $grupo[0]->save();
+        $gimcana = Gimcana::find($id);
+        $gimcana->checkpoints()->delete();
+        $gimcana->delete();
 
-            GroupUser::where('user_id', Auth::user()->id)->delete();
-
-            echo "success Has abandonado el grupo " . $request->nombre;
-        } catch (\PDOException $e) {
-            echo "error No se ha abandonar el grupo " . $request->nombre;
-            // echo $e;
-        }
-    }
-
-    public function eliminargrupo(Request $request)
-    {
-        DB::beginTransaction();
-        try {
-            GroupUser::where('group_id', $request->id)->delete();
-            Group::where('id', $request->id)->delete();
-            DB::commit();
-            echo "success Eliminarte el grupo " . $request->nombre;
-        } catch (\PDOException $e) {
-            DB::rollback();
-            echo "error No eliminar el grupo " . $request->nombre;
-        }
-    }
-
-    public function expulsargrupo(Request $request)
-    {
-        DB::beginTransaction();
-        try {
-            $grupo = GroupUser::find($request->id);
-
-            $grupo = Group::where('id', $grupo->group_id)->get();
-            $grupo[0]->miembros = $grupo[0]->miembros + 1;
-            $grupo[0]->save();
-
-            GroupUser::where('id', $request->id)->delete();
-
-            echo "success Expulsaste a " . $request->nombre;
-            DB::commit();
-        } catch (\PDOException $e) {
-            DB::rollback();
-            echo "error No se pudo expulsar a " . $request->nombre;
-        }
-    }
-
-    public function creargrupo(Request $request)
-    {
-        // Generar un código único de 6 caracteres
-        do {
-            $codigo = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 6);
-        } while (Group::where('codigogrupo', $codigo)->exists());
-
-        // Iniciar una transacción para asegurar la integridad de los datos
-        DB::beginTransaction();
-        try {
-            // Si existe un ID en la solicitud, significa que estamos modificando un grupo existente
-            if (isset($request->id)) {
-                // Buscar el grupo por ID
-                $resultado = Group::find($request->id);
-                // Actualizar los datos del grupo
-                $resultado->nombre = $request->nombreGrupo;
-                $resultado->codigogrupo = $codigo;
-                $resultado->creador = Auth::user()->id;
-                $resultado->miembros = $request->integrantes - 1;
-                // Guardar los cambios en la base de datos
-                $resultado->save();
-                // Confirmar éxito
-                echo "success Has modificado el grupo " . $request->nombreGrupo . " correctamente";
-            } else {
-                // Crear una nueva instancia de grupo
-                $resultado = new Group();
-                $resultado->nombre = $request->nombreGrupo;
-                $resultado->codigogrupo = $codigo;
-                $resultado->creador = Auth::user()->id;
-                $resultado->miembros = $request->integrantes - 1;
-                // Guardar el nuevo grupo
-                $resultado->save();
-                // Asignar el usuario creador al grupo en la tabla intermedia
-                $grupoUsuario = new GroupUser();
-                $grupoUsuario->group_id = $resultado->id;
-                $grupoUsuario->user_id = Auth::user()->id;
-                $grupoUsuario->save();
-                // Confirmar éxito
-                echo "success Has creado el grupo " . $request->nombreGrupo . " correctamente";
-            }
-            // Confirmar la transacción (guardar los cambios)
-            DB::commit();
-        } catch (\PDOException $e) {
-            // Si hay un error, deshacer todos los cambios de la transacción
-            DB::rollback();
-            // Mostrar el mensaje de error
-            echo "error No se pudo crear el grupo " . $request->nombreGrupo;
-            die();
-        }
+        return response()->json(null, 204);
     }
 }
