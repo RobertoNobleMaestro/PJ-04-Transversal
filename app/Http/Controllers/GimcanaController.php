@@ -81,4 +81,26 @@ class GimcanaController extends Controller
 
         return response()->json(null, 204);
     }
+
+    public function getCheckpoints($id)
+    {
+        // Cargar la gimcana con los checkpoints y sus lugares asociados
+        $gimcana = Gimcana::with(['checkpoints.place'])->findOrFail($id);
+
+        // Mapear los checkpoints para devolver los datos necesarios
+        $checkpoints = $gimcana->checkpoints->map(function($checkpoint) {
+            return [
+                'pista' => $checkpoint->pista,
+                'prueba' => $checkpoint->prueba,
+                'place' => $checkpoint->place ? [
+                    'nombre' => $checkpoint->place->nombre,
+                    'direccion' => $checkpoint->place->direccion,
+                    'coordenadas_lat' => $checkpoint->place->coordenadas_lat,
+                    'coordenadas_lon' => $checkpoint->place->coordenadas_lon,
+                ] : null,
+            ];
+        });
+
+        return response()->json($checkpoints);
+    }
 }
