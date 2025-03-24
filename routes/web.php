@@ -74,18 +74,16 @@ Route::delete('/admin/gimcanas/{id}', [GimcanaController::class, 'destroy'])->na
 // });
 
 Route::get('/run-migrations-safe', function () {
-    // Asegúrate de que la clave de despliegue sea correcta
-    if (request('key') !== env('DEPLOY_KEY')) {
-        return response()->json(['error' => 'Acceso no autorizado'], 403);
-    }
-
-    // Intentar ejecutar las migraciones
     try {
+        // Llama a las migraciones sin comprobar la clave
+        Log::info('Iniciando migración');
         $result = Artisan::call('migrate:fresh --seed --force');
         $output = Artisan::output();
+        Log::info('Migración completada', ['output' => $output]);
+
         return response()->json(['message' => 'Migraciones ejecutadas correctamente', 'output' => $output]);
     } catch (\Exception $e) {
-        // Capturar cualquier error y devolverlo
+        Log::error('Error al ejecutar migraciones: ' . $e->getMessage());
         return response()->json(['error' => 'Error al ejecutar migraciones: ' . $e->getMessage()], 500);
     }
 });
