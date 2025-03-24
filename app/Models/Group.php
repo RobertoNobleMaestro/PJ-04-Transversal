@@ -9,7 +9,12 @@ class Group extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nombre', 'fecha_creacion', 'miembros'];
+    protected $fillable = ['nombre', 'codigogrupo', 'creador', 'miembros'];
+
+    public function creador()
+    {
+        return $this->belongsTo(User::class, 'creador');
+    }
 
     public function users()
     {
