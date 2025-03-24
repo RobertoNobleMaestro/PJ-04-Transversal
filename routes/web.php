@@ -53,22 +53,34 @@ Route::delete('/admin/gimcanas/{id}', [GimcanaController::class, 'destroy'])->na
 // Route::put('/admin/places/{id}', [PlaceController::class, 'update'])->name('admin.places.update');
 // Route::delete('/admin/places/{id}', [PlaceController::class, 'destroy'])->name('admin.places.destroy');
 
+// Route::get('/run-migrations-safe', function () {
+//     // Verifica si la clave es la correcta
+//     if (request('key') !== env('DEPLOY_KEY')) {
+//         return response()->json(['error' => 'Acceso no autorizado'], Response::HTTP_FORBIDDEN);
+//     }
+
+//     try {
+//         // Ejecutar las migraciones con el comando 'migrate:fresh --seed'
+//         $output = Artisan::call('migrate:fresh --seed --force');
+
+//         // Retornar la salida de Artisan para más detalles
+//         return response()->json([
+//             'message' => 'Migraciones ejecutadas correctamente.',
+//             'output' => $output
+//         ]);
+//     } catch (\Exception $e) {
+//         return response()->json(['error' => 'Error al ejecutar migraciones: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+//     }
+// });
+
 Route::get('/run-migrations-safe', function () {
-    // Verifica si la clave es la correcta
+    dd(env('DEPLOY_KEY')); // Verifica que se esté leyendo correctamente la clave
     if (request('key') !== env('DEPLOY_KEY')) {
-        return response()->json(['error' => 'Acceso no autorizado'], Response::HTTP_FORBIDDEN);
+        return response()->json(['error' => 'Acceso no autorizado'], 403);
     }
 
-    try {
-        // Ejecutar las migraciones con el comando 'migrate:fresh --seed'
-        $output = Artisan::call('migrate:fresh --seed --force');
+    // Ejecutar las migraciones
+    Artisan::call('migrate:fresh --seed --force');
 
-        // Retornar la salida de Artisan para más detalles
-        return response()->json([
-            'message' => 'Migraciones ejecutadas correctamente.',
-            'output' => $output
-        ]);
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Error al ejecutar migraciones: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-    }
+    return "Migraciones ejecutadas correctamente.";
 });
