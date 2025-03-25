@@ -37,12 +37,13 @@ function mostrardatosgrupo() {
             return response.json();
         })
         .then(data => {
+            console.log(data);
             let html = '';
             // Información del grupo
             html += `<h1>Bienvenido a ${data.creador[0].nombre}</h1>`;
             html += '<div class="info">'
-            html += `<p>Código: ${ data.creador[0].codigogrupo }</p>`;
-            html += `<p>Creador: ${data.creador[0].creador.name}</p>`;
+            html += `<p>Código: ${data.creador[0].codigogrupo}</p>`;
+            html += `<p>Creador: ${data.creador[0].creator.name}</p>`;
             if (data.creador[0].miembros === 0) {
                 html += '<p class="group-complete">Grupo completo</p>';
             } else {
@@ -53,10 +54,10 @@ function mostrardatosgrupo() {
             html += '<div class="participants"><h2>Participantes:</h2><ul>';
             data.gruposusuarios.forEach(integrante => {
                 html += `<li>${integrante.usuarios.name}`;
-                if (data.creador[0].creador.id === integrante.user_id) {
+                if (data.creador[0].creator.id === integrante.user_id) {
                     html += ' (Creador)';
                 }
-                if (data.creador[0].creador.id === data.usuarioactivo && data.creador[0].creador.id !== integrante.user_id) {
+                if (data.creador[0].creator.id === data.usuarioactivo && data.creador[0].creator.id !== integrante.user_id) {
                     html += `<button type="button" onclick="expulsar(${integrante.id}, '${integrante.usuarios.name}')">Expulsar</button>`;
                 }
                 html += `</li>`;
@@ -64,7 +65,7 @@ function mostrardatosgrupo() {
             html += '<li class="waiting">Esperando para comenzar</li>';
             html += '</ul></div>'; // Cierre de .participants
             // Botones de acción
-            if (data.creador[0].creador.id === data.usuarioactivo) {
+            if (data.creador[0].creator.id === data.usuarioactivo) {
                 html += `<button button button type = "button" class="exit-button" onclick = "Eliminargrupo(${data.gruposusuarios[0].group_id}, '${data.creador[0].nombre}')" >Eliminar grupo</button > `;
             } else {
                 html += `<button button button type = "button" class="exit-button" onclick = "salirgimcana(${data.gruposusuarios[0].group_id}, '${data.creador[0].nombre}')" >Salir del grupo</button > `;

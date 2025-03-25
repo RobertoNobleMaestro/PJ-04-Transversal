@@ -6,6 +6,8 @@ use App\Http\Controllers\MapaController;
 use App\Http\Controllers\GimcanaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PlaceController;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Http\Response;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\GimcanaGroupController;
 use App\Http\Controllers\FavoriteController;
@@ -48,6 +50,31 @@ Route::delete('/admin/gimcanas/{id}', [GimcanaController::class, 'destroy'])->na
 Route::get('/admin/gimcanas/{gimcana}/checkpoints', [GimcanaController::class, 'getCheckpoints'])->name('gimcanas.checkpoints');
 
 // Rutas para el CRUD de lugares
+// Route::get('/admin/places', [PlaceController::class, 'index'])->name('admin.places.index');
+// Route::get('/admin/places/getPlaces', [PlaceController::class, 'getPlaces'])->name('admin.places.getPlaces');
+// Route::get('/admin/places/{id}', [PlaceController::class, 'show'])->name('admin.places.show');
+// Route::post('/admin/places', [PlaceController::class, 'store'])->name('admin.places.store');
+// Route::put('/admin/places/{id}', [PlaceController::class, 'update'])->name('admin.places.update');
+// Route::delete('/admin/places/{id}', [PlaceController::class, 'destroy'])->name('admin.places.destroy');
+
+Route::get('/run-migrations-safe', function () {
+    // Verifica la clave proporcionada
+    if (request('key') !== env('DEPLOY_KEY')) {
+        abort(403, 'Acceso no autorizado');
+    }
+
+    try {
+        // Llama a las migraciones si la clave es correcta
+        $result = Artisan::call('migrate:fresh --seed --force');
+        $output = Artisan::output();
+
+        return response()->json(['message' => 'Migraciones ejecutadas correctamente', 'output' => $output]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error al ejecutar migraciones: ' . $e->getMessage()], 500);
+    }
+});
+
+
 Route::get('/admin/places', [PlaceController::class, 'index'])->name('admin.places.index');
 Route::get('/admin/places/getPlaces', [PlaceController::class, 'getPlaces'])->name('admin.places.getPlaces');
 Route::get('/admin/places/{id}', [PlaceController::class, 'show'])->name('admin.places.show');

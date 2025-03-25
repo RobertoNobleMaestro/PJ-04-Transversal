@@ -1,0 +1,229 @@
+:root {
+    --primary-color: #2A4D14; /* Color para textos */
+    --background-color: #F1FFDD; /* Color de fondo exterior */
+    --button-color: #2A4D14; /* Color del botón */
+    --button-text-color: #FFFFFF; /* Color del texto del botón */
+}
+
+body {
+    background-color: #F1FFDD !important;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+html, body {
+    height: 100%; /* Asegura que el body ocupe toda la altura */
+    margin: 0; /* Elimina el margen por defecto */
+    padding: 0; /* Elimina el padding por defecto */
+}
+
+.auth-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem; /* Reducir el padding en móviles */
+}
+
+.auth-form-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 500px;
+    padding: 1.5rem;
+    margin: 1rem;
+    transform: scale(1) !important; /* Forzar escala inicial */
+    transform-origin: center center !important;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h2 {
+    color: var(--primary-color);
+    font-size: 1.8rem; /* Tamaño de fuente más pequeño en móviles */
+    font-weight: 700;
+}
+
+.auth-form .form-control {
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.auth-form .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(42, 77, 20, 0.25);
+}
+
+.btn-form {
+    background-color: var(--button-color);
+    color: var(--button-text-color);
+    border: none;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    border-radius: 5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+}
+
+.btn-form:hover {
+    background-color: #1a3610;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.auth-footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+.close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    cursor: pointer;
+}
+
+/* Estilos del encabezado */
+.navbar {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    background-color: white;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: var(--primary-color);
+}
+
+.nav-link {
+    color: var(--dark-color);
+}
+
+.nav-link:hover {
+    color: var(--primary-color);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.navbar-toggler {
+    border-color: var(--primary-color);
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(42, 77, 20, 0.8)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+/* Media queries para diferentes tamaños de pantalla */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1.5rem; /* Tamaño más pequeño para el logo */
+    }
+
+    .nav-link {
+        font-size: 0.9rem; /* Tamaño más pequeño para los enlaces */
+    }
+
+    .auth-form-container {
+        width: 95%;
+        padding: 1rem;
+    }
+
+    .auth-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .btn-form {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .navbar-brand {
+        font-size: 1.3rem;
+    }
+
+    .nav-link {
+        font-size: 0.9rem; /* Aumentamos ligeramente el tamaño */
+    }
+
+    .auth-form-container {
+        width: 90%;
+        padding: 1.5rem; /* Aumentamos el padding */
+        margin: 1rem auto; /* Centramos el contenedor */
+    }
+
+    .auth-header h2 {
+        font-size: 1.5rem; /* Aumentamos el tamaño del título */
+        margin-bottom: 1.5rem;
+    }
+
+    .auth-form .form-control {
+        padding: 0.8rem 1rem; /* Aumentamos el padding */
+        font-size: 1rem; /* Aumentamos el tamaño de la fuente */
+        margin-bottom: 1.2rem;
+    }
+
+    .btn-form {
+        padding: 0.8rem 1rem;
+        font-size: 1rem; /* Aumentamos el tamaño del botón */
+    }
+
+    .auth-footer {
+        font-size: 0.9rem; /* Ajustamos el tamaño del texto del footer */
+    }
+
+    .form-label {
+        font-size: 0.95rem; /* Aumentamos el tamaño de las etiquetas */
+        margin-bottom: 0.5rem;
+    }
+
+    /* Añadir estas reglas específicas para el registro */
+    #registrationForm {
+        font-size: 1rem !important;
+    }
+
+    #registrationForm .form-control {
+        font-size: 1rem !important;
+        padding: 0.8rem 1rem !important;
+    }
+
+    #registrationForm .form-label {
+        font-size: 0.95rem !important;
+    }
+}
+
+.error-message {
+    color: red;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    display: block;
+}
