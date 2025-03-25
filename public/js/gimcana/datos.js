@@ -37,11 +37,12 @@ function mostrardatosgrupo() {
             return response.json();
         })
         .then(data => {
+            console.log(data);
             let html = '';
             // Información del grupo
             html += `<h1>Bienvenido a ${data.creador[0].nombre}</h1>`;
             html += '<div class="info">'
-            html += `<p>Código: ${ data.creador[0].codigogrupo }</p>`;
+            html += `<p>Código: ${data.creador[0].codigogrupo}</p>`;
             html += `<p>Creador: ${data.creador[0].creador.name}</p>`;
             if (data.creador[0].miembros === 0) {
                 html += '<p class="group-complete">Grupo completo</p>';

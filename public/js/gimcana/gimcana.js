@@ -46,7 +46,7 @@ function grupos(datos) {
         grupos += '<div class="card">';
         grupos += '    <div class="container">';
         grupos += '        <h2>' + dato.nombre + '</h2>';
-        grupos += '        <p>Creador: ' + dato.creador.name + '</p>';
+        grupos += '        <p>Creador: ' + dato.creator.name + '</p>';
         grupos += '        <p>Gincama: ' + dato.gimcana.nombre + '</p>';
         if (dato.miembros == 0) {
             grupos += '    <p>Grupo completo</p>';

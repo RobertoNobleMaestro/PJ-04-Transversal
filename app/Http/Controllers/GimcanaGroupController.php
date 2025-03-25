@@ -18,7 +18,7 @@ class GimcanaGroupController extends Controller
         $usuarioactivo = Auth::user()->id;
         $usuario = GroupUser::where('user_id', Auth::user()->id)->get();
         $gruposusuarios = GroupUser::with('usuarios')->where('group_id', $usuario[0]->group_id)->get();
-        $creador = Group::where('id', $usuario[0]->group_id)->with('creador')->get();
+        $creador = Group::where('id', $usuario[0]->group_id)->with('creator')->get();
         return response()->json(['gruposusuarios' => $gruposusuarios, 'creador' => $creador, 'usuarioactivo' => $usuarioactivo]);
     }
 
@@ -50,7 +50,7 @@ class GimcanaGroupController extends Controller
 
     public function infogimcana(Request $request)
     {
-        $grupos = Group::with('creador')->with('gimcana');
+        $grupos = Group::with('creator')->with('gimcana');
         if ($request->codigo) {
             $codigo = $request->codigo;
             $grupos->where('codigogrupo', '=', "$codigo");
