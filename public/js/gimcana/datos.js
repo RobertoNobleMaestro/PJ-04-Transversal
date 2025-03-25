@@ -17,11 +17,11 @@ function compronargrupousuario() {
                 window.location.href = data.redirect;
             }
             if (data.usuarioengrupo == 0) {
-                document.getElementById('modalinfogrupos').style.display = 'block';
+                document.getElementById('infogrupos').style.display = 'block';
                 document.getElementById('infogrupo').style.display = 'none';
                 mostrardatos();
             } else {
-                document.getElementById('modalinfogrupos').style.display = 'none';
+                document.getElementById('infogrupos').style.display = 'none';
                 document.getElementById('infogrupo').style.display = 'block';
                 mostrardatosgrupo();
             }

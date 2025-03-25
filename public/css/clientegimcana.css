@@ -59,6 +59,7 @@ body {
     padding: 1rem;
     padding-top: 0;
     font-size: 0.9rem; /* Reducimos el tamaño de fuente general */
+    margin-top: 60px; /* Añadir margen superior para evitar solapamiento con el header */
 }
 
 /* Añadir más espaciado a las secciones principales */
@@ -82,6 +83,22 @@ body {
 nav.navbar {
     margin: -1rem -1rem 0 -1rem;
     width: calc(100% + 2rem);
+    position: fixed; /* Fijar el header en la parte superior */
+    top: 0;
+    left: 0;
+    z-index: 1000; /* Asegurar que el header esté por encima del contenido */
+    height: 70px; /* Aumentar la altura del header */
+    display: flex;
+    align-items: center; /* Centrar verticalmente el contenido */
+    justify-content: flex-start; /* Alinear el contenido a la izquierda */
+}
+
+.navbar-brand {
+    font-size: 1.5rem; /* Aumentar el tamaño del texto del header */
+    display: flex;
+    align-items: center; /* Centrar verticalmente el texto y el icono */
+    height: 100%; /* Asegurar que el contenedor ocupe toda la altura del header */
+    padding: 0 1rem; /* Añadir padding horizontal para separación */
 }
 
 @media (max-width: 767px) {
@@ -186,14 +203,6 @@ h2 {
     z-index: 1000;
     justify-content: center;
     align-items: center;
-    padding-top: 60px; /* Espacio para el header */
-    box-sizing: border-box; /* Asegura que el padding no afecte el ancho */
-}
-
-@media (min-width: 768px) {
-    #modalCrearGrupo {
-        padding-top: 0; /* En desktop no necesitamos el padding */
-    }
 }
 
 .modal-content {
@@ -294,4 +303,8 @@ h2 {
     .mobile-footer {
         display: none;
     }
+}
+
+#infogrupos {
+    display: none;
 }
