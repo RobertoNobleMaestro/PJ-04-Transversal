@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Gimcana;
 use App\Models\Checkpoint;
 use App\Models\Place;
+use Illuminate\Support\Facades\DB;
 
 class GimcanaController extends Controller
 {
@@ -17,37 +18,76 @@ class GimcanaController extends Controller
 
     public function getGimcanas()
     {
-        $gimcanas = Gimcana::with(['group', 'checkpoints.place', 'creator'])->get();
+        // Cargar las gimcanas con las relaciones necesarias
+        $gimcanas = Gimcana::with(['groups.creator', 'checkpoints.place'])->get();
+
+        // Mapear los datos para devolver solo lo necesario
+        $gimcanas = $gimcanas->map(function($gimcana) {
+            return [
+                'id' => $gimcana->id,
+                'nombre' => $gimcana->nombre,
+                'group' => $gimcana->groups->first() ? [
+                    'codigogrupo' => $gimcana->groups->first()->codigogrupo ?? 'Sin código',
+                ] : null,
+                'creator' => $gimcana->creator ? [
+                    'name' => $gimcana->creator->name ?? 'Sin nombre'
+                ] : null,
+                'completed' => $gimcana->completed,
+                'checkpoints' => $gimcana->checkpoints->map(function($checkpoint) {
+                    return [
+                        'pista' => $checkpoint->pista,
+                        'prueba' => $checkpoint->prueba,
+                        'place' => $checkpoint->place ? [
+                            'nombre' => $checkpoint->place->nombre
+                        ] : null
+                    ];
+                })
+            ];
+        });
+
         return response()->json($gimcanas);
     }
-
-    // Mostrar una gimcana específica
     public function show($id)
     {
         $gimcana = Gimcana::with(['checkpoints.place'])->find($id);
-        $checkpoint = $gimcana->checkpoint;
+    
+        if (!$gimcana) {
+            return response()->json(['error' => 'Gimcana no encontrada'], 404);
+        }
+    
         return response()->json($gimcana);
     }
-
+    
     // Crear una nueva gimcana
     public function store(Request $request)
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
             'group_id' => 'required|exists:groups,id',
-            'checkpoints' => 'required|array|min:4|max:4', // Asegura que se envíen exactamente 4 checkpoints
-            'completed' => 'boolean',
+            'checkpoints' => 'nullable|array',
         ]);
 
-        $gimcana = Gimcana::create([
-            'nombre' => $request->nombre,
-            'group_id' => $request->group_id,
-            'completed' => $request->completed,
-        ]);
+        DB::beginTransaction();
 
-        $gimcana->checkpoints()->attach($request->checkpoints);
+        try {
+            // Crear la gimcana
+            $gimcana = new Gimcana();
+            $gimcana->nombre = $request->nombre;
+            $gimcana->group_id = $request->group_id;
+            $gimcana->save();
 
-        return response()->json($gimcana, 201);
+            // Asignar checkpoints si existen
+            if ($request->has('checkpoints')) {
+                $gimcana->checkpoints()->sync($request->checkpoints);
+            }
+
+            DB::commit();
+
+            return response()->json(['success' => 'Gimcana creada correctamente'], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Error al crear la gimcana: ' . $e->getMessage()], 500);
+        }
     }
 
     // Actualizar una gimcana
@@ -84,23 +124,49 @@ class GimcanaController extends Controller
 
     public function getCheckpoints($id)
     {
-        // Cargar la gimcana con los checkpoints y sus lugares asociados
-        $gimcana = Gimcana::with(['checkpoints.place'])->findOrFail($id);
+        $gimcana = Gimcana::with(['checkpoints' => function($query) {
+            $query->orderBy('gimcana_checkpoint.created_at', 'asc');
+        }])->findOrFail($id);
 
         // Mapear los checkpoints para devolver los datos necesarios
         $checkpoints = $gimcana->checkpoints->map(function($checkpoint) {
             return [
                 'pista' => $checkpoint->pista,
                 'prueba' => $checkpoint->prueba,
-                'place' => $checkpoint->place ? [
-                    'nombre' => $checkpoint->place->nombre,
-                    'direccion' => $checkpoint->place->direccion,
-                    'coordenadas_lat' => $checkpoint->place->coordenadas_lat,
-                    'coordenadas_lon' => $checkpoint->place->coordenadas_lon,
-                ] : null,
+                'place' => $checkpoint->place, // Si necesitas información del lugar
             ];
         });
 
         return response()->json($checkpoints);
+    }
+
+    public function edit($id)
+    {
+        // Obtener la gimcana con sus relaciones
+        $gimcana = Gimcana::with(['group', 'checkpoints'])->findOrFail($id);
+
+        // Formatear los datos para la respuesta JSON
+        $data = [
+            'id' => $gimcana->id,
+            'nombre' => $gimcana->nombre,
+            'group_id' => $gimcana->group ? $gimcana->group->id : null,
+            'group' => $gimcana->group ? [
+                'id' => $gimcana->group->id,
+                'nombre' => $gimcana->group->nombre,
+            ] : null,
+            'checkpoints' => $gimcana->checkpoints->map(function ($checkpoint) {
+                return [
+                    'id' => $checkpoint->id,
+                    'pista' => $checkpoint->pista,
+                    'prueba' => $checkpoint->prueba,
+                    'place' => $checkpoint->place ? [
+                        'id' => $checkpoint->place->id,
+                        'nombre' => $checkpoint->place->nombre,
+                    ] : null,
+                ];
+            }),
+        ];
+
+        return response()->json($data);
     }
 }
