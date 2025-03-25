@@ -17,7 +17,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/inicioAdmin', [AuthController::class, 'showInicioAdmin'])->name('inicioAdmin');
     Route::get('/mapa', MapaController::class)->name('mapa');
     Route::get('/gimcana', [GimcanaGroupController::class, 'goGimcana'])->name('gimcana');
-    Route::get('/gimcana/juego', [GimcanaGroupController::class, 'goGimcana'])->name('gimcana.juego');
+    Route::get('/gimcana/juego', [GimcanaGroupController::class, 'gimcanagame'])->name('gimcana.juego');
 });
 
 Route::get('/', [AuthController::class, 'showHome']);
@@ -92,6 +92,7 @@ Route::controller(GimcanaGroupController::class)->group(function () {
     Route::post('/eliminargrupo', 'eliminargrupo');
     Route::post('/expulsargrupo', 'expulsargrupo');
     Route::post('/creargrupo', 'creargrupo');
+    Route::post('/empezargimcana', 'empezargimcana');
 });
 
 // Rutas para favoritos
@@ -100,6 +101,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/favorites/toggle/{placeId}', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
     Route::get('/favorites/check/{placeId}', [FavoriteController::class, 'isFavorite'])->name('favorites.check');
     Route::get('/favorites/list', [FavoriteController::class, 'getFavorites'])->name('favorites.list');
+    Route::post('/favorites/save-route', [FavoriteController::class, 'saveRoute'])->name('favorites.save-route');
+    Route::post('/favorites/save-route', [FavoriteController::class, 'saveRoute'])->name('favorites.save-route');
     Route::get('/places/search', [PlaceController::class, 'search'])->name('places.search');
 });
 Route::get('/admin/places/{id}/edit', [PlaceController::class, 'edit']);

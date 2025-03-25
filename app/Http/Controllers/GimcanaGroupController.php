@@ -18,7 +18,7 @@ class GimcanaGroupController extends Controller
         $usuarioactivo = Auth::user()->id;
         $usuario = GroupUser::where('user_id', Auth::user()->id)->get();
         $gruposusuarios = GroupUser::with('usuarios')->where('group_id', $usuario[0]->group_id)->get();
-        $creador = Group::where('id', $usuario[0]->group_id)->with('creator')->get();
+        $creador = Group::where('id', $usuario[0]->group_id)->with('creator')->with('gimcana')->get();
         return response()->json(['gruposusuarios' => $gruposusuarios, 'creador' => $creador, 'usuarioactivo' => $usuarioactivo]);
     }
 
@@ -41,6 +41,11 @@ class GimcanaGroupController extends Controller
         return view('gimcana');
     }
 
+    public function gimcanagame()
+    {
+        return view('juego.index');
+    }
+
     public function compronargrupousuario()
     {
         $user = Auth::user()->id;
@@ -52,7 +57,7 @@ class GimcanaGroupController extends Controller
         $estadogrupo = Group::where('id', $usuarioengrupo[0]->group_id)->get();
         switch ($estadogrupo[0]->estado) {
             case 'Empezado':
-                return view('gimcana.juego');
+                return response()->json(['redirect' => url('/gimcana/juego')]);
                 break;
             default:
                 return response()->json(['usuarioengrupo' => $usuarioengrupo, 'estadogrupo' => $estadogrupo]);
@@ -227,6 +232,23 @@ class GimcanaGroupController extends Controller
             // Mostrar el mensaje de error
             echo "error No se pudo crear el grupo " . $request->nombreGrupo;
             die();
+        }
+    }
+
+    public function empezargimcana(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $grupo = Group::find($request->id);
+            $grupo->estado = 'Empezado';
+            $grupo->save();
+            // echo $grupo->toSql();
+            // return response()->json(['redirect' => url('/gimcana/juego')]);
+            echo "redirect /gimcana/juego";
+            DB::commit();
+        } catch (\PDOException $e) {
+            DB::rollback();
+            echo "error No se pudo expulsar a " . $request->nombre;
         }
     }
 }

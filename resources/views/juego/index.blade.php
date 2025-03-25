@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <p>empezando</p>
+    <p>Juego pendiente</p>
 </body>
 
 </html>
