@@ -35,4 +35,9 @@ class Group extends Model
     {
         return $this->belongsTo(Gimcana::class);
     }
+
+    public function creador()
+    {
+        return $this->belongsTo(User::class, 'creador');
+    }
 }

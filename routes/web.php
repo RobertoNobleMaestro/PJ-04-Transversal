@@ -6,8 +6,8 @@ use App\Http\Controllers\MapaController;
 use App\Http\Controllers\GimcanaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PlaceController;
-use App\Http\Controllers\GimcanaGroupController;
-use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\CategoryController;
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/inicio', [AuthController::class, 'showDashboard'])->name('inicio');
@@ -41,7 +41,8 @@ Route::get('/admin/gimcanas', [GimcanaController::class, 'index'])->name('admin.
 Route::get('/admin/gimcanas/getGimcanas', [GimcanaController::class, 'getGimcanas'])->name('admin.gimcanas.getGimcanas');
 Route::get('/admin/gimcanas/{id}', [GimcanaController::class, 'show'])->name('admin.gimcanas.show');
 Route::post('/admin/gimcanas', [GimcanaController::class, 'store'])->name('admin.gimcanas.store');
-Route::put('/admin/gimcanas/{id}', [GimcanaController::class, 'update'])->name('admin.gimcanas.update');
+Route::get('/admin/gimcanas/editar/{id}', [GimcanaController::class, 'edit'])->name('admin.gimcanas.edit');
+Route::post('/admin/gimcanas/editar/{id}', [GimcanaController::class, 'update'])->name('admin.gimcanas.update');
 Route::delete('/admin/gimcanas/{id}', [GimcanaController::class, 'destroy'])->name('admin.gimcanas.destroy');
 Route::get('/admin/gimcanas/{gimcana}/checkpoints', [GimcanaController::class, 'getCheckpoints'])->name('gimcanas.checkpoints');
 
@@ -72,3 +73,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/favorites/list', [FavoriteController::class, 'getFavorites'])->name('favorites.list');
     Route::get('/places/search', [PlaceController::class, 'search'])->name('places.search');
 });
+Route::get('/admin/places/{id}/edit', [PlaceController::class, 'edit']);
+
+// Rutas para el CRUD de categorías
+Route::get('/admin/categories', [CategoryController::class, 'index']);
