@@ -70,5 +70,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/favorites/toggle/{placeId}', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
     Route::get('/favorites/check/{placeId}', [FavoriteController::class, 'isFavorite'])->name('favorites.check');
     Route::get('/favorites/list', [FavoriteController::class, 'getFavorites'])->name('favorites.list');
+    Route::post('/favorites/save-route', [FavoriteController::class, 'saveRoute'])->name('favorites.save-route');
+    Route::post('/favorites/save-route', [FavoriteController::class, 'saveRoute'])->name('favorites.save-route');
     Route::get('/places/search', [PlaceController::class, 'search'])->name('places.search');
 });
