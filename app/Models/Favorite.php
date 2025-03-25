@@ -9,7 +9,11 @@ class Favorite extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'place_id'];
+    protected $fillable = ['user_id', 'place_id', 'route_data'];
+
+    protected $casts = [
+        'route_data' => 'array'
+    ];
 
     public function user()
     {

@@ -46,18 +46,23 @@
                 <div class="mb-3">
                     <label for="nombre" class="form-label">Nombre:</label>
                     <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Introduzca aquí el nombre">
+                    <span id="nombreError" class="error-message"></span>
                 </div>
                 <div class="mb-3">
                     <label for="email" class="form-label">Email:</label>
                     <input type="email" id="email" name="email" class="form-control" placeholder="Introduzca aquí el email">
+                    <span id="emailError" class="error-message"></span>
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Contraseña:</label>
                     <input type="password" id="password" name="password" class="form-control" placeholder="Introduzca aquí la contraseña">
+                    <span id="passwordError" class="error-message"></span>
+
                 </div>
                 <div class="mb-3">
                     <label for="password_confirmation" class="form-label">Confirmar contraseña:</label>
                     <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" placeholder="Repita aquí la contraseña">
+                    <span id="passwordConfirmationError" class="error-message"></span>
                 </div>
                 <button type="submit" class="btn-form">Registrarse</button>
                 <div class="auth-footer">
