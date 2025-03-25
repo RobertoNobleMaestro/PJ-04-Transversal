@@ -183,7 +183,7 @@ function editarLugar(id) {
 
             // Cargar categorías antes de seleccionar la correcta
             cargarCategorias().then(() => {
-                document.getElementById('editarCategoriaLugar').value = data.categoria_id;
+                document.getElementById('editarCategoria').value = data.categoria_id;
             });
 
             // Mostrar el modal de edición de lugares
@@ -335,28 +335,40 @@ function cargarCategorias() {
     return fetch('/admin/categories')
         .then(response => {
             if (!response.ok) {
-                throw new Error('Error al cargar categorías');
+                throw new Error('Error en la respuesta del servidor');
             }
             return response.json();
         })
         .then(data => {
             const selectCrear = document.getElementById('crearCategoria');
-            const selectEditar = document.getElementById('editarCategoriaLugar');
+            const selectEditar = document.getElementById('editarCategoria');
             
-            // Limpiar selects
-            selectCrear.innerHTML = '<option value="">Seleccione una categoría</option>';
-            selectEditar.innerHTML = '<option value="">Seleccione una categoría</option>';
-            
-            // Agregar opciones
-            data.forEach(categoria => {
-                const option = document.createElement('option');
-                option.value = categoria.id;
-                option.textContent = categoria.name;
+            // Verificar que los elementos existen antes de manipularlos
+            if (selectCrear) {
+                // Limpiar select de creación
+                selectCrear.innerHTML = '<option value="">Seleccione una categoría</option>';
                 
-                // Clonar la opción para ambos selects
-                selectCrear.appendChild(option.cloneNode(true));
-                selectEditar.appendChild(option.cloneNode(true));
-            });
+                // Agregar opciones
+                data.forEach(categoria => {
+                    const option = document.createElement('option');
+                    option.value = categoria.id;
+                    option.textContent = categoria.name;
+                    selectCrear.appendChild(option);
+                });
+            }
+            
+            if (selectEditar) {
+                // Limpiar select de edición
+                selectEditar.innerHTML = '<option value="">Seleccione una categoría</option>';
+                
+                // Agregar opciones
+                data.forEach(categoria => {
+                    const option = document.createElement('option');
+                    option.value = categoria.id;
+                    option.textContent = categoria.name;
+                    selectEditar.appendChild(option);
+                });
+            }
         })
         .catch(error => {
             console.error('Error al cargar categorías:', error);
@@ -369,6 +381,3 @@ document.addEventListener('DOMContentLoaded', function() {
     cargarCategorias();
 });
 document.getElementById("CrearPlaceBtn").onclick = abrirModalCrear;
-// document.getElementById("btn").onclick = saludar;
-// document.getElementById("btn").onclick = saludar;
-// document.getElementById("btn").onclick = saludar;

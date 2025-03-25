@@ -7,12 +7,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
-    <title>Document</title>
+    <!-- Añadir CSS de Leaflet Control Geocoder -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-control-geocoder/2.4.0/Control.Geocoder.css" />
+    <title>Administración de Gimcanas</title>
 </head>
 <body>
 <style>
@@ -57,7 +56,7 @@
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="lugares-tab" data-bs-toggle="tab" data-bs-target="#Mapa" type="button" role="tab">
+            <button class="nav-link" id="mapa-tab" data-bs-toggle="tab" data-bs-target="#Mapa" type="button" role="tab">
                 Mapa gimcanas
             </button>
         </li>
@@ -205,15 +204,13 @@
                         <label for="crearDireccion" class="form-label">Dirección</label>
                         <input type="text" class="form-control" id="crearDireccion" name="direccion" required>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="crearLatitud" class="form-label">Latitud</label>
-                            <input type="number" step="any" class="form-control" id="crearLatitud" name="coordenadas_lat" required>
-                        </div>
-                        <div class="col">
-                            <label for="crearLongitud" class="form-label">Longitud</label>
-                            <input type="number" step="any" class="form-control" id="crearLongitud" name="coordenadas_lon" required>
-                        </div>
+                    <div class="mb-3">
+                        <label for="crearLatitud" class="form-label">Latitud</label>
+                        <input type="number" step="any" class="form-control" id="crearLatitud" name="coordenadas_lat" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="crearLongitud" class="form-label">Longitud</label>
+                        <input type="number" step="any" class="form-control" id="crearLongitud" name="coordenadas_lon" required>
                     </div>
                     <div class="mb-3">
                         <label for="crearCategoria" class="form-label">Categoría</label>
@@ -223,11 +220,11 @@
                     </div>
                     <div class="mb-3">
                         <label for="crearImagen" class="form-label">Imagen</label>
-                        <input type="file" class="form-control" id="crearImagen" name="imagen" accept="image/*">
+                        <input type="file" class="form-control" id="crearImagen" name="imagen">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="submit" class="btn btn-primary">Crear</button>
                     </div>
                 </form>
             </div>
@@ -235,7 +232,6 @@
     </div>
 </div>
 
-<!-- Modal de Edición de Lugares -->
 <div class="modal fade" id="editarLugarModal" tabindex="-1" aria-labelledby="editarLugarModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -244,39 +240,37 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="formEditarLugar" onsubmit="event.preventDefault(); guardarCambiosLugar();" enctype="multipart/form-data">
-                    <input type="hidden" id="editarLugarId" name="id">
+                <form id="formEditarLugar" onsubmit="event.preventDefault(); actualizarLugar();">
+                    <input type="hidden" id="editarId" name="id">
                     <div class="mb-3">
                         <label for="editarNombreLugar" class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="editarNombreLugar" name="nombre" required>
                     </div>
                     <div class="mb-3">
-                        <label for="editarDescripcionLugar" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="editarDescripcionLugar" name="descripcion" required></textarea>
+                        <label for="editarDescripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="editarDescripcion" name="descripcion" required></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="editarDireccionLugar" class="form-label">Dirección</label>
-                        <input type="text" class="form-control" id="editarDireccionLugar" name="direccion" required>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="editarLatitudLugar" class="form-label">Latitud</label>
-                            <input type="number" step="any" class="form-control" id="editarLatitudLugar" name="coordenadas_lat" required>
-                        </div>
-                        <div class="col">
-                            <label for="editarLongitudLugar" class="form-label">Longitud</label>
-                            <input type="number" step="any" class="form-control" id="editarLongitudLugar" name="coordenadas_lon" required>
-                        </div>
+                        <label for="editarDireccion" class="form-label">Dirección</label>
+                        <input type="text" class="form-control" id="editarDireccion" name="direccion" required>
                     </div>
                     <div class="mb-3">
-                        <label for="editarCategoriaLugar" class="form-label">Categoría</label>
-                        <select class="form-select" id="editarCategoriaLugar" name="categoria_id" required>
+                        <label for="editarLatitud" class="form-label">Latitud</label>
+                        <input type="number" step="any" class="form-control" id="editarLatitud" name="coordenadas_lat" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editarLongitud" class="form-label">Longitud</label>
+                        <input type="number" step="any" class="form-control" id="editarLongitud" name="coordenadas_lon" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editarCategoria" class="form-label">Categoría</label>
+                        <select class="form-select" id="editarCategoria" name="categoria_id" required>
                             <option value="">Seleccione una categoría</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="editarImagenLugar" class="form-label">Imagen</label>
-                        <input type="file" class="form-control" id="editarImagenLugar" name="imagen" accept="image/*">
+                        <label for="editarImagen" class="form-label">Imagen</label>
+                        <input type="file" class="form-control" id="editarImagen" name="imagen">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -296,8 +290,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="formEditarGimcana" onsubmit="event.preventDefault(); guardarCambiosGimcana();">
-                    <input type="hidden" id="editarGimcanaId" name="id">
+                <form id="formEditarGimcana" onsubmit="event.preventDefault(); actualizarGimcana();">
+                    <input type="hidden" id="editarIdGimcana" name="id">
                     <div class="mb-3">
                         <label for="editarNombre" class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="editarNombre" name="nombre" required>
@@ -323,13 +317,14 @@
         </div>
     </div>
 </div>    
-</body>
-</html>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 <script src="{{ asset('js/map.js') }}"></script>
 <script src="{{ asset('js/script-crud-gimcana.js') }}"></script>
-
-
+</body>
+</html>
