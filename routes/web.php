@@ -7,7 +7,8 @@ use App\Http\Controllers\GimcanaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\CategoryController;
-
+use App\Http\Controllers\GimcanaGroupController;
+use App\Http\Controllers\FavoriteController;
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/inicio', [AuthController::class, 'showDashboard'])->name('inicio');

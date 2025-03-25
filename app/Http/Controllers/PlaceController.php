@@ -139,8 +139,114 @@ class PlaceController extends Controller
 
     public function destroy($id)
     {
-        $place = Place::findOrFail($id);
-        $place->delete();
-        return response()->json(null, 204);
+        DB::beginTransaction();
+
+        try {
+            $place = Place::findOrFail($id);
+
+            // Eliminar los favoritos asociados al lugar
+            $place->favorites()->delete();
+
+            // Eliminar los checkpoints asociados al lugar
+            $place->checkpoints()->each(function ($checkpoint) {
+                $checkpoint->gimcanas()->detach(); // Elimina las relaciones en gimcana_checkpoint
+            });
+            $place->checkpoints()->delete();
+
+            // Eliminar la imagen si existe
+            if ($place->imagen && Storage::exists('public/' . $place->imagen)) {
+                Storage::delete('public/' . $place->imagen);
+            }
+
+            // Eliminar el lugar
+            $place->delete();
+
+            DB::commit();
+
+            return response()->json(['success' => 'Lugar eliminado correctamente'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Error al eliminar el lugar: ' . $e->getMessage()], 500);
+        }
+    }
+    
+    /**
+     * Search for places by name or category
+     */
+    public function search(Request $request)
+    {
+        $query = $request->input('query', '');
+        
+        // Registrar la consulta para depuración        
+        // Si la consulta está vacía, devolver todos los lugares (limitados)
+        if (empty($query)) {
+            $places = Place::with('category')->limit(10)->get();
+            return response()->json(['places' => $places]);
+        }
+        
+        // Usar una consulta más flexible
+        $places = Place::with('category')
+            ->where(function($q) use ($query) {
+                $q->where('nombre', 'LIKE', "%{$query}%")
+                  ->orWhere('descripcion', 'LIKE', "%{$query}%")
+                  ->orWhere('direccion', 'LIKE', "%{$query}%");
+            })
+            ->orWhereHas('category', function($q) use ($query) {
+                $q->where('name', 'LIKE', "%{$query}%");
+            })
+            ->limit(20)
+            ->get();
+        
+        // Registrar resultados para depuración
+        
+        // Si no hay resultados, intentar una búsqueda más amplia
+        if ($places->isEmpty()) {
+            // Intentar con una búsqueda más amplia (solo buscar por parte de la palabra)
+            $words = explode(' ', $query);
+            $places = Place::with('category')
+                ->where(function($q) use ($words) {
+                    foreach ($words as $word) {
+                        if (strlen($word) > 3) { // Solo palabras con más de 3 caracteres
+                            $q->orWhere('nombre', 'LIKE', "%{$word}%")
+                              ->orWhere('descripcion', 'LIKE', "%{$word}%")
+                              ->orWhere('direccion', 'LIKE', "%{$word}%");
+                        }
+                    }
+                })
+                ->limit(20)
+                ->get();
+                
+        }
+            
+        return response()->json(['places' => $places]);
+        DB::beginTransaction();
+
+        try {
+            $place = Place::findOrFail($id);
+
+            // Eliminar los favoritos asociados al lugar
+            $place->favorites()->delete();
+
+            // Eliminar los checkpoints asociados al lugar
+            $place->checkpoints()->each(function ($checkpoint) {
+                $checkpoint->gimcanas()->detach(); // Elimina las relaciones en gimcana_checkpoint
+            });
+            $place->checkpoints()->delete();
+
+            // Eliminar la imagen si existe
+            if ($place->imagen && Storage::exists('public/' . $place->imagen)) {
+                Storage::delete('public/' . $place->imagen);
+            }
+
+            // Eliminar el lugar
+            $place->delete();
+
+            DB::commit();
+
+            return response()->json(['success' => 'Lugar eliminado correctamente'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Error al eliminar el lugar: ' . $e->getMessage()], 500);
+        }
     }
 }
