@@ -48,11 +48,13 @@
                 @csrf
                 <div class="mb-3">
                     <label for="email" class="form-label">Email:</label>
-                    <input type="text" name="email" class="form-control" value="maria@example.com">
+                    <input type="text" name="email" id="email" class="form-control" value="maria@example.com">
+                    <span id="emailError" class="error-message"></span>
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Contraseña:</label>
-                    <input type="password" name="password" class="form-control">
+                    <input type="password" name="password" id="password" class="form-control">
+                    <span id="passwordError" class="error-message"></span>
                 </div>
                 <button type="submit" class="btn-form">Login</button>
                 <div class="auth-footer">
@@ -67,6 +69,7 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('js/script-login.js') }}"></script>
 </body>
 
 </html>
