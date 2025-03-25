@@ -7,17 +7,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function mostrarError(id, mensaje) {
         const errorSpan = document.getElementById(id);
-        errorSpan.textContent = mensaje;
+        if (errorSpan) {
+            errorSpan.textContent = mensaje;
+            const input = document.getElementById(id.replace('Error', ''));
+            if (input) {
+                input.style.borderColor = "red";
+            }
+        }
     }
 
     function limpiarError(id) {
         const errorSpan = document.getElementById(id);
-        errorSpan.textContent = "";
+        if (errorSpan) {
+            errorSpan.textContent = "";
+            const input = document.getElementById(id.replace('Error', ''));
+            if (input) {
+                input.style.borderColor = "";
+            }
+        }
     }
 
     function validarNombre() {
         const value = nombre.value.trim();
-        const regex = /^[A-Za-zÁáÉéÍíÓóÚúÑñ\s]+$/;
+        const regex = /^[A-Za-zÁáÉéÍíÓóÚúÑñ\s'-]+$/;
 
         if (value === "") {
             mostrarError("nombreError", "El nombre de usuario está vacío");
@@ -25,6 +37,10 @@ document.addEventListener("DOMContentLoaded", function () {
             return false;
         } else if (value.length < 3) {
             mostrarError("nombreError", "El nombre debe tener al menos 3 caracteres");
+            nombre.style.borderColor = "red";
+            return false;
+        } else if (value.length > 50) {
+            mostrarError("nombreError", "El nombre no puede exceder los 50 caracteres");
             nombre.style.borderColor = "red";
             return false;
         } else if (!regex.test(value)) {
@@ -50,6 +66,10 @@ document.addEventListener("DOMContentLoaded", function () {
             mostrarError("emailError", "El email no tiene un formato válido");
             email.style.borderColor = "red";
             return false;
+        } else if (value.length > 100) {
+            mostrarError("emailError", "El email no puede exceder los 100 caracteres");
+            email.style.borderColor = "red";
+            return false;
         } else {
             limpiarError("emailError");
             email.style.borderColor = "";
@@ -59,6 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function validarPassword() {
         const value = password.value.trim();
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/;
 
         if (value === "") {
             mostrarError("passwordError", "La contraseña está vacía");
@@ -66,6 +87,14 @@ document.addEventListener("DOMContentLoaded", function () {
             return false;
         } else if (value.length < 6) {
             mostrarError("passwordError", "La contraseña debe tener al menos 6 caracteres");
+            password.style.borderColor = "red";
+            return false;
+        } else if (!regex.test(value)) {
+            mostrarError("passwordError", "La contraseña debe contener al menos una mayúscula, una minúscula y un número");
+            password.style.borderColor = "red";
+            return false;
+        } else if (value.length > 50) {
+            mostrarError("passwordError", "La contraseña no puede exceder los 50 caracteres");
             password.style.borderColor = "red";
             return false;
         } else {
@@ -97,6 +126,12 @@ document.addEventListener("DOMContentLoaded", function () {
     password.addEventListener('blur', validarPassword);
     passwordConfirmation.addEventListener('blur', validarPasswordConfirm);
 
+    // Añadir validación en tiempo real para todos los campos
+    nombre.addEventListener('input', validarNombre);
+    email.addEventListener('input', validarEmail);
+    password.addEventListener('input', validarPassword);
+    passwordConfirmation.addEventListener('input', validarPasswordConfirm);
+
     formulario.addEventListener('submit', function (event) {
         let formIsValid = true;
 
@@ -106,7 +141,15 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!validarPasswordConfirm()) formIsValid = false;
 
         if (!formIsValid) {
-            event.preventDefault(); // Evita el envío si hay errores
+            event.preventDefault();
+            // Enfocar el primer campo con error
+            const firstError = document.querySelector('.error-message:not(:empty)');
+            if (firstError) {
+                const input = document.getElementById(firstError.id.replace('Error', ''));
+                if (input) {
+                    input.focus();
+                }
+            }
         }
     });
 });
