@@ -1,4 +1,5 @@
 document.getElementById('btnAbrirModal').addEventListener('click', () => {
+    cargagimcanas();
     document.getElementById('modalCrearGrupo').style.display = 'block';
 });
 
@@ -33,5 +34,39 @@ document.getElementById('formCrearGrupo').addEventListener('submit', (event) => 
                 document.getElementById('modalCrearGrupo').style.display = 'none';
             }
         })
-
 });
+
+document.getElementById('buscargimcana').addEventListener('keyup', () => {
+    cargagimcanas();
+});
+
+function cargagimcanas() {
+    let buscargimcana = document.getElementById('buscargimcana').value;
+    let resultado = document.getElementById('selectgimcana');
+    var csrfToken = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
+    var formData = new FormData();
+    formData.append('nombre', buscargimcana);
+    formData.append('_token', csrfToken);
+    fetch('/cargagimcanas', {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => {
+            if (!response.ok) throw new Error("Error al cargar los datos");
+            return response.json();
+        })
+        .then(data => {
+            let gimcanas = '';
+            if (buscargimcana == '') {
+                gimcanas += '<option value="">Selecciona una gimcana</option>';
+            }
+            data.forEach(dato => {
+                gimcanas += '<option value="' + dato.id + '">' + dato.nombre + '</option>';
+            });
+
+            if (buscargimcana != '' && data.length == 0) {
+                gimcanas += '<option value="">No se han encontrado gimcanas</option>';
+            }
+            resultado.innerHTML = gimcanas;
+        })
+}
