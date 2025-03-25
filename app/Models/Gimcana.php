@@ -23,7 +23,7 @@ class Gimcana extends Model
 
     public function checkpoints()
     {
-        return $this->belongsToMany(Checkpoint::class, 'gimcana_checkpoint')->withTimestamps();
+        return $this->belongsToMany(Checkpoint::class, 'gimcana_checkpoint');
     }
 
     // Agrega esta relación para acceder al creador a través del grupo
@@ -32,15 +32,20 @@ class Gimcana extends Model
         return $this->hasOneThrough(
             User::class,
             Group::class,
-            'id', // Foreign key on groups table
-            'id', // Foreign key on users table
-            'group_id', // Local key on gimcanas table
-            'creador' // Local key on groups table
+            'gimcana_id', 
+            'id',       
+            'id',        
+            'creador'     
         );
     }
 
     public function groups()
     {
         return $this->hasMany(Group::class);
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class, 'group_id');
     }
 }

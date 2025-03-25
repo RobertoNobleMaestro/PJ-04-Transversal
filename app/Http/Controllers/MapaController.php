@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Place;
 
 class MapaController extends Controller
 {
-    public function goMapa()
+    public function __invoke()
     {
-        return view('mapa');
-    }}
+        $places = Place::with('category')->get();
+        return view('mapa', compact('places'));
+    }
+}

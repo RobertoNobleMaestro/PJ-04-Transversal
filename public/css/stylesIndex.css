@@ -212,6 +212,11 @@ body {
     border-top: 4px solid var(--primary-color);
 }
 
+#map {
+    height: 500px;
+    width: 100%;
+}
+
 /* Estilos responsivos */
 @media (max-width: 768px) {
     .hero-content h1 {
@@ -224,5 +229,8 @@ body {
     
     .map-container {
         height: 350px;
+    }
+    .map-responsive {
+        height: 75vh; 
     }
 }
