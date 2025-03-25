@@ -54,7 +54,7 @@ class AuthController extends Controller
             if ($user->role_id == 1) { 
                 return redirect()->intended('/inicioAdmin');
             } elseif ($user->role_id == 2) { 
-                return redirect()->intended('/inicio');
+                return redirect()->intended('/mapa');
             }
 
             return redirect('/');
@@ -90,7 +90,7 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect('/inicio');
+        return redirect('/mapa');
     }
 
     // Método para logout
