@@ -21,10 +21,9 @@ html, body {
 .auth-container {
     flex: 1;
     display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    padding: 1rem;
-    padding-top: 2rem;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem; /* Reducir el padding en móviles */
 }
 
 .auth-form-container {
@@ -174,11 +173,6 @@ html, body {
 
     .nav-link {
         font-size: 0.9rem; /* Aumentamos ligeramente el tamaño */
-    }
-
-    .auth-container {
-        align-items: flex-start;
-        padding-top: 1rem;
     }
 
     .auth-form-container {
