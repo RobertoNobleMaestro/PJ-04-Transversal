@@ -82,10 +82,24 @@ class FavoriteController extends Controller
         }
         
         $favorites = Auth::user()->favorites()->with('place.category')->get();
-        $places = $favorites->map(function ($favorite) {
-            return $favorite->place;
-        });
         
-        return response()->json(['favorites' => $places]);
+        return response()->json(['favorites' => $favorites]);
+    }
+    
+    /**
+     * Save a route as favorite for the authenticated user.
+     */
+    public function saveRoute(Request $request)
+    {
+        $user = auth()->user();
+        $routeData = json_decode($request->route_data, true);
+
+        $favorite = Favorite::create([
+            'user_id' => $user->id,
+            'route_data' => $routeData,
+            'type' => 'route'
+        ]);
+
+        return response()->json(['success' => true]);
     }
 }
