@@ -18,6 +18,11 @@ class AuthController extends Controller
     {
         return view('auth.login');
     }
+    public function index()
+    {
+        $user = Auth::user();
+        return view('profile.index', compact('user'));
+    }
 
     // Página principal después de login
     public function showHome()
