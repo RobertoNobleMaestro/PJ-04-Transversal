@@ -13,7 +13,7 @@
     <!-- Leaflet CSS para mapas interactivos -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" rel="stylesheet">
     {{-- link estilos css --}}
-    <link href="{{ asset('css/stylesIndex.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/clientegimcana.css') }}" rel="stylesheet">
     {{-- SweetAlert --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -56,18 +56,21 @@
                 <h1>Buscas un grupo?</h1>
                 <form action="" method="post" id="frmbuscargrupo" onsubmit="buscargrupo(event)">
                     @csrf
-                    <input type="text" name="creador" id="creador" placeholder="Creador del grupo">
-                    <input type="text" name="codigo" id="codigo" placeholder="Código del grupo">
-                    <input type="text" name="gimcana" id="gimcana" placeholder="Nombre gimcana">
-                    <button type="submit">Buscar</button>
-                    <button type="button" id="limpiarfiltros">Limpiar</button>
+                    <div class="filter-container">
+                        <input type="text" name="creador" id="creador" placeholder="Creador del grupo">
+                        <input type="text" name="codigo" id="codigo" placeholder="Código del grupo">
+                        <input type="text" name="gimcana" id="gimcana" placeholder="Nombre gimcana">
+                        <div class="button-container">
+                            <button type="submit">Buscar</button>
+                            <button type="button" id="limpiarfiltros">Limpiar</button>
+                        </div>
+                    </div>
                 </form>
-                <button id="btnAbrirModal">Crear grupo</button>
             </div>
             <div>
                 <h1>Unirse a una gimcana</h1>
-                <div id="datos_grupos">
-                </div>
+                <button id="btnAbrirModal" class="full-width-button">Crear grupo</button>
+                <div id="datos_grupos"></div>
             </div>
         </div>
 

@@ -1,0 +1,175 @@
+/* Estilos para los filtros */
+.filter-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.filter-container input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.button-container {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.button-container button {
+    flex: 1;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.button-container button[type="submit"] {
+    background-color: #2A4D14;
+    color: white;
+}
+
+.button-container button[type="button"] {
+    background-color: #4D1414;
+    color: white;
+}
+
+/* Estilos responsive */
+@media (min-width: 768px) {
+    .filter-container {
+        flex-direction: row;
+        align-items: flex-end;
+    }
+
+    .filter-container input {
+        width: auto;
+        flex: 1;
+    }
+
+    .button-container {
+        margin-top: 0;
+    }
+}
+
+body {
+    background-color: #F1FFDD !important;
+    padding: 1rem;
+    padding-top: 0;
+    font-size: 0.9rem; /* Reducimos el tamaño de fuente general */
+}
+
+/* Añadir más espaciado a las secciones principales */
+#infogrupos, #infogrupo {
+    padding: 1rem;
+}
+
+/* Asegurar que el contenido no toque los bordes en móviles */
+@media (max-width: 767px) {
+    body {
+        padding: 0.5rem;
+        padding-top: 0;
+    }
+    
+    #infogrupos, #infogrupo {
+        padding: 0.5rem;
+    }
+}
+
+/* Asegurar que el header no tenga padding adicional */
+nav.navbar {
+    margin: -1rem -1rem 0 -1rem;
+    width: calc(100% + 2rem);
+}
+
+@media (max-width: 767px) {
+    nav.navbar {
+        margin: -0.5rem -0.5rem 0 -0.5rem;
+        width: calc(100% + 1rem);
+    }
+}
+
+/* Estilos para el botón "Crear grupo" */
+#btnAbrirModal {
+    background-color: #23144D;
+    color: white;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+}
+
+/* Estilos responsive */
+@media (min-width: 768px) {
+    #btnAbrirModal {
+        width: auto;
+        margin-bottom: 0;
+    }
+}
+
+/* Estilos para los grupos */
+#datos_grupos {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Espaciado entre grupos */
+}
+
+#datos_grupos .card {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center; /* Centrar el texto */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centrar elementos horizontalmente */
+    justify-content: center; /* Centrar elementos verticalmente */
+}
+
+/* Estilos para desktop (2 columnas) */
+@media (min-width: 768px) {
+    #datos_grupos {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* 2 columnas */
+        gap: 1rem; /* Espaciado entre cards */
+    }
+
+    #datos_grupos .card {
+        margin-bottom: 0; /* Eliminamos el margen inferior en desktop */
+    }
+}
+
+/* Asegurar que el botón ocupe el ancho del contenedor */
+#btnAbrirModal {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+h1 {
+    font-size: 1.5rem; /* Reducimos el tamaño de los títulos h1 */
+}
+
+h2 {
+    font-size: 1.3rem; /* Reducimos el tamaño de los títulos h2 */
+}
+
+/* Estilos para los botones dentro de las cards */
+#datos_grupos .card button {
+    background-color: #2A4D14;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+#datos_grupos .card button:hover {
+    background-color: #1a3610; /* Color más oscuro al hacer hover */
+}
