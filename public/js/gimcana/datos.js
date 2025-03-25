@@ -63,10 +63,17 @@ function mostrardatosgrupo() {
                 html += `</li>`;
             });
             html += '<li class="waiting">Esperando para comenzar</li>';
-            html += '</ul></div>'; // Cierre de .participants
+            html += '</ul></div>';
             // Botones de acción
             if (data.creador[0].creator.id === data.usuarioactivo) {
-                html += `<button button button type = "button" class="exit-button" onclick = "Eliminargrupo(${data.gruposusuarios[0].group_id}, '${data.creador[0].nombre}')" >Eliminar grupo</button > `;
+                console.log(data.creador[0].estado);
+                if (data.creador[0].estado == "Espera") {
+                    html += `<button type="button" disabled>Comenzar</button>`;
+                    html += `<button button button type = "button" class="exit-button" onclick = "Eliminargrupo(${data.gruposusuarios[0].group_id}, '${data.creador[0].nombre}')" >Eliminar grupo</button > `;
+                } else {
+                    html += `<button type="button">Comenzar</button>`;
+                    html += `<button button button type = "button" class="exit-button" onclick = "Eliminargrupo(${data.gruposusuarios[0].group_id}, '${data.creador[0].nombre}')" >Eliminar grupo</button > `;
+                }
             } else {
                 html += `<button button button type = "button" class="exit-button" onclick = "salirgimcana(${data.gruposusuarios[0].group_id}, '${data.creador[0].nombre}')" >Salir del grupo</button > `;
             }

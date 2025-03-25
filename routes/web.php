@@ -17,6 +17,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/inicioAdmin', [AuthController::class, 'showInicioAdmin'])->name('inicioAdmin');
     Route::get('/mapa', MapaController::class)->name('mapa');
     Route::get('/gimcana', [GimcanaGroupController::class, 'goGimcana'])->name('gimcana');
+    Route::get('/gimcana/juego', [GimcanaGroupController::class, 'goGimcana'])->name('gimcana.juego');
 });
 
 Route::get('/', [AuthController::class, 'showHome']);
