@@ -250,3 +250,24 @@ function expulsar(id, nombre) {
         }
     })
 }
+
+setInterval(comprobarjuego, 1000);
+
+function comprobarjuego() {
+    var csrfToken = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
+    var formData = new FormData();
+    formData.append('_token', csrfToken);
+    fetch("/comprobarjuego", {
+        method: "POST",
+        body: formData
+    })
+        .then(response => {
+            if (!response.ok) throw new Error("Error al cargar los datos");
+            return response.json();
+        })
+        .then(data => {
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        })
+}
