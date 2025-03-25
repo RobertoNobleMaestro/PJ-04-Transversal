@@ -78,3 +78,4 @@ Route::get('/admin/places/{id}/edit', [PlaceController::class, 'edit']);
 
 // Rutas para el CRUD de categorías
 Route::get('/admin/categories', [CategoryController::class, 'index']);
+Route::post('/cargagimcanas', [GimcanaGroupController::class, 'cargagimcanas']);
