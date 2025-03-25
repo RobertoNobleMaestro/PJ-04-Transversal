@@ -30,10 +30,12 @@ html, body {
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    width: 90%; /* Ancho relativo en móviles */
+    width: 90%;
     max-width: 500px;
-    padding: 1.5rem; /* Reducir el padding en móviles */
-    margin: 1rem; /* Añadir margen en móviles */
+    padding: 1.5rem;
+    margin: 1rem;
+    transform: scale(1) !important; /* Forzar escala inicial */
+    transform-origin: center center !important;
 }
 
 .auth-header {
@@ -202,5 +204,19 @@ html, body {
     .form-label {
         font-size: 0.95rem; /* Aumentamos el tamaño de las etiquetas */
         margin-bottom: 0.5rem;
+    }
+
+    /* Añadir estas reglas específicas para el registro */
+    #registrationForm {
+        font-size: 1rem !important;
+    }
+
+    #registrationForm .form-control {
+        font-size: 1rem !important;
+        padding: 0.8rem 1rem !important;
+    }
+
+    #registrationForm .form-label {
+        font-size: 0.95rem !important;
     }
 }
