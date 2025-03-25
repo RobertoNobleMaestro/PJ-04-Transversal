@@ -9,11 +9,16 @@ class Group extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nombre', 'codigogrupo', 'creador', 'miembros'];
+    protected $fillable = ['nombre', 'codigogrupo', 'creator_id', 'miembros'];
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'creador');
+    }
 
     public function creador()
     {
-        return $this->belongsTo(User::class, 'creador');
+        return $this->creator();
     }
 
     public function users()
@@ -34,5 +39,10 @@ class Group extends Model
     public function gimcana()
     {
         return $this->belongsTo(Gimcana::class);
+    }
+
+    public function gimcanas()
+    {
+        return $this->hasMany(Gimcana::class);
     }
 }

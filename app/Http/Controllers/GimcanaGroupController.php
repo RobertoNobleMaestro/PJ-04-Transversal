@@ -18,7 +18,7 @@ class GimcanaGroupController extends Controller
         $usuarioactivo = Auth::user()->id;
         $usuario = GroupUser::where('user_id', Auth::user()->id)->get();
         $gruposusuarios = GroupUser::with('usuarios')->where('group_id', $usuario[0]->group_id)->get();
-        $creador = Group::where('id', $usuario[0]->group_id)->with('creador')->get();
+        $creador = Group::where('id', $usuario[0]->group_id)->with('creator')->get();
         return response()->json(['gruposusuarios' => $gruposusuarios, 'creador' => $creador, 'usuarioactivo' => $usuarioactivo]);
     }
 
@@ -45,13 +45,16 @@ class GimcanaGroupController extends Controller
     {
         $user = Auth::user()->id;
         $usuarioengrupo = GroupUser::where('user_id', $user)->get();
+        if ($usuarioengrupo->isEmpty()) {
+            return response()->json(['usuarioengrupo' => $usuarioengrupo]);
+            die();
+        }
         $estadogrupo = Group::where('id', $usuarioengrupo[0]->group_id)->get();
         switch ($estadogrupo[0]->estado) {
             case 'Empezado':
                 return view('gimcana.juego');
                 break;
             default:
-                // echo "asd";
                 return response()->json(['usuarioengrupo' => $usuarioengrupo, 'estadogrupo' => $estadogrupo]);
                 break;
         }
@@ -59,8 +62,7 @@ class GimcanaGroupController extends Controller
 
     public function infogimcana(Request $request)
     {
-        $grupos = Group::with('creador')->with('gimcana');
-
+        $grupos = Group::with('creator')->with('gimcana');
         if ($request->codigo) {
             $codigo = $request->codigo;
             $grupos->where('codigogrupo', '=', "$codigo");
@@ -109,6 +111,9 @@ class GimcanaGroupController extends Controller
                 $grupoUsuario->save();
 
                 $grupo[0]->miembros = $grupo[0]->miembros - 1;
+                if ($grupo[0]->miembros == 0) {
+                    $grupo[0]->estado = 'Completo';
+                }
                 $grupo[0]->save();
             }
             echo "success Te has unido al grupo " . $request->nombre;
@@ -122,6 +127,9 @@ class GimcanaGroupController extends Controller
         try {
             $grupo = Group::where('id', $request->id)->get();
             $grupo[0]->miembros = $grupo[0]->miembros + 1;
+            if ($grupo[0]->miembros >= 1) {
+                $grupo[0]->estado = 'Espera';
+            }
             $grupo[0]->save();
 
             GroupUser::where('user_id', Auth::user()->id)->delete();
@@ -155,6 +163,9 @@ class GimcanaGroupController extends Controller
 
             $grupo = Group::where('id', $grupo->group_id)->get();
             $grupo[0]->miembros = $grupo[0]->miembros + 1;
+            if ($grupo[0]->miembros >= 1) {
+                $grupo[0]->estado = 'Espera';
+            }
             $grupo[0]->save();
 
             GroupUser::where('id', $request->id)->delete();
