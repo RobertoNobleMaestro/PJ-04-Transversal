@@ -45,16 +45,27 @@ class GimcanaGroupController extends Controller
     {
         $user = Auth::user()->id;
         $usuarioengrupo = GroupUser::where('user_id', $user)->get();
-        return response()->json(['usuarioengrupo' => $usuarioengrupo]);
+        $estadogrupo = Group::where('id', $usuarioengrupo[0]->group_id)->get();
+        switch ($estadogrupo[0]->estado) {
+            case 'Empezado':
+                return view('gimcana.juego');
+                break;
+            default:
+                // echo "asd";
+                return response()->json(['usuarioengrupo' => $usuarioengrupo, 'estadogrupo' => $estadogrupo]);
+                break;
+        }
     }
 
     public function infogimcana(Request $request)
     {
         $grupos = Group::with('creador')->with('gimcana');
+
         if ($request->codigo) {
             $codigo = $request->codigo;
             $grupos->where('codigogrupo', '=', "$codigo");
         }
+
         if ($request->creador) {
             $creador = $request->creador;
             $grupos->whereHas('creador', function ($query) use ($creador) {
@@ -69,13 +80,11 @@ class GimcanaGroupController extends Controller
             });
         }
 
-        if (isset($request->codigo) || isset($request->creador)) {
+        if (isset($request->codigo) || isset($request->creador) || isset($request->gimcana)) {
             $grupos->where('miembros', '>=', "0");
         } else {
             $grupos->where('miembros', '>', "0");
         }
-
-
         // echo $grupos->toSql();
         $grupos = $grupos->get();
         // die();
@@ -103,7 +112,7 @@ class GimcanaGroupController extends Controller
                 $grupo[0]->save();
             }
             echo "success Te has unido al grupo " . $request->nombre;
-        } catch (\Throwable $th) {
+        } catch (\PDOException $e) {
             echo "error No se ha podido unir al grupo " . $request->nombre;
         }
     }
