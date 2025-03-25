@@ -7,17 +7,17 @@ use App\Http\Controllers\GimcanaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\CategoryController;
-
+use App\Http\Controllers\GimcanaGroupController;
+use App\Http\Controllers\FavoriteController;
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/inicio', [AuthController::class, 'showDashboard'])->name('inicio');
     Route::get('/inicioAdmin', [AuthController::class, 'showInicioAdmin'])->name('inicioAdmin');
-    Route::get('/mapa', [MapaController::class, 'goMapa'])->name('mapa');
-    Route::get('/gimcana', [GimcanaController::class, 'goGimcana'])->name('gimcana');
-
+    Route::get('/mapa', MapaController::class)->name('mapa');
+    Route::get('/gimcana', [GimcanaGroupController::class, 'goGimcana'])->name('gimcana');
 });
-Route::get('/', [AuthController::class, 'showHome']); 
 
+Route::get('/', [AuthController::class, 'showHome']);
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -27,6 +27,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
 Route::get('/index', [AuthController::class, 'showHome'])->name('index');
+Route::get('/profile', [AuthController::class, 'index'])->name('profile');
 
 // Rutas para el CRUD de usuarios
 Route::get('/admin/usuarios', [UserController::class, 'index'])->name('admin.usuarios.index');
@@ -53,7 +54,28 @@ Route::get('/admin/places/{id}', [PlaceController::class, 'show'])->name('admin.
 Route::post('/admin/places', [PlaceController::class, 'store'])->name('admin.places.store');
 Route::put('/admin/places/{id}', [PlaceController::class, 'update'])->name('admin.places.update');
 Route::delete('/admin/places/{id}', [PlaceController::class, 'destroy'])->name('admin.places.destroy');
+
+Route::controller(GimcanaGroupController::class)->group(function () {
+    Route::post('/infogimcana', 'infogimcana');
+    Route::post('/unirseagrupo', 'unirseagrupo');
+    Route::post('/compronargrupousuario', 'compronargrupousuario');
+    Route::post('/mostrardatosgrupo', 'mostrardatosgrupo');
+    Route::post('/salirgrupo', 'salirgrupo');
+    Route::post('/eliminargrupo', 'eliminargrupo');
+    Route::post('/expulsargrupo', 'expulsargrupo');
+    Route::post('/creargrupo', 'creargrupo');
+});
+
+// Rutas para favoritos
+Route::middleware(['auth'])->group(function () {
+    Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
+    Route::post('/favorites/toggle/{placeId}', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
+    Route::get('/favorites/check/{placeId}', [FavoriteController::class, 'isFavorite'])->name('favorites.check');
+    Route::get('/favorites/list', [FavoriteController::class, 'getFavorites'])->name('favorites.list');
+    Route::get('/places/search', [PlaceController::class, 'search'])->name('places.search');
+});
 Route::get('/admin/places/{id}/edit', [PlaceController::class, 'edit']);
 
 // Rutas para el CRUD de categorías
 Route::get('/admin/categories', [CategoryController::class, 'index']);
+Route::post('/cargagimcanas', [GimcanaGroupController::class, 'cargagimcanas']);

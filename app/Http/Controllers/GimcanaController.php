@@ -19,7 +19,7 @@ class GimcanaController extends Controller
     public function getGimcanas()
     {
         // Cargar las gimcanas con las relaciones necesarias
-        $gimcanas = Gimcana::with(['groups.creador', 'checkpoints.place'])->get();
+        $gimcanas = Gimcana::with(['groups.creator', 'checkpoints.place'])->get();
 
         // Mapear los datos para devolver solo lo necesario
         $gimcanas = $gimcanas->map(function($gimcana) {

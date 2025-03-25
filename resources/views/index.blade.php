@@ -46,10 +46,10 @@
 
     <!-- PÁGINA DE INICIO -->
     <section id="inicio" class="hero-section">
-        <div class="hero-content">
+        <div class="hero-content text-center">
             <h1>Descubre y Juega</h1>
-            <p>Explora lugares increíbles y participa en gimcanas interactivas. Crea tu propia aventura o únete a otras existentes.</p>
-            <div>
+            <p class="mx-auto" style="max-width: 600px;">Explora lugares increíbles y participa en gimcanas interactivas. Crea tu propia aventura o únete a otras existentes.</p>
+            <div class="d-flex justify-content-center gap-2">
                 <a href="{{ route('register') }}" class="btn btn-primary btn-lg me-2"><i class="fas fa-user-plus me-1"></i> Registrarse</a>
                 <a href="#explorar" class="btn btn-outline-light btn-lg"><i class="fas fa-compass me-1"></i> Explorar</a>
             </div>
