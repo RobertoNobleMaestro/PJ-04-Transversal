@@ -234,4 +234,21 @@ class GimcanaGroupController extends Controller
             die();
         }
     }
+
+    public function empezargimcana(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $grupo = Group::find($request->id);
+            $grupo->estado = 'Empezado';
+            $grupo->save();
+            // echo $grupo->toSql();
+            // return response()->json(['redirect' => url('/gimcana/juego')]);
+            echo "redirect /gimcana/juego";
+            DB::commit();
+        } catch (\PDOException $e) {
+            DB::rollback();
+            echo "error No se pudo expulsar a " . $request->nombre;
+        }
+    }
 }

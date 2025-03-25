@@ -40,7 +40,6 @@ function mostrardatosgrupo() {
             return response.json();
         })
         .then(data => {
-            console.log(data);
             let html = '';
             // Información del grupo
             html += `<h1>Bienvenido a ${data.creador[0].nombre}</h1>`;
@@ -90,7 +89,6 @@ function mostrardatosgrupo() {
 function empezar(id, nombre) {
     Swal.fire({
         title: '¿Quieres empezar <br>' + nombre + '?',
-        // text: "¡No podrás revertir esto!",
         icon: 'warning',
         showCancelButton: true,
         reverseButtons: true,
@@ -100,30 +98,30 @@ function empezar(id, nombre) {
     }
     ).then((result) => {
         if (result.isConfirmed) {
-            var csrfToken = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
-            var formData = new FormData();
-            formData.append('_token', csrfToken);
-            formData.append('id', id);
-            formData.append('nombre', nombre);
-            fetch("/expulsargrupo", {
-                method: "POST",
-                body: formData
-            })
-                .then(response => {
-                    if (!response.ok) throw new Error("Error al cargar los datos");
-                    return response.text();
+            Swal.fire({
+                title: 'Empezando ' + nombre,
+                icon: 'success',
+                timer: 1000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            }).then(() => {
+                var csrfToken = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
+                var formData = new FormData();
+                formData.append('_token', csrfToken);
+                formData.append('id', id);
+                formData.append('nombre', nombre);
+                fetch("/empezargimcana", {
+                    method: "POST",
+                    body: formData
                 })
-                .then(data => {
-                    const [primeraParte, resto] = data.split(/ (.+)/);
-                    Swal.fire({
-                        title: resto,
-                        icon: primeraParte,
+                    .then(response => {
+                        if (!response.ok) throw new Error("Error al cargar los datos");
+                        return response.text();
+                    })
+                    .then(data => {
+                        compronargrupousuario();
                     });
-                    document.getElementById('infogrupos').style.display = 'block';
-                    if (primeraParte == 'success') {
-                        compronargrupousuario()
-                    }
-                })
+            })
         }
     })
 }
