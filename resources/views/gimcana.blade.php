@@ -13,7 +13,7 @@
     <!-- Leaflet CSS para mapas interactivos -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" rel="stylesheet">
     {{-- link estilos css --}}
-    <link href="{{ asset('css/clientegimcana.css') }}" rel="stylesheet">
+    {{-- <link href="{{ asset('css/clientegimcana.css') }}" rel="stylesheet"> --}}
     {{-- SweetAlert --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -53,7 +53,7 @@
     </div>
 
     <section>
-        <div id="infogrupos">
+        <div id="modalinfogrupos" id="infogrupos" class="modal">
             <div>
                 <h1>Buscas un grupo?</h1>
                 <form action="" method="post" id="frmbuscargrupo" onsubmit="buscargrupo(event)">
@@ -80,27 +80,27 @@
             <div id="datos_grupo" class="container">
             </div>
         </div>
-    </section>
-    <div id="modalCrearGrupo" class="modal">
-        <div class="modal-content">
-            <h2>Crear Nuevo Grupo</h2>
-            <form id="formCrearGrupo">
-                <label for="nombreGrupo">Nombre del Grupo</label>
-                @csrf
-                <input type="hidden" name="id" id="id">
-                <input type="text" name="nombreGrupo" id="nombreGrupo">
-                <label for="integrantes">Número de Integrantes:</label>
-                <input type="text" name="integrantes" id="integrantes">
-                <label for="gimcana">Gimcana</label>
-                <input type="text" name="buscargimcana" id="buscargimcana" placeholder="Busca una gimcana">
-                <select name="gimcana" id="selectgimcana">
-                    <option value="">Cargando..</option>
-                </select>
-                <button type="submit" id="btnCrearGrupo">Crear</button>
-                <button type="button" id="btnCerrarModal">Cancelar</button>
-            </form>
+        <div clas="modalCrearGrupo" class="modal">
+            <div class="modal-content">
+                <h2>Crear Nuevo Grupo</h2>
+                <form id="formCrearGrupo">
+                    <label for="nombreGrupo">Nombre del Grupo</label>
+                    @csrf
+                    <input type="hidden" name="id" id="id">
+                    <input type="text" name="nombreGrupo" id="nombreGrupo">
+                    <label for="integrantes">Número de Integrantes:</label>
+                    <input type="text" name="integrantes" id="integrantes">
+                    <label for="gimcana">Gimcana</label>
+                    <input type="text" name="buscargimcana" id="buscargimcana" placeholder="Busca una gimcana">
+                    <select name="gimcana" id="selectgimcana">
+                        <option value="">Cargando..</option>
+                    </select>
+                    <button type="submit" id="btnCrearGrupo">Crear</button>
+                    <button type="button" id="btnCerrarModal">Cancelar</button>
+                </form>
+            </div>
         </div>
-    </div>
+    </section>
     <footer></footer>
 </body>
 

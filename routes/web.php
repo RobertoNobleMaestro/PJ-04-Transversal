@@ -93,6 +93,7 @@ Route::controller(GimcanaGroupController::class)->group(function () {
     Route::post('/expulsargrupo', 'expulsargrupo');
     Route::post('/creargrupo', 'creargrupo');
     Route::post('/empezargimcana', 'empezargimcana');
+    Route::post('/comprobarjuego', 'comprobarjuego');
 });
 
 // Rutas para favoritos

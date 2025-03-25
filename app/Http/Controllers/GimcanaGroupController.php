@@ -34,16 +34,28 @@ class GimcanaGroupController extends Controller
 
     public function goGimcana()
     {
-        // $grupos = Group::with('creador')->get();
-        // $usuarios = User::all();
-        // $user = Auth::user();
-        // return view('gimcana', compact('grupos', 'usuarios', 'user'));
         return view('gimcana');
     }
 
     public function gimcanagame()
     {
         return view('juego.index');
+    }
+
+    public function comprobarjuego()
+    {
+        $user = Auth::user()->id;
+        $usuarioengrupo = GroupUser::where('user_id', $user)->get();
+        if ($usuarioengrupo->isEmpty()) {
+            return response()->json(['usuarioengrupo' => $usuarioengrupo]);
+            die();
+        }
+        $estadogrupo = Group::where('id', $usuarioengrupo[0]->group_id)->get();
+        if ($estadogrupo[0]->estado == 'Empezado') {
+            return response()->json(['redirect' => url('/gimcana/juego')]);
+        } else {
+            return response()->json();
+        }
     }
 
     public function compronargrupousuario()

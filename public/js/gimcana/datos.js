@@ -17,14 +17,18 @@ function compronargrupousuario() {
                 window.location.href = data.redirect;
             }
             if (data.usuarioengrupo == 0) {
+                document.getElementById('modalinfogrupos').style.display = 'block';
                 document.getElementById('infogrupo').style.display = 'none';
                 mostrardatos();
             } else {
-                document.getElementById('infogrupos').style.display = 'none';
+                document.getElementById('modalinfogrupos').style.display = 'none';
+                document.getElementById('infogrupo').style.display = 'block';
                 mostrardatosgrupo();
             }
         })
 }
+
+// setInterval(mostrardatosgrupo, 1000);
 
 function mostrardatosgrupo() {
     let datos_grupo = document.getElementById("datos_grupo");
@@ -159,7 +163,6 @@ function salirgimcana(id, nombre) {
                         title: resto,
                         icon: primeraParte,
                     });
-                    document.getElementById('infogrupos').style.display = 'block';
                     if (primeraParte == 'success') {
                         compronargrupousuario()
                     }
@@ -249,4 +252,25 @@ function expulsar(id, nombre) {
                 })
         }
     })
+}
+
+setInterval(comprobarjuego, 1000);
+
+function comprobarjuego() {
+    var csrfToken = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
+    var formData = new FormData();
+    formData.append('_token', csrfToken);
+    fetch("/comprobarjuego", {
+        method: "POST",
+        body: formData
+    })
+        .then(response => {
+            if (!response.ok) throw new Error("Error al cargar los datos");
+            return response.json();
+        })
+        .then(data => {
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        })
 }
