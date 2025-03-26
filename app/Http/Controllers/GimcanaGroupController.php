@@ -85,6 +85,16 @@ class GimcanaGroupController extends Controller
         return response()->json(['grupos' => $grupos, 'usuarios' => $usuarios, 'user' => $user]);
     }
 
+    public function getGroups()
+    {
+        try {
+            $groups = Group::all();
+            return response()->json($groups);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     public function unirseagrupo(Request $request)
     {
         try {

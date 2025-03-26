@@ -95,8 +95,8 @@ class GimcanaController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
-            'group_id' => 'required|exists:groups,id',
-            'checkpoints' => 'required|array|min:4|max:4', // Asegura que se envíen exactamente 4 checkpoints
+            'group_id' => 'nullable|exists:groups,id', 
+            'checkpoints' => 'nullable|array', 
             'completed' => 'boolean',
         ]);
 
@@ -104,12 +104,15 @@ class GimcanaController extends Controller
         $gimcana->update([
             'nombre' => $request->nombre,
             'group_id' => $request->group_id,
-            'completed' => $request->completed,
+            'completed' => $request->filled('completed') ? $request->completed : 0,
         ]);
 
-        $gimcana->checkpoints()->sync($request->checkpoints);
+        // Si se enviaron checkpoints, actualizarlos
+        if ($request->has('checkpoints')) {
+            $gimcana->checkpoints()->sync($request->checkpoints);
+        }
 
-        return response()->json($gimcana);
+        return response()->json(['success' => true, 'gimcana' => $gimcana]);
     }
 
     // Eliminar una gimcana
