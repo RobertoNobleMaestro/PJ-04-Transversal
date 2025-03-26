@@ -169,4 +169,10 @@ class GimcanaController extends Controller
 
         return response()->json($data);
     }
+
+    public function getPlaces()
+    {
+        $places = Place::with('category')->get();
+        return response()->json($places);
+    }
 }
