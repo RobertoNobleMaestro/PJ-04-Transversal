@@ -41,8 +41,18 @@ function cargarLugares() {
 // Función para editar lugar
 function editarLugar(id) {
     fetch(`/admin/places/${id}/edit`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error en la respuesta del servidor: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            // Verificar si los datos recibidos son válidos
+            if (!data || !data.id) {
+                throw new Error('Datos del lugar no válidos');
+            }
+
             // Llenar el formulario con los datos del lugar
             document.getElementById('editarLugarId').value = data.id;
             document.getElementById('editarNombreLugar').value = data.nombre;
@@ -52,17 +62,60 @@ function editarLugar(id) {
             document.getElementById('editarLongitudLugar').value = data.coordenadas_lon;
 
             // Cargar categorías antes de seleccionar la correcta
-            cargarCategorias().then(() => {
+            return cargarCategorias().then(() => {
                 document.getElementById('editarCategoriaLugar').value = data.categoria_id;
-            });
 
-            // Mostrar el modal de edición de lugares
-            new bootstrap.Modal(document.getElementById('editarLugarModal')).show();
+                // Mostrar el modal de edición de lugares
+                const modal = new bootstrap.Modal(document.getElementById('editarLugarModal'));
+                modal.show();
+
+                // Inicializar el mapa para editar la ubicación
+                inicializarMapaEditarLugar(data.coordenadas_lat, data.coordenadas_lon);
+            });
         })
         .catch(error => {
             console.error('Error al editar lugar:', error);
-            Swal.fire('Error', 'No se pudieron cargar los datos del lugar', 'error');
+            Swal.fire('Error', `No se pudieron cargar los datos del lugar: ${error.message}`, 'error');
         });
+}
+
+// Función para inicializar el mapa en el modal de edición
+function inicializarMapaEditarLugar(latitud, longitud) {
+    // Verificar si el contenedor del mapa existe
+    const mapContainer = document.getElementById('editar-lugar-map');
+    if (!mapContainer) {
+        console.error('El contenedor del mapa no existe en el DOM');
+        return;
+    }
+
+    // Inicializar el mapa
+    const map = L.map('editar-lugar-map').setView([latitud, longitud], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    const marker = L.marker([latitud, longitud], { draggable: true }).addTo(map);
+
+    // Actualizar las coordenadas cuando se mueve el marcador
+    marker.on('dragend', function (e) {
+        const { lat, lng } = marker.getLatLng();
+        document.getElementById('editarLatitudLugar').value = lat;
+        document.getElementById('editarLongitudLugar').value = lng;
+    });
+
+    // Configurar el geocoder para buscar ubicaciones
+    const geocoder = L.Control.geocoder({
+        defaultMarkGeocode: false
+    }).addTo(map);
+
+    geocoder.on('markgeocode', function (e) {
+        const { center } = e.geocode;
+        marker.setLatLng(center);
+        map.setView(center, 13);
+        document.getElementById('editarLatitudLugar').value = center.lat;
+        document.getElementById('editarLongitudLugar').value = center.lng;
+    });
 }
 
 // Función para guardar cambios de un lugar
