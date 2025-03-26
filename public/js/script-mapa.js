@@ -1,4 +1,7 @@
-// Configuración de iconos por categoría
+// =====================================================================
+// CONFIGURACIÓN DE ICONOS POR CATEGORÍA
+// =====================================================================
+// Define los iconos, colores y tamaños para cada tipo de lugar en el mapa
 const categoryIcons = {
     'Monumento': { icon: 'fa-landmark', color: '#FF5733', size: 24 },
     'Museo': { icon: 'fa-museum', color: '#33A8FF', size: 24 },
@@ -12,30 +15,39 @@ const categoryIcons = {
     'default': { icon: 'fa-map-marker-alt', color: '#007bff', size: 24 }
 };
 
-// Inicializar el mapa centrado en la ubicación por defecto
+// =====================================================================
+// INICIALIZACIÓN DEL MAPA
+// =====================================================================
+// Crea el mapa centrado en la ubicación por defecto
 var map = L.map('map').setView([defaultLocation.lat, defaultLocation.lng], 15);
 
-// Capa base de OpenStreetMap
+// Añade la capa base de OpenStreetMap
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// Variables globales
-var routeControl;
-var userMarker;
-var userPosition = null;
-var placeMarkers = [];
-var watchId = null;
-var isTracking = false;
+// =====================================================================
+// VARIABLES GLOBALES
+// =====================================================================
+var routeControl;     // Control para gestionar rutas en el mapa
+var userMarker;       // Marcador que representa al usuario
+var userPosition = null; // Posición actual del usuario (lat, lng)
+var placeMarkers = []; // Array de marcadores de lugares
+var watchId = null;   // ID del watcher de geolocalización
+var isTracking = false; // Estado del seguimiento de ubicación
 
-// Opciones de geolocalización ajustadas
+// Opciones de geolocalización ajustadas para mejor precisión
 var opcionesGPS = {
-    enableHighAccuracy: true,
-    maximumAge: 10000,
-    timeout: 15000 // Aumentamos el tiempo de espera a 15 segundos
+    enableHighAccuracy: true, // Usa GPS de alta precisión si está disponible
+    maximumAge: 10000,        // Acepta posiciones con hasta 10 segundos de antigüedad
+    timeout: 15000            // Tiempo máximo de espera para obtener la ubicación
 };
 
-// Función para crear iconos personalizados
+// =====================================================================
+// FUNCIONES PARA MARCADORES Y VISUALIZACIÓN
+// =====================================================================
+
+// Crea un icono personalizado según la categoría del lugar
 function createCustomIcon(place) {
     const categoryName = place.category?.name || 'default';
     const iconConfig = categoryIcons[categoryName] || categoryIcons['default'];
@@ -48,7 +60,7 @@ function createCustomIcon(place) {
     });
 }
 
-// Función para crear marcadores personalizados
+// Crea un marcador personalizado para un lugar con su popup informativo
 function createCustomMarker(place) {
     const categoryName = place.category?.name || 'default';
     const iconConfig = categoryIcons[categoryName] || categoryIcons['default'];
@@ -78,7 +90,7 @@ function createCustomMarker(place) {
     
     marker.on('click', function(e) {
         if (authCheck) {
-            // Verificar si es favorito
+            // Verificar si es favorito cuando se hace clic en el marcador
             checkIfFavorite(place.id, marker);
         }
     });
@@ -86,7 +98,7 @@ function createCustomMarker(place) {
     return marker;
 }
 
-// Función para cargar todos los lugares en el mapa
+// Carga todos los lugares disponibles en el mapa
 function loadPlacesOnMap() {
     if (!placesData || placesData.length === 0) return;
     placesData.forEach(place => {
@@ -95,31 +107,35 @@ function loadPlacesOnMap() {
     });
 }
 
-// Función para centrar el mapa en un lugar específico
+// Centra el mapa en unas coordenadas específicas con un nivel de zoom
 function centerMap(lat, lng, zoom = 15) {
     map.setView([lat, lng], zoom);
 }
 
-// Función para actualizar la ubicación del usuario
+// =====================================================================
+// FUNCIONES DE GEOLOCALIZACIÓN
+// =====================================================================
+
+// Actualiza la posición del usuario en el mapa
 function updateUserPosition(position) {
     userPosition = {
         lat: position.coords.latitude,
         lng: position.coords.longitude
     };
-    // Centrar el mapa en la nueva posición
+    // Centra el mapa en la nueva posición
     centerMap(userPosition.lat, userPosition.lng);
     if (!userMarker) {
         createUserMarker();
     } else {
         userMarker.setLatLng([userPosition.lat, userPosition.lng]);
     }
-    // Actualizar la ruta si existe
+    // Actualiza la ruta si existe
     if (routeControl) {
         updateRoute(routeControl.getWaypoints()[1]);
     }
 }
 
-// Función para manejar errores de geolocalización
+// Maneja los errores de geolocalización mostrando mensajes apropiados
 function handleGeolocationError(error) {
     switch (error.code) {
         case error.PERMISSION_DENIED:
@@ -142,7 +158,7 @@ function handleGeolocationError(error) {
     useDefaultLocation();
 }
 
-// Función para usar una ubicación por defecto
+// Establece la ubicación por defecto cuando no se puede obtener la real
 function useDefaultLocation() {
     userPosition = {
         lat: defaultLocation.lat,
@@ -156,7 +172,7 @@ function useDefaultLocation() {
     }
 }
 
-// Función para crear el marcador del usuario
+// Crea el marcador que representa al usuario en el mapa
 function createUserMarker() {
     const userIcon = L.divIcon({
         className: 'user-car-marker',
@@ -172,7 +188,11 @@ function createUserMarker() {
     .openPopup();
 }
 
-// Función para actualizar la ruta
+// =====================================================================
+// FUNCIONES PARA RUTAS
+// =====================================================================
+
+// Actualiza o crea una ruta entre la posición del usuario y un destino
 function updateRoute(endPoint) {
     if (!userPosition) return;
     const end = endPoint || (routeControl ? routeControl.getWaypoints()[1] : null);
@@ -281,7 +301,11 @@ function updateRoute(endPoint) {
     }
 }
 
-// Función para iniciar el seguimiento de la ubicación
+// =====================================================================
+// FUNCIONES PARA SEGUIMIENTO DE UBICACIÓN
+// =====================================================================
+
+// Inicia el seguimiento de la ubicación del usuario
 function startTracking() {
     if (navigator.geolocation) {
         isTracking = true;
@@ -304,7 +328,7 @@ function startTracking() {
     }
 }
 
-// Función para detener el seguimiento de la ubicación
+// Detiene el seguimiento de la ubicación del usuario
 function stopTracking() {
     isTracking = false;
     if (watchId && navigator.geolocation) {
@@ -315,7 +339,7 @@ function stopTracking() {
     updateTrackingUI(false);
 }
 
-// Función para actualizar la interfaz de usuario del seguimiento
+// Actualiza la interfaz de usuario para reflejar el estado del seguimiento
 function updateTrackingUI(isActive) {
     // Para móvil
     const mobileIcon = document.getElementById('locationIcon');
@@ -341,6 +365,10 @@ function updateTrackingUI(isActive) {
         }
     }
 }
+
+// =====================================================================
+// EVENTOS
+// =====================================================================
 
 // Eventos para los botones de ubicación
 document.getElementById('toggleLocation')?.addEventListener('click', function() {
@@ -387,7 +415,11 @@ if (favoritesPanel) {
     });
 }
 
-// Función para cargar los favoritos
+// =====================================================================
+// FUNCIONES PARA FAVORITOS
+// =====================================================================
+
+// Carga los favoritos del usuario
 function loadFavorites() {
     if (!authCheck) {
         document.getElementById('favorites-list').innerHTML = `
@@ -630,7 +662,11 @@ function loadFavorites() {
         });
 }
 
-// Función para obtener el icono de categoría
+// =====================================================================
+// FUNCIONES PARA FAVORITOS
+// =====================================================================
+
+// Obtiene el icono de categoría para un lugar
 function getCategoryIcon(category) {
     const icons = {
         'Monumento': { icon: 'fa-landmark', color: '#FF5733' },
@@ -647,7 +683,7 @@ function getCategoryIcon(category) {
     return icons[category] || { icon: 'fa-map-marker-alt', color: '#007bff' };
 }
 
-// Función para verificar si un lugar es favorito
+// Verifica si un lugar es favorito
 function checkIfFavorite(placeId, marker) {
     if (!authCheck) return;
     
@@ -690,7 +726,7 @@ function checkIfFavorite(placeId, marker) {
         .catch(error => console.error('Error verificando favorito:', error));
 }
 
-// Función para alternar favorito
+// Alterna el estado de favorito de un lugar
 function toggleFavorite(placeId, button, textElement, callback) {
     if (!authCheck) return;
     
@@ -731,7 +767,7 @@ function toggleFavorite(placeId, button, textElement, callback) {
     .catch(error => console.error('Error al alternar favorito:', error));
 }
 
-// Función para guardar una ruta como favorito
+// Guarda una ruta como favorito
 function saveRouteAsFavorite(placeId, route) {
     if (!authCheck) {
         alert("Debes iniciar sesión para guardar rutas como favoritos");
@@ -780,7 +816,11 @@ function saveRouteAsFavorite(placeId, route) {
     });
 }
 
-// Función para mostrar notificaciones toast
+// =====================================================================
+// FUNCIONES PARA NOTIFICACIONES
+// =====================================================================
+
+// Muestra una notificación toast
 function showToast(message, type = 'info') {
     // Crear el contenedor de toasts si no existe
     let toastContainer = document.getElementById('toast-container');
@@ -826,6 +866,10 @@ function showToast(message, type = 'info') {
         toastElement.remove();
     });
 }
+
+// =====================================================================
+// INICIALIZACIÓN
+// =====================================================================
 
 // Inicializar el mapa
 loadPlacesOnMap();
