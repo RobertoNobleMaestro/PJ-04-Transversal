@@ -1,6 +1,5 @@
 compronargrupousuario();
 
-let myInterval2 = null;
 let myInterval = null;
 function compronargrupousuario() {
     var csrfToken = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
