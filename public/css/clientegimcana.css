@@ -133,7 +133,8 @@ nav.navbar {
 #datos_grupos {
     display: flex;
     flex-direction: column;
-    gap: 1rem; /* Espaciado entre grupos */
+    gap: 1rem;
+    margin-bottom: 50px;
 }
 
 #datos_grupos .card {
