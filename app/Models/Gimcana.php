@@ -14,6 +14,7 @@ class Gimcana extends Model
 
     // Campos que se pueden asignar masivamente
     protected $fillable = [
+        'nombre',
         'group_id',
         'checkpoint_id',
         'completed',
