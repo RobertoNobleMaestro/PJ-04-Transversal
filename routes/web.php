@@ -82,6 +82,8 @@ Route::get('/admin/places/{id}', [PlaceController::class, 'show'])->name('admin.
 Route::post('/admin/places', [PlaceController::class, 'store'])->name('admin.places.store');
 Route::put('/admin/places/{id}', [PlaceController::class, 'update'])->name('admin.places.update');
 Route::delete('/admin/places/{id}', [PlaceController::class, 'destroy'])->name('admin.places.destroy');
+Route::post('/admin/places/{id}/toggle-favorite', [PlaceController::class, 'toggleFavorite'])->name('admin.places.toggleFavorite');
+Route::get('/admin/tags', [PlaceController::class, 'getTags'])->name('admin.tags.getTags');
 
 Route::controller(GimcanaGroupController::class)->group(function () {
     Route::post('/infogimcana', 'infogimcana');
