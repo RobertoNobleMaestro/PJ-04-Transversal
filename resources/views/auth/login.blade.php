@@ -28,6 +28,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('gimcana') }}"><i class="fas fa-puzzle-piece me-1" style="color: var(--primary-color);"></i> Gimcana</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contacto"><i class="fas fa-envelope me-1" style="color: var(--primary-color);"></i> Contacto</a>
+                    </li>
                     <li class="nav-item ms-lg-3">
                         <a class="btn btn-outline-primary" href="{{ route('index') }}"><i class="fas fa-arrow-left me-1" style="color: var(--primary-color);"></i> Volver</a>
                     </li>

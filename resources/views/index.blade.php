@@ -32,6 +32,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('gimcana') }}"><i class="fas fa-puzzle-piece me-1"></i> Gimcana</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contacto"><i class="fas fa-envelope me-1"></i> Contacto</a>
+                    </li>
                     <li class="nav-item ms-lg-3">
                         <a class="btn btn-outline-primary" href="{{ route('login') }}"><i class="fas fa-sign-in-alt me-1"></i> Acceder</a>
                     </li>
@@ -48,7 +51,7 @@
             <p class="mx-auto" style="max-width: 600px;">Explora lugares increíbles y participa en gimcanas interactivas. Crea tu propia aventura o únete a otras existentes.</p>
             <div class="d-flex justify-content-center gap-2">
                 <a href="{{ route('register') }}" class="btn btn-primary btn-lg me-2"><i class="fas fa-user-plus me-1"></i> Registrarse</a>
-                <a href="{{ route('login') }}" class="btn btn-outline-light btn-lg"><i class="fas fa-compass me-1"></i> Explorar</a>
+                <a href="#explorar" class="btn btn-outline-light btn-lg"><i class="fas fa-compass me-1"></i> Explorar</a>
             </div>
         </div>
     </section>

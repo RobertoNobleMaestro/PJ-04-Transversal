@@ -51,7 +51,7 @@ body {
     background-size: cover;
     background-position: center;
     color: white;
-    padding: 120px 0;
+    padding: 120px 20px;
     margin-bottom: 40px;
     min-height: 600px;
     display: flex;
@@ -232,5 +232,8 @@ body {
     }
     .map-responsive {
         height: 75vh; 
+    }
+    .hero-section {
+        padding: 80px 15px;
     }
 }
