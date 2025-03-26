@@ -58,8 +58,8 @@ body {
     background-color: #F1FFDD !important;
     padding: 1rem;
     padding-top: 0;
-    font-size: 0.9rem; /* Reducimos el tamaño de fuente general */
-    margin-top: 60px; /* Añadir margen superior para evitar solapamiento con el header */
+    font-size: 0.9rem;
+    margin-top: 60px;
 }
 
 /* Añadir más espaciado a las secciones principales */
@@ -83,22 +83,22 @@ body {
 nav.navbar {
     margin: -1rem -1rem 0 -1rem;
     width: calc(100% + 2rem);
-    position: fixed; /* Fijar el header en la parte superior */
+    position: fixed;
     top: 0;
     left: 0;
-    z-index: 1000; /* Asegurar que el header esté por encima del contenido */
-    height: 70px; /* Aumentar la altura del header */
+    z-index: 1000;
+    height: 70px;
     display: flex;
-    align-items: center; /* Centrar verticalmente el contenido */
-    justify-content: flex-start; /* Alinear el contenido a la izquierda */
+    align-items: center;
+    justify-content: flex-start;
 }
 
 .navbar-brand {
-    font-size: 1.5rem; /* Aumentar el tamaño del texto del header */
+    font-size: 1.5rem;
     display: flex;
-    align-items: center; /* Centrar verticalmente el texto y el icono */
-    height: 100%; /* Asegurar que el contenedor ocupe toda la altura del header */
-    padding: 0 1rem; /* Añadir padding horizontal para separación */
+    align-items: center;
+    height: 100%;
+    padding: 0 1rem;
 }
 
 @media (max-width: 767px) {
@@ -142,41 +142,39 @@ nav.navbar {
     background-color: white;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    text-align: center; /* Centrar el texto */
+    text-align: center;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centrar elementos horizontalmente */
-    justify-content: center; /* Centrar elementos verticalmente */
+    align-items: center;
+    justify-content: center;
 }
 
 /* Estilos para desktop (2 columnas) */
 @media (min-width: 768px) {
     #datos_grupos {
         display: grid;
-        grid-template-columns: repeat(2, 1fr); /* 2 columnas */
-        gap: 1rem; /* Espaciado entre cards */
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
     }
 
     #datos_grupos .card {
-        margin-bottom: 0; /* Eliminamos el margen inferior en desktop */
+        margin-bottom: 0;
     }
 }
 
-/* Asegurar que el botón ocupe el ancho del contenedor */
 #btnAbrirModal {
     width: 100%;
     margin-bottom: 1rem;
 }
 
 h1 {
-    font-size: 1.5rem; /* Reducimos el tamaño de los títulos h1 */
+    font-size: 1.5rem;
 }
 
 h2 {
-    font-size: 1.3rem; /* Reducimos el tamaño de los títulos h2 */
+    font-size: 1.3rem;
 }
 
-/* Estilos para los botones dentro de las cards */
 #datos_grupos .card button {
     background-color: #2A4D14;
     color: white;
@@ -188,7 +186,7 @@ h2 {
 }
 
 #datos_grupos .card button:hover {
-    background-color: #1a3610; /* Color más oscuro al hacer hover */
+    background-color: #1a3610;
 }
 
 /* Estilos para el modal */
