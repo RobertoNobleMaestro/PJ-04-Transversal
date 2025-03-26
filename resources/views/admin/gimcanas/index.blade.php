@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <!-- Añadir CSS de Leaflet Control Geocoder -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-control-geocoder/2.4.0/Control.Geocoder.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <title>Administración de Gimcanas</title>
 </head>
 <body>
@@ -337,6 +337,11 @@
                     <div class="mb-3">
                         <label for="editarImagen" class="form-label">Imagen</label>
                         <input type="file" class="form-control" id="editarImagen" name="imagen">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Selecciona la ubicación en el mapa</label>
+                        <p class="text-muted small">Puedes hacer clic en el mapa o usar el buscador para ubicar el lugar</p>
+                        <div id="editar-lugar-map" style="height: 350px;"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
