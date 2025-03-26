@@ -1,5 +1,6 @@
 compronargrupousuario();
 
+let myInterval = null;
 function compronargrupousuario() {
     var csrfToken = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
     var formData = new FormData();
@@ -19,16 +20,25 @@ function compronargrupousuario() {
             if (data.usuarioengrupo == 0) {
                 document.getElementById('infogrupos').style.display = 'block';
                 document.getElementById('infogrupo').style.display = 'none';
+                if (myInterval !== null) {
+                    clearInterval(myInterval);
+                    myInterval = null;
+                }
+                // myInterval = setInterval(mostrardatos, 1000);
                 mostrardatos();
             } else {
                 document.getElementById('infogrupos').style.display = 'none';
                 document.getElementById('infogrupo').style.display = 'block';
                 mostrardatosgrupo();
+                // Si ya hay un intervalo, lo detenemos antes de crear uno nuevo
+                if (myInterval) {
+                    clearInterval(myInterval);
+                    myInterval = null;
+                }
+                // myInterval = setInterval(compronargrupousuario, 1000);
             }
         })
 }
-
-// setInterval(mostrardatosgrupo, 1000);
 
 function mostrardatosgrupo() {
     let datos_grupo = document.getElementById("datos_grupo");
@@ -253,8 +263,6 @@ function expulsar(id, nombre) {
         }
     })
 }
-
-setInterval(comprobarjuego, 1000);
 
 function comprobarjuego() {
     var csrfToken = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
