@@ -12,6 +12,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" rel="stylesheet">
     <!-- Leaflet Routing Machine CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.2/leaflet-routing-machine.css" rel="stylesheet">
+    <!-- CSS personalizado para favoritos -->
+    <link href="{{ asset('css/favoritos.css') }}" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -137,9 +139,6 @@
     <!-- Header móvil -->
     <div class="mobile-header">
         <div class="logo-container">
-            <a href="{{ route('index') }}">
-                <img src="{{ asset('img/logo.png') }}" alt="TurGimcana Logo">
-            </a>
             <div class="logo-text">TurGimcana</div>
         </div>
         <div class="header-actions">
@@ -271,7 +270,7 @@
         @endauth
         <a href="{{ route('profile') }}" class="footer-tab">
             <i class="fas fa-user footer-icon"></i>
-            <span>Perfil</span>
+            <span>Log out</span>
         </a>
     </div>
 
