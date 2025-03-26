@@ -24,7 +24,7 @@ function compronargrupousuario() {
                     clearInterval(myInterval);
                     myInterval = null;
                 }
-                myInterval = setInterval(mostrardatos, 1000);
+                // myInterval = setInterval(mostrardatos, 1000);
                 mostrardatos();
             } else {
                 document.getElementById('infogrupos').style.display = 'none';
@@ -35,7 +35,7 @@ function compronargrupousuario() {
                     clearInterval(myInterval);
                     myInterval = null;
                 }
-                myInterval = setInterval(compronargrupousuario, 1000);
+                // myInterval = setInterval(compronargrupousuario, 1000);
             }
         })
 }
