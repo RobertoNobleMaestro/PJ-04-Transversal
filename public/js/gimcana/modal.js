@@ -1,6 +1,7 @@
 document.getElementById('btnAbrirModal').addEventListener('click', () => {
     cargagimcanas();
-    document.getElementById('modalCrearGrupo').style.display = 'block';
+    const modal = document.getElementById('modalCrearGrupo');
+    modal.style.display = 'flex';
 });
 
 document.getElementById('btnCerrarModal').addEventListener('click', () => {
