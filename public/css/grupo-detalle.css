@@ -1,0 +1,133 @@
+/* Estilos para la pantalla de detalle de grupo */
+#datos_grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 60px; /* Espacio para el menú inferior en móvil */
+    padding-bottom: 10px;
+}
+
+#datos_grupo .card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+#datos_grupo h2 {
+    font-size: 1.3rem;
+    color: #333;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+#datos_grupo p {
+    margin: 8px 0;
+    font-size: 0.95rem;
+    color: #555;
+}
+
+/* Estilos para la lista de participantes */
+#datos_grupo .participantes-container {
+    margin-top: 15px;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+}
+
+#datos_grupo .participantes-container h3 {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+#datos_grupo ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#datos_grupo li {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#datos_grupo li:last-child {
+    border-bottom: none;
+}
+
+#datos_grupo li.waiting {
+    color: #777;
+    font-style: italic;
+    text-align: center;
+    padding: 10px;
+}
+
+/* Estilos para los botones */
+#datos_grupo button {
+    border: none;
+    border-radius: 5px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-top: 5px;
+    font-weight: normal;
+    transition: background-color 0.2s;
+}
+
+#datos_grupo button.btn-expulsar {
+    background-color: #f44336;
+    color: white;
+    padding: 5px 8px;
+    font-size: 0.8rem;
+    margin-left: 10px;
+}
+
+#datos_grupo button.btn-comenzar {
+    background-color: #2A4D14;
+    color: white;
+    width: 100%;
+    margin-top: 15px;
+}
+
+#datos_grupo button.exit-button {
+    background-color: #4D1414;
+    color: white;
+    width: 100%;
+    margin-top: 5px;
+}
+
+#datos_grupo button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+.logo-text {
+    font-weight: 600;
+    font-size: 18px;
+    color: #333;
+}
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+/* Estilos para tablets y escritorio */
+@media (min-width: 768px) {
+    #datos_grupo .card {
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    #datos_grupo button.btn-comenzar,
+    #datos_grupo button.exit-button {
+        width: auto;
+        display: inline-block;
+        margin-right: 10px;
+    }
+}

@@ -1,5 +1,6 @@
 compronargrupousuario();
 
+let myInterval = null;
 function compronargrupousuario() {
     var csrfToken = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
     var formData = new FormData();
@@ -19,16 +20,25 @@ function compronargrupousuario() {
             if (data.usuarioengrupo == 0) {
                 document.getElementById('infogrupos').style.display = 'block';
                 document.getElementById('infogrupo').style.display = 'none';
+                if (myInterval !== null) {
+                    clearInterval(myInterval);
+                    myInterval = null;
+                }
+                // myInterval = setInterval(mostrardatos, 1000);
                 mostrardatos();
             } else {
                 document.getElementById('infogrupos').style.display = 'none';
                 document.getElementById('infogrupo').style.display = 'block';
                 mostrardatosgrupo();
+                // Si ya hay un intervalo, lo detenemos antes de crear uno nuevo
+                if (myInterval) {
+                    clearInterval(myInterval);
+                    myInterval = null;
+                }
+                // myInterval = setInterval(compronargrupousuario, 1000);
             }
         })
 }
-
-// setInterval(mostrardatosgrupo, 1000);
 
 function mostrardatosgrupo() {
     let datos_grupo = document.getElementById("datos_grupo");
@@ -45,50 +55,69 @@ function mostrardatosgrupo() {
         })
         .then(data => {
             let html = '';
-            // Información del grupo
-            html += `<h1>Bienvenido a ${data.creador[0].nombre}</h1>`;
-            html += '<div class="info">'
-            html += `<p>Gimcana: ${data.creador[0].gimcana.nombre}</p>`;
-            html += `<p>Código: ${data.creador[0].codigogrupo}</p>`;
-            html += `<p>Creador: ${data.creador[0].creator.name}</p>`;
+            // Estructura de tarjeta para móvil
+            html += '<div class="card">';
+            // Cabecera de la tarjeta
+            html += '<h2>' + data.creador[0].nombre + '</h2>';
+            html += '<p><strong>Gimcana:</strong> ' + data.creador[0].gimcana.nombre + '</p>';
+            html += '<p><strong>Código:</strong> ' + data.creador[0].codigogrupo + '</p>';
+            html += '<p><strong>Creador:</strong> ' + data.creador[0].creator.name + '</p>';
+            
+            // Estado del grupo
             if (data.creador[0].miembros === 0) {
-                html += '<p class="group-complete">Grupo completo</p>';
+                html += '<p><span class="badge">Grupo completo</span></p>';
             } else {
-                html += `<p>Falta ${data.creador[0].miembros} jugador(es)</p>`;
+                html += '<p>Falta ' + data.creador[0].miembros + ' jugador(es)</p>';
             }
-            html += '</div>';
-            // Lista de participantes
-            html += '<div class="participants"><h2>Participantes:</h2><ul>';
+            
+            // Lista de participantes - optimizada para móvil
+            html += '<div class="participantes-container">';
+            html += '<h3>Participantes:</h3>';
+            html += '<ul>';
             data.gruposusuarios.forEach(integrante => {
-                html += `<li>${integrante.usuarios.name}`;
+                html += '<li>';
+                // Nombre del participante
                 if (data.creador[0].creator.id === integrante.user_id) {
-                    html += ' (Creador)';
+                    html += '<span>' + integrante.usuarios.name + ' <span class="creator-badge">(Creador)</span></span>';
+                } else {
+                    html += '<span>' + integrante.usuarios.name + '</span>';
                 }
+                // Botón de expulsar
                 if (data.creador[0].creator.id === data.usuarioactivo && data.creador[0].creator.id !== integrante.user_id) {
-                    html += `<button type="button" onclick="expulsar(${integrante.id}, '${integrante.usuarios.name}')">Expulsar</button>`;
+                    html += '<button type="button" class="btn-expulsar" onclick="expulsar(' + integrante.id + ', \'' + integrante.usuarios.name + '\')">';
+                    html += '<i class="fas fa-times"></i> Expulsar</button>';
                 }
-                html += `</li>`;
+                html += '</li>';
             });
             html += '<li class="waiting">Esperando para comenzar</li>';
-            html += '</ul></div>';
-            // Botones de acción
+            html += '</ul>';
+            html += '</div>';
+            
+            // Botones de acción - optimizados para móvil
+            html += '<div class="actions">';
             if (data.creador[0].creator.id === data.usuarioactivo) {
                 if (data.creador[0].estado == "Espera") {
-                    html += `<button type="button" disabled>Comenzar</button>`;
-                    html += `<button button button type = "button" class="exit-button" onclick = "Eliminargrupo(${data.gruposusuarios[0].group_id}, '${data.creador[0].nombre}')" >Eliminar grupo</button > `;
+                    html += '<button type="button" class="btn-comenzar" disabled>';
+                    html += '<i class="fas fa-play"></i> Comenzar</button>';
+                    html += '<button type="button" class="exit-button" onclick="Eliminargrupo(' + data.gruposusuarios[0].group_id + ', \'' + data.creador[0].nombre + '\')">';
+                    html += '<i class="fas fa-trash"></i> Eliminar grupo</button>';
                 } else {
-                    html += `<button type="button"  onclick = "empezar(${data.gruposusuarios[0].group_id}, '${data.creador[0].gimcana.nombre}')">Comenzar</button>`;
-                    html += `<button button button type = "button" class="exit-button" onclick = "Eliminargrupo(${data.gruposusuarios[0].group_id}, '${data.creador[0].nombre}')" >Eliminar grupo</button > `;
+                    html += '<button type="button" class="btn-comenzar" onclick="empezar(' + data.gruposusuarios[0].group_id + ', \'' + data.creador[0].gimcana.nombre + '\')">';
+                    html += '<i class="fas fa-play"></i> Comenzar</button>';
+                    html += '<button type="button" class="exit-button" onclick="Eliminargrupo(' + data.gruposusuarios[0].group_id + ', \'' + data.creador[0].nombre + '\')">';
+                    html += '<i class="fas fa-trash"></i> Eliminar grupo</button>';
                 }
             } else {
-                html += `<button button button type = "button" class="exit-button" onclick = "salirgimcana(${data.gruposusuarios[0].group_id}, '${data.creador[0].nombre}')" >Salir del grupo</button > `;
+                html += '<button type="button" class="exit-button" onclick="salirgimcana(' + data.gruposusuarios[0].group_id + ', \'' + data.creador[0].nombre + '\')">';
+                html += '<i class="fas fa-sign-out-alt"></i> Salir del grupo</button>';
             }
+            html += '</div>';
+            html += '</div>'; // Cierre de la tarjeta
+            
             // Asignar el HTML construido al contenedor
             datos_grupo.innerHTML = html;
         })
 }
-
-
 
 function empezar(id, nombre) {
     Swal.fire({
@@ -129,7 +158,6 @@ function empezar(id, nombre) {
         }
     })
 }
-
 
 function salirgimcana(id, nombre) {
     Swal.fire({
@@ -253,8 +281,6 @@ function expulsar(id, nombre) {
         }
     })
 }
-
-setInterval(comprobarjuego, 1000);
 
 function comprobarjuego() {
     var csrfToken = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
