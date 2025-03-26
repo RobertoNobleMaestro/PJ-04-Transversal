@@ -222,6 +222,18 @@
     font-weight: 600;
 }
 
+.checkpoint-item {
+    margin-bottom: 1rem;
+}
+
+.checkpoint-select {
+    flex-grow: 1;
+}
+
+.btn-remove-checkpoint {
+    width: 40px;
+}
+
 /* Responsive */
 @media screen and (max-width: 768px) {
     .container {

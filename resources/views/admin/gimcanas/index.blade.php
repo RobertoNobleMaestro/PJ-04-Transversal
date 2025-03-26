@@ -77,12 +77,16 @@
                     <button class="btn btn-secondary" >Limpiar Filtros</button>
                 </div>
             </div>
+            <div class="d-flex justify-content-end mb-3">
+                <button class="btn btn-primary" onclick="abrirModalCrearGimcana()">
+                    <i class="fas fa-plus"></i> Crear Gimcana
+                </button>
+            </div>
             <div class="table-responsive">
                 <table class="table text-center">
                     <thead>
                         <tr>
                             <th>Nombre</th>
-                            <th>Grupo</th>
                             <th>Creador</th>
                             <th>Estado</th>
                             <th>Acciones</th>
@@ -352,33 +356,53 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="formEditarGimcana" onsubmit="event.preventDefault(); actualizarGimcana();">
+                <form id="formEditarGimcana">
                     <input type="hidden" id="editarIdGimcana" name="id">
                     <div class="mb-3">
                         <label for="editarNombre" class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="editarNombre" name="nombre" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="editarGroupId" class="form-label">Grupo</label>
-                        <select class="form-select" id="editarGroupId" name="group_id" required>
-                            <option value="">Seleccione un grupo</option>
-                        </select>
+                    <div class="checkpoints-container">
                     </div>
                     <div class="mb-3">
-                        <label for="editarCheckpoints" class="form-label">Checkpoints</label>
-                        <select class="form-select" id="editarCheckpoints" name="checkpoints[]" multiple required>
-                            <option value="">Seleccione checkpoints</option>
-                        </select>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" id="btnAddCheckpoint">
+                            <i class="fas fa-plus"></i> Añadir siguiente checkpoint
+                        </button>
                     </div>
                 </form>
             </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="actualizarGimcana()">Guardar</button>
+            </div>
         </div>
     </div>
-</div>    
+</div>
+
+<!-- Modal para crear gimcana -->
+<div class="modal fade" id="crearGimcanaModal" tabindex="-1" aria-labelledby="crearGimcanaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="crearGimcanaModalLabel">Crear Gimcana</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formCrearGimcana">
+                    <div class="mb-3">
+                        <label for="crearNombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="crearNombre" name="nombre" required>
+                    </div>
+                    <div class="checkpoints-container"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btnCrearGimcana">Crear</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
