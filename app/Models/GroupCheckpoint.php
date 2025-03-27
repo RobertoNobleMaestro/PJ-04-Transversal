@@ -11,7 +11,7 @@ class GroupCheckpoint extends Model
 
     // Especificar explícitamente el nombre de la tabla
     protected $table = 'group_checkpoint';
-    
+
     protected $fillable = ['groupuser_id', 'checkpoint_id', 'validado'];
 
     public function groupUser()

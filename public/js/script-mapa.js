@@ -35,6 +35,7 @@ var userPosition = null; // Posición actual del usuario (lat, lng)
 var placeMarkers = []; // Array de marcadores de lugares
 var watchId = null;   // ID del watcher de geolocalización
 var isTracking = false; // Estado del seguimiento de ubicación
+var activeCategory = 'all'; // Categoría activa para el filtro (por defecto: todas)
 
 // Opciones de geolocalización ajustadas para mejor precisión
 var opcionesGPS = {
@@ -95,6 +96,9 @@ function createCustomMarker(place) {
         }
     });
     
+    // Guardar la categoría del lugar en el marcador para el filtrado
+    marker.placeCategory = place.category.id;
+    
     return marker;
 }
 
@@ -110,6 +114,21 @@ function loadPlacesOnMap() {
 // Centra el mapa en unas coordenadas específicas con un nivel de zoom
 function centerMap(lat, lng, zoom = 15) {
     map.setView([lat, lng], zoom);
+}
+
+// Filtra los marcadores de lugares por categoría
+function filterMarkersByCategory(categoryId) {
+    console.log("Filtrando por categoría:", categoryId);
+    
+    placeMarkers.forEach(marker => {
+        // Eliminar todos los marcadores del mapa primero
+        marker.remove();
+        
+        // Añadir solo los que coinciden con la categoría seleccionada o todos si es 'all'
+        if (categoryId === 'all' || marker.placeCategory == categoryId) {
+            marker.addTo(map);
+        }
+    });
 }
 
 // =====================================================================
@@ -1185,3 +1204,66 @@ function showToast(message, type) {
         toast.remove();
     }, 3000);
 }
+
+// =====================================================================
+// FUNCIONES PARA FILTROS DE CATEGORÍA
+// =====================================================================
+
+// Configura los eventos para los botones de filtro de categoría
+function setupCategoryFilterEvents() {
+    // Eventos para los filtros de categoría en móvil
+    const categoryFilterBtn = document.getElementById('toggleCategoryFilter');
+    const mobileCategoryContainer = document.getElementById('mobileCategoryContainer');
+    
+    if (categoryFilterBtn) {
+        categoryFilterBtn.addEventListener('click', function() {
+            mobileCategoryContainer.classList.toggle('visible');
+        });
+    }
+    
+    // Eventos para los botones de categoría (móvil y desktop)
+    const categoryBadges = document.querySelectorAll('.category-badge');
+    categoryBadges.forEach(badge => {
+        badge.addEventListener('click', function() {
+            // Quitar la clase activa de todos los badges
+            categoryBadges.forEach(b => b.classList.remove('active'));
+            // Añadir la clase activa al badge seleccionado
+            this.classList.add('active');
+            
+            // Filtrar los marcadores por la categoría seleccionada
+            const categoryId = this.getAttribute('data-category');
+            activeCategory = categoryId;
+            filterMarkersByCategory(categoryId);
+            
+            // Ocultar el contenedor de filtros en móvil después de seleccionar
+            if (mobileCategoryContainer) {
+                mobileCategoryContainer.classList.remove('visible');
+            }
+            
+            // Mostrar notificación
+            if (categoryId === 'all') {
+                showToast("Mostrando todos los lugares", "info");
+            } else {
+                const categoryName = categoriesData.find(cat => cat.id == categoryId)?.name || "Categoría";
+                showToast(`Filtrando por: ${categoryName}`, "info");
+            }
+        });
+    });
+}
+
+// =====================================================================
+// INICIALIZACIÓN
+// =====================================================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar lugares en el mapa
+    loadPlacesOnMap();
+    
+    // Configurar eventos de filtrado de categorías
+    setupCategoryFilterEvents();
+    
+    // Ajustar el tamaño del mapa al cargar y redimensionar
+    setTimeout(() => map.invalidateSize(), 100);
+    
+    window.addEventListener('resize', () => map.invalidateSize());
+});

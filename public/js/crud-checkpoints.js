@@ -152,6 +152,29 @@ function crearCheckpoint(e) {
         return;
     }
     
+    // Validar campos obligatorios
+    const pista = document.getElementById('checkpoint_pista');
+    const prueba = document.getElementById('checkpoint_prueba');
+    const respuesta = document.getElementById('checkpoint_respuesta');
+    
+    if (!pista.value.trim()) {
+        pista.classList.add('is-invalid');
+        Swal.fire('Error', 'El campo Pista es obligatorio', 'error');
+        return;
+    }
+    
+    if (!prueba.value.trim()) {
+        prueba.classList.add('is-invalid');
+        Swal.fire('Error', 'El campo Prueba es obligatorio', 'error');
+        return;
+    }
+    
+    if (!respuesta.value.trim()) {
+        respuesta.classList.add('is-invalid');
+        Swal.fire('Error', 'El campo Respuesta es obligatorio', 'error');
+        return;
+    }
+    
     // Obtener el formulario y comprobar que existe
     const formulario = document.getElementById('formCrearCheckpoint');
     if (!formulario) {
@@ -236,7 +259,8 @@ function cargarCheckpointsRecientes() {
                     <div class="checkpoint-item mb-2 p-2 border rounded">
                         <strong>${checkpoint.place?.nombre ?? 'Lugar desconocido'}</strong>
                         <p class="mb-1"><small>Pista: ${checkpoint.pista}</small></p>
-                        <p class="mb-0"><small>Prueba: ${checkpoint.prueba}</small></p>
+                        <p class="mb-1"><small>Prueba: ${checkpoint.prueba}</small></p>
+                        <p class="mb-0"><small>Respuesta: ${checkpoint.respuesta}</small></p>
                         ${checkpoint.gimcana ? `<p class="mb-0 badge bg-info">Gimcana: ${checkpoint.gimcana.nombre}</p>` : ''}
                     </div>
                 `).join('');
@@ -249,6 +273,34 @@ function cargarCheckpointsRecientes() {
                 container.innerHTML = '<p class="text-danger">Error al cargar checkpoints recientes</p>';
             }
         });
+}
+
+// Función para validar un campo
+function validarCampo(campo) {
+    if (!campo.value.trim()) {
+        campo.classList.add('is-invalid');
+        return false;
+    } else {
+        campo.classList.remove('is-invalid');
+        return true;
+    }
+}
+
+// Función para inicializar validaciones onblur
+function inicializarValidaciones() {
+    // Campos de creación de checkpoints
+    const crearCampos = [
+        'checkpoint_pista',  // Campo de pista
+        'checkpoint_prueba', // Campo de prueba
+        'checkpoint_respuesta' // Nuevo campo de respuesta
+    ];
+
+    crearCampos.forEach(id => {
+        const campo = document.getElementById(id);
+        if (campo) {
+            campo.addEventListener('blur', () => validarCampo(campo));
+        }
+    });
 }
 
 // Inicializar eventos cuando el DOM esté listo
@@ -270,4 +322,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnCrearCheckpoint) {
         btnCrearCheckpoint.addEventListener('click', crearCheckpoint);
     }
+
+    // Inicializar validaciones
+    inicializarValidaciones();
 });

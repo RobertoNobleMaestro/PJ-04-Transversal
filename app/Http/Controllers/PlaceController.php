@@ -16,22 +16,20 @@ class PlaceController extends Controller
 
     public function getPlaces(Request $request)
     {
-        $query = Place::with('category', 'tags');
-        if ($request->has('categories')) {
-            $categories = explode(',', $request->categories);
-            $query->whereIn('categoria_id', $categories);
+        $query = Place::with('category');
+        
+        // Filtro por nombre
+        if ($request->has('nombre') && !empty($request->nombre)) {
+            $query->where('nombre', 'LIKE', '%' . $request->nombre . '%');
         }
-        if ($request->has('tags')) {
-            $tags = explode(',', $request->tags);
-            $query->whereHas('tags', function($q) use ($tags) {
-                $q->whereIn('id', $tags);
-            });
-        }
-        if ($request->has('favorites') && $request->favorites == '1') {
-            $query->where('favorito', true);
+        
+        // Filtro por categoría
+        if ($request->has('categoria_id') && !empty($request->categoria_id)) {
+            $query->where('categoria_id', $request->categoria_id);
         }
         
         $places = $query->get();
+        
         $places = $places->map(function($place) {
             return [
                 'id' => $place->id,
@@ -42,10 +40,10 @@ class PlaceController extends Controller
                 'categoria' => $place->category ? [
                     'nombre' => $place->category->name
                 ] : null,
-                'etiquetas' => $place->tags->pluck('nombre')->toArray(),
                 'imagen' => $place->imagen
             ];
         });
+        
         return response()->json($places);
     }
 
