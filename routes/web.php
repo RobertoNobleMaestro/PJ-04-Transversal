@@ -11,13 +11,14 @@ use Illuminate\Http\Response;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\GimcanaGroupController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\CheckpointController;
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/inicio', [AuthController::class, 'showDashboard'])->name('inicio');
     Route::get('/inicioAdmin', [AuthController::class, 'showInicioAdmin'])->name('inicioAdmin');
     Route::get('/mapa', MapaController::class)->name('mapa');
     Route::get('/gimcana', [GimcanaGroupController::class, 'goGimcana'])->name('gimcana');
-    Route::get('/gimcana/juego', [GimcanaGroupController::class, 'goGimcana'])->name('gimcana.juego');
+    Route::get('/gimcana/juego', [GimcanaGroupController::class, 'gimcanagame'])->name('gimcana.juego');
 });
 
 Route::get('/', [AuthController::class, 'showHome']);
@@ -46,9 +47,10 @@ Route::get('/admin/gimcanas/getGimcanas', [GimcanaController::class, 'getGimcana
 Route::get('/admin/gimcanas/{id}', [GimcanaController::class, 'show'])->name('admin.gimcanas.show');
 Route::post('/admin/gimcanas', [GimcanaController::class, 'store'])->name('admin.gimcanas.store');
 Route::get('/admin/gimcanas/editar/{id}', [GimcanaController::class, 'edit'])->name('admin.gimcanas.edit');
-Route::post('/admin/gimcanas/editar/{id}', [GimcanaController::class, 'update'])->name('admin.gimcanas.update');
+Route::put('/admin/gimcanas/{id}', [GimcanaController::class, 'update'])->name('admin.gimcanas.update');
 Route::delete('/admin/gimcanas/{id}', [GimcanaController::class, 'destroy'])->name('admin.gimcanas.destroy');
 Route::get('/admin/gimcanas/{gimcana}/checkpoints', [GimcanaController::class, 'getCheckpoints'])->name('gimcanas.checkpoints');
+Route::get('/admin/gimcanas/checkpoints/recientes', [CheckpointController::class, 'recientes'])->name('admin.gimcanas.checkpoints.recientes');
 
 // Rutas para el CRUD de lugares
 // Route::get('/admin/places', [PlaceController::class, 'index'])->name('admin.places.index');
@@ -82,6 +84,16 @@ Route::get('/admin/places/{id}', [PlaceController::class, 'show'])->name('admin.
 Route::post('/admin/places', [PlaceController::class, 'store'])->name('admin.places.store');
 Route::put('/admin/places/{id}', [PlaceController::class, 'update'])->name('admin.places.update');
 Route::delete('/admin/places/{id}', [PlaceController::class, 'destroy'])->name('admin.places.destroy');
+Route::post('/admin/places/{id}/toggle-favorite', [PlaceController::class, 'toggleFavorite'])->name('admin.places.toggleFavorite');
+Route::get('/admin/tags', [PlaceController::class, 'getTags'])->name('admin.tags.getTags');
+
+// Rutas para el CRUD de checkpoints
+Route::get('/admin/checkpoints', [CheckpointController::class, 'index'])->name('admin.checkpoints.index');
+Route::get('/admin/checkpoints/recientes', [CheckpointController::class, 'recientes'])->name('admin.checkpoints.recientes');
+Route::post('/admin/checkpoints', [CheckpointController::class, 'store'])->name('admin.checkpoints.store');
+Route::get('/admin/checkpoints/{id}', [CheckpointController::class, 'show'])->name('admin.checkpoints.show');
+Route::put('/admin/checkpoints/{id}', [CheckpointController::class, 'update'])->name('admin.checkpoints.update');
+Route::delete('/admin/checkpoints/{id}', [CheckpointController::class, 'destroy'])->name('admin.checkpoints.destroy');
 
 Route::controller(GimcanaGroupController::class)->group(function () {
     Route::post('/infogimcana', 'infogimcana');
@@ -92,6 +104,8 @@ Route::controller(GimcanaGroupController::class)->group(function () {
     Route::post('/eliminargrupo', 'eliminargrupo');
     Route::post('/expulsargrupo', 'expulsargrupo');
     Route::post('/creargrupo', 'creargrupo');
+    Route::post('/empezargimcana', 'empezargimcana');
+    Route::post('/comprobarjuego', 'comprobarjuego');
 });
 
 // Rutas para favoritos
@@ -108,4 +122,6 @@ Route::get('/admin/places/{id}/edit', [PlaceController::class, 'edit']);
 
 // Rutas para el CRUD de categorías
 Route::get('/admin/categories', [CategoryController::class, 'index']);
+Route::get('/admin/groups', [GimcanaGroupController::class, 'getGroups']);
+Route::get('/admin/checkpoints', [CheckpointController::class, 'getAllCheckpoints']);
 Route::post('/cargagimcanas', [GimcanaGroupController::class, 'cargagimcanas']);

@@ -1,0 +1,309 @@
+/* Estilos para los filtros */
+.filter-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.filter-container input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.button-container {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.button-container button {
+    flex: 1;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.button-container button[type="submit"] {
+    background-color: #2A4D14;
+    color: white;
+}
+
+.button-container button[type="button"] {
+    background-color: #4D1414;
+    color: white;
+}
+
+/* Estilos responsive */
+@media (min-width: 768px) {
+    .filter-container {
+        flex-direction: row;
+        align-items: flex-end;
+    }
+
+    .filter-container input {
+        width: auto;
+        flex: 1;
+    }
+
+    .button-container {
+        margin-top: 0;
+    }
+}
+
+body {
+    background-color: #F1FFDD !important;
+    padding: 1rem;
+    padding-top: 0;
+    font-size: 0.9rem;
+    margin-top: 60px;
+}
+
+/* Añadir más espaciado a las secciones principales */
+#infogrupos, #infogrupo {
+    padding: 1rem;
+}
+
+/* Asegurar que el contenido no toque los bordes en móviles */
+@media (max-width: 767px) {
+    body {
+        padding: 0.5rem;
+        padding-top: 0;
+    }
+    
+    #infogrupos, #infogrupo {
+        padding: 0.5rem;
+    }
+}
+
+/* Asegurar que el header no tenga padding adicional */
+nav.navbar {
+    margin: -1rem -1rem 0 -1rem;
+    width: calc(100% + 2rem);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 1rem;
+}
+
+@media (max-width: 767px) {
+    nav.navbar {
+        margin: -0.5rem -0.5rem 0 -0.5rem;
+        width: calc(100% + 1rem);
+    }
+}
+
+/* Estilos para el botón "Crear grupo" */
+#btnAbrirModal {
+    background-color: #23144D;
+    color: white;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+}
+
+/* Estilos responsive */
+@media (min-width: 768px) {
+    #btnAbrirModal {
+        width: auto;
+        margin-bottom: 0;
+    }
+}
+
+/* Estilos para los grupos */
+#datos_grupos {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 50px;
+}
+
+#datos_grupos .card {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Estilos para desktop (2 columnas) */
+@media (min-width: 768px) {
+    #datos_grupos {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    #datos_grupos .card {
+        margin-bottom: 0;
+    }
+}
+
+#btnAbrirModal {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+h1 {
+    font-size: 1.5rem;
+}
+
+h2 {
+    font-size: 1.3rem;
+}
+
+#datos_grupos .card button {
+    background-color: #2A4D14;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+#datos_grupos .card button:hover {
+    background-color: #1a3610;
+}
+
+/* Estilos para el modal */
+#modalCrearGrupo {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.modal-content label {
+    font-weight: bold;
+}
+
+.modal-content input,
+.modal-content select {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 100%;
+}
+
+.modal-content button {
+    padding: 0.75rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+#btnCrearGrupo {
+    background-color: #2A4D14;
+    color: white;
+}
+
+#btnCrearGrupo:hover {
+    background-color: #1a3610;
+}
+
+#btnCerrarModal {
+    background-color: #4D1414;
+    color: white;
+}
+
+#btnCerrarModal:hover {
+    background-color: #3a0f0f;
+}
+
+/* Footer móvil */
+.mobile-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background-color: white;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.footer-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.footer-tab.active {
+    color: #007AFF;
+}
+
+.footer-icon {
+    font-size: 20px;
+    margin-bottom: 3px;
+}
+
+@media (min-width: 768px) {
+    .mobile-footer {
+        display: none;
+    }
+}
+
+#infogrupos {
+    display: none;
+}
