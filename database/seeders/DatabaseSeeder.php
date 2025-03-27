@@ -16,13 +16,14 @@ class DatabaseSeeder extends Seeder
             CustomCategorySeeder::class,
             TagSeeder::class,
             UserSeeder::class,
-            GroupSeeder::class,
             PlaceSeeder::class,
             CheckpointSeeder::class,
             FavoriteSeeder::class,
-            GroupUserSeeder::class,
             GimcanaSeeder::class,
             BellvitgeGimcanaSeeder::class, // Nueva gimcana de Bellvitge
+            GroupSeeder::class,
+            GroupUserSeeder::class,
+            GroupCheckpointSeeder::class,
         ]);
     }
 }

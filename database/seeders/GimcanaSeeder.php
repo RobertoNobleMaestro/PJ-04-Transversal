@@ -15,16 +15,6 @@ class GimcanaSeeder extends Seeder
      */
     public function run(): void
     {
-        // Verificar si el usuario ya existe antes de crearlo
-        $user = User::firstOrCreate(
-            ['email' => 'admin@example.com'],
-            [
-                'name' => 'Admin',
-                'password' => bcrypt('password'),
-                'role_id' => 1,
-            ]
-        );
-
         // Checkpoints actualizados según los lugares de Hospitalet
         $checkpoints = [
             [
@@ -81,37 +71,6 @@ class GimcanaSeeder extends Seeder
         $createdCheckpoints = [];
         foreach ($checkpoints as $checkpoint) {
             $createdCheckpoints[] = Checkpoint::create($checkpoint);
-        }
-
-        // Crear gimcanas de prueba
-        $gimcana1 = Gimcana::create([
-            'nombre' => 'Aventura Urbana en Hospitalet',
-            'completed' => false,
-        ]);
-
-        $gimcana2 = Gimcana::create([
-            'nombre' => 'Gimcana 2',
-            'completed' => true,
-        ]);
-
-        // Crear grupos asociados a las gimcanas
-        $group1 = Group::create([
-            'codigogrupo' => 'GRP001',
-            'nombre' => 'Grupo 1',
-            'creador' => $user->id,
-            'gimcana_id' => $gimcana1->id,
-        ]);
-
-        $group2 = Group::create([
-            'codigogrupo' => 'GRP002',
-            'nombre' => 'Grupo 2',
-            'creador' => $user->id,
-            'gimcana_id' => $gimcana2->id,
-        ]);
-
-        // Asociar checkpoints a cada gimcana
-        foreach ($createdCheckpoints as $checkpoint) {
-            $gimcana1->checkpoints()->attach($checkpoint->id);
         }
     }
 }
