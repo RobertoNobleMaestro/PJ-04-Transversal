@@ -12,6 +12,7 @@ class CreateGroupsTable extends Migration
             $table->id();
             $table->string('codigogrupo')->nullable();
             $table->string('nombre');
+            $table->enum('estado', ['Espera', 'Completo', 'Empezado'])->default('Espera');
             $table->foreignId('creador')->constrained('users');
             $table->foreignId('gimcana_id')->constrained('gimcanas');
             $table->integer('miembros')->default(2);

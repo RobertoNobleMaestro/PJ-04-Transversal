@@ -14,9 +14,24 @@ class PlaceController extends Controller
         return view('admin.places.index');
     }
 
-    public function getPlaces()
+    public function getPlaces(Request $request)
     {
-        $places = Place::with('category')->get();
+        $query = Place::with('category', 'tags');
+        if ($request->has('categories')) {
+            $categories = explode(',', $request->categories);
+            $query->whereIn('categoria_id', $categories);
+        }
+        if ($request->has('tags')) {
+            $tags = explode(',', $request->tags);
+            $query->whereHas('tags', function($q) use ($tags) {
+                $q->whereIn('id', $tags);
+            });
+        }
+        if ($request->has('favorites') && $request->favorites == '1') {
+            $query->where('favorito', true);
+        }
+        
+        $places = $query->get();
         $places = $places->map(function($place) {
             return [
                 'id' => $place->id,
@@ -152,39 +167,24 @@ class PlaceController extends Controller
                 $checkpoint->gimcanas()->detach(); // Elimina las relaciones en gimcana_checkpoint
             });
             $place->checkpoints()->delete();
-
-            // Eliminar la imagen si existe
             if ($place->imagen && Storage::exists('public/' . $place->imagen)) {
                 Storage::delete('public/' . $place->imagen);
             }
-
-            // Eliminar el lugar
             $place->delete();
-
             DB::commit();
-
             return response()->json(['success' => 'Lugar eliminado correctamente'], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => 'Error al eliminar el lugar: ' . $e->getMessage()], 500);
         }
     }
-    
-    /**
-     * Search for places by name or category
-     */
     public function search(Request $request)
     {
         $query = $request->input('query', '');
-        
-        // Registrar la consulta para depuración        
-        // Si la consulta está vacía, devolver todos los lugares (limitados)
         if (empty($query)) {
             $places = Place::with('category')->limit(10)->get();
             return response()->json(['places' => $places]);
         }
-        
-        // Usar una consulta más flexible
         $places = Place::with('category')
             ->where(function($q) use ($query) {
                 $q->where('nombre', 'LIKE', "%{$query}%")
@@ -196,17 +196,12 @@ class PlaceController extends Controller
             })
             ->limit(20)
             ->get();
-        
-        // Registrar resultados para depuración
-        
-        // Si no hay resultados, intentar una búsqueda más amplia
         if ($places->isEmpty()) {
-            // Intentar con una búsqueda más amplia (solo buscar por parte de la palabra)
             $words = explode(' ', $query);
             $places = Place::with('category')
                 ->where(function($q) use ($words) {
                     foreach ($words as $word) {
-                        if (strlen($word) > 3) { // Solo palabras con más de 3 caracteres
+                        if (strlen($word) > 3) { 
                             $q->orWhere('nombre', 'LIKE', "%{$word}%")
                               ->orWhere('descripcion', 'LIKE', "%{$word}%")
                               ->orWhere('direccion', 'LIKE', "%{$word}%");
@@ -219,34 +214,35 @@ class PlaceController extends Controller
         }
             
         return response()->json(['places' => $places]);
-        DB::beginTransaction();
-
+    }
+    public function toggleFavorite($id)
+    {
         try {
             $place = Place::findOrFail($id);
-
-            // Eliminar los favoritos asociados al lugar
-            $place->favorites()->delete();
-
-            // Eliminar los checkpoints asociados al lugar
-            $place->checkpoints()->each(function ($checkpoint) {
-                $checkpoint->gimcanas()->detach(); // Elimina las relaciones en gimcana_checkpoint
-            });
-            $place->checkpoints()->delete();
-
-            // Eliminar la imagen si existe
-            if ($place->imagen && Storage::exists('public/' . $place->imagen)) {
-                Storage::delete('public/' . $place->imagen);
-            }
-
-            // Eliminar el lugar
-            $place->delete();
-
-            DB::commit();
-
-            return response()->json(['success' => 'Lugar eliminado correctamente'], 200);
+            $place->favorito = !$place->favorito;
+            $place->save();
+            return response()->json([
+                'success' => true,
+                'message' => $place->favorito ? 'Lugar añadido a favoritos' : 'Lugar eliminado de favoritos',
+                'favorito' => $place->favorito
+            ]);
         } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['error' => 'Error al eliminar el lugar: ' . $e->getMessage()], 500);
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al cambiar el estado de favorito: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getTags()
+    {
+        try {
+            $tags = \App\Models\Tag::all();
+            return response()->json($tags);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error al obtener las etiquetas: ' . $e->getMessage()
+            ], 500);
         }
     }
 }
