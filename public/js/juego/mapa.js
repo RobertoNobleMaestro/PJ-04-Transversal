@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let watchId;
     let checkpointsData = [];
     let updateInterval; // Intervalo para actualizar la posición cada 10 segundos
-    let detectionRadius = 120000; // Radio de detección en metros
+    let detectionRadius = 100; // Radio de detección en metros
 
     const checkpointPendingIcon = L.icon({
         iconUrl: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-2x-red.png',
