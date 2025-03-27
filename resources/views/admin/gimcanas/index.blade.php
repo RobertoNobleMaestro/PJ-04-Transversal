@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <!-- Añadir CSS de Leaflet Control Geocoder -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-control-geocoder/2.4.0/Control.Geocoder.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <title>Administración de Gimcanas</title>
 </head>
 <body>
@@ -77,12 +77,16 @@
                     <button class="btn btn-secondary" >Limpiar Filtros</button>
                 </div>
             </div>
+            <div class="d-flex justify-content-end mb-3">
+                <button class="btn btn-primary" onclick="abrirModalCrearGimcana()">
+                    <i class="fas fa-plus"></i> Crear Gimcana
+                </button>
+            </div>
             <div class="table-responsive">
                 <table class="table text-center">
                     <thead>
                         <tr>
                             <th>Nombre</th>
-                            <th>Grupo</th>
                             <th>Creador</th>
                             <th>Estado</th>
                             <th>Acciones</th>
@@ -334,6 +338,11 @@
                         <label for="editarImagen" class="form-label">Imagen</label>
                         <input type="file" class="form-control" id="editarImagen" name="imagen">
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Selecciona la ubicación en el mapa</label>
+                        <p class="text-muted small">Puedes hacer clic en el mapa o usar el buscador para ubicar el lugar</p>
+                        <div id="editar-lugar-map" style="height: 350px;"></div>
+                    </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn btn-primary">Guardar</button>
@@ -352,33 +361,53 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="formEditarGimcana" onsubmit="event.preventDefault(); actualizarGimcana();">
+                <form id="formEditarGimcana">
                     <input type="hidden" id="editarIdGimcana" name="id">
                     <div class="mb-3">
                         <label for="editarNombre" class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="editarNombre" name="nombre" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="editarGroupId" class="form-label">Grupo</label>
-                        <select class="form-select" id="editarGroupId" name="group_id" required>
-                            <option value="">Seleccione un grupo</option>
-                        </select>
+                    <div class="checkpoints-container">
                     </div>
                     <div class="mb-3">
-                        <label for="editarCheckpoints" class="form-label">Checkpoints</label>
-                        <select class="form-select" id="editarCheckpoints" name="checkpoints[]" multiple required>
-                            <option value="">Seleccione checkpoints</option>
-                        </select>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" id="btnAddCheckpoint">
+                            <i class="fas fa-plus"></i> Añadir siguiente checkpoint
+                        </button>
                     </div>
                 </form>
             </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="actualizarGimcana()">Guardar</button>
+            </div>
         </div>
     </div>
-</div>    
+</div>
+
+<!-- Modal para crear gimcana -->
+<div class="modal fade" id="crearGimcanaModal" tabindex="-1" aria-labelledby="crearGimcanaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="crearGimcanaModalLabel">Crear Gimcana</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formCrearGimcana">
+                    <div class="mb-3">
+                        <label for="crearNombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="crearNombre" name="nombre" required>
+                    </div>
+                    <div class="checkpoints-container"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btnCrearGimcana">Crear</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
