@@ -14,18 +14,18 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" rel="stylesheet">
     {{-- link estilos css --}}
     <link href="{{ asset('css/clientegimcana.css') }}" rel="stylesheet">
+    {{-- CSS para detalles de grupo --}}
+    <link href="{{ asset('css/grupo-detalle.css') }}" rel="stylesheet">
     {{-- SweetAlert --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
-    <!-- Navegación -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="#"><i class="fas fa-map-marked-alt me-2"
-                    style="color: var(--primary-color);"></i>TurGimcana</a>
+<div class="mobile-header">
+        <div class="logo-container">
+            <div class="logo-text">TurGimcana</div>
         </div>
-    </nav>
+    </div>
 
     <!-- Footer móvil -->
     <div class="mobile-footer">

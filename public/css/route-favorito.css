@@ -1,0 +1,187 @@
+/* Estilos generales */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.container {
+    padding-top: 60px;
+}
+
+/* Header móvil */
+.mobile-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background-color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.logo-container img {
+    height: 40px;
+}
+
+.logo-icon {
+    font-size: 24px;
+    color: #007AFF;
+    margin-right: 8px;
+}
+
+.logo-text {
+    font-weight: 600;
+    font-size: 18px;
+    color: #333;
+    margin-left: 10px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+}
+
+.header-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #007AFF;
+    margin-left: 15px;
+    padding: 5px;
+    position: relative;
+    cursor: pointer;
+}
+
+.location-active {
+    color: #34C759;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+/* Footer móvil */
+.mobile-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background-color: white;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.footer-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.footer-tab.active {
+    color: #007AFF;
+}
+
+.footer-icon {
+    font-size: 20px;
+    margin-bottom: 3px;
+}
+
+/* Contenido principal */
+.main-content {
+    padding-bottom: 70px;
+}
+
+/* Estilos para la página de favoritos */
+#favorites-map {
+    height: 400px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.card {
+    transition: transform 0.2s;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.user-marker {
+    z-index: 1000;
+}
+
+.custom-marker {
+    z-index: 900;
+}
+
+/* Estilos para notificaciones toast */
+.toast-container {
+    position: fixed;
+    bottom: 70px;
+    right: 20px;
+    z-index: 1100;
+}
+
+.toast {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-bottom: 10px;
+    min-width: 250px;
+    max-width: 350px;
+}
+
+.toast-header {
+    border-bottom: none;
+    background-color: transparent;
+}
+
+.toast-body {
+    padding: 12px 15px;
+}
+
+/* Estilos para desktop (ocultar en móvil) */
+.desktop-only {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .mobile-header, .mobile-footer {
+        display: none;
+    }
+    
+    .desktop-only {
+        display: block;
+    }
+    
+    .container {
+        padding-top: 80px;
+    }
+}
