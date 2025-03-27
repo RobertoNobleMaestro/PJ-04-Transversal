@@ -88,8 +88,16 @@ function inicializarMapaEditarLugar(latitud, longitud) {
         return;
     }
 
+    // Si ya existe un mapa, eliminarlo
+    if (mapContainer._map) {
+        mapContainer._map.remove();
+    }
+
     // Inicializar el mapa
     const map = L.map('editar-lugar-map').setView([latitud, longitud], 13);
+
+    // Guardar una referencia al mapa en el contenedor
+    mapContainer._map = map;
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
@@ -314,6 +322,54 @@ function crearLugar() {
     });
 }
 
+// Función para validar un campo
+function validarCampo(campo) {
+    if (!campo.value.trim()) {
+        campo.classList.add('is-invalid');
+        return false;
+    } else {
+        campo.classList.remove('is-invalid');
+        return true;
+    }
+}
+
+// Función para inicializar validaciones onblur
+function inicializarValidaciones() {
+    // Campos de creación
+    const crearCampos = [
+        'crearNombreLugar',
+        'crearDescripcionLugar',
+        'crearDireccionLugar',
+        'crearLatitudLugar',
+        'crearLongitudLugar',
+        'crearCategoriaLugar'
+    ];
+
+    crearCampos.forEach(id => {
+        const campo = document.getElementById(id);
+        if (campo) {
+            campo.addEventListener('blur', () => validarCampo(campo));
+        }
+    });
+
+    // Campos de edición
+    const editarCampos = [
+        'editarNombreLugar',
+        'editarDescripcionLugar',
+        'editarDireccionLugar',
+        'editarLatitudLugar',
+        'editarLongitudLugar',
+        'editarCategoriaLugar'
+    ];
+
+    editarCampos.forEach(id => {
+        const campo = document.getElementById(id);
+        if (campo) {
+            campo.addEventListener('blur', () => validarCampo(campo));
+        }
+    });
+}
+
 // Inicializar eventos cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
     // Inicializar el botón de crear lugar
@@ -327,4 +383,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnGuardarLugar) {
         btnGuardarLugar.addEventListener('click', crearLugar);
     }
+
+    // Inicializar validaciones
+    inicializarValidaciones();
 });

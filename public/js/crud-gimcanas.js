@@ -265,6 +265,13 @@ function actualizarGimcana() {
     const id = document.getElementById('editarIdGimcana').value;
     const nombre = document.getElementById('editarNombre').value;
     
+    // Validar que el campo no esté vacío
+    if (!nombre.trim()) {
+        document.getElementById('editarNombre').classList.add('is-invalid');
+        Swal.fire('Error', 'El campo Nombre es obligatorio', 'error');
+        return;
+    }
+    
     // Obtener todos los checkpoints seleccionados
     const checkpoints = Array.from(document.querySelectorAll('.checkpoint-select'))
         .map(select => select.value)
@@ -431,6 +438,13 @@ function abrirModalCrearGimcana() {
 function crearGimcana() {
     const nombre = document.getElementById('crearNombre').value;
     
+    // Validar que el campo no esté vacío
+    if (!nombre.trim()) {
+        document.getElementById('crearNombre').classList.add('is-invalid');
+        Swal.fire('Error', 'El campo Nombre es obligatorio', 'error');
+        return;
+    }
+
     // Obtener el checkpoint seleccionado
     const checkpoint = document.querySelector('#crearGimcanaModal .checkpoint-select').value;
 
@@ -511,6 +525,44 @@ function crearGimcana() {
     });
 }
 
+// Función para validar un campo
+function validarCampo(campo) {
+    if (!campo.value.trim()) {
+        campo.classList.add('is-invalid');
+        return false;
+    } else {
+        campo.classList.remove('is-invalid');
+        return true;
+    }
+}
+
+// Función para inicializar validaciones onblur
+function inicializarValidaciones() {
+    // Campos de creación
+    const crearCampos = [
+        'crearNombre',  // Campo de nombre en el modal de creación
+    ];
+
+    crearCampos.forEach(id => {
+        const campo = document.getElementById(id);
+        if (campo) {
+            campo.addEventListener('blur', () => validarCampo(campo));
+        }
+    });
+
+    // Campos de edición
+    const editarCampos = [
+        'editarNombre',  // Campo de nombre en el modal de edición
+    ];
+
+    editarCampos.forEach(id => {
+        const campo = document.getElementById(id);
+        if (campo) {
+            campo.addEventListener('blur', () => validarCampo(campo));
+        }
+    });
+}
+
 // Inicializar eventos cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
     // Botón para actualizar gimcana en el modal de edición
@@ -527,5 +579,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Cargar gimcanas inicialmente
     cargarGimcanas();
+
+    // Inicializar validaciones
+    inicializarValidaciones();
 });
 

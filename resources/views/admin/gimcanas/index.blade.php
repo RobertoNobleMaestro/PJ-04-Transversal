@@ -238,7 +238,7 @@
 
 <!-- Modal para Crear Lugar -->
 <div class="modal fade" id="crearLugarModal" tabindex="-1" aria-labelledby="crearLugarModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="max-width: 700px;">
+    <div class="modal-dialog" style="max-width: 900px; margin: 1.75rem auto;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="crearLugarModalLabel">Crear Nuevo Lugar</h5>
@@ -299,55 +299,59 @@
 </div>
 
 <div class="modal fade" id="editarLugarModal" tabindex="-1" aria-labelledby="editarLugarModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="max-width: 700px;">
+    <div class="modal-dialog modal-lg" style="max-width: 900px; margin: 1.75rem auto;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editarLugarModalLabel">Editar Lugar</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="formEditarLugar" onsubmit="event.preventDefault(); guardarCambiosLugar();">
-                    <input type="hidden" id="editarLugarId" name="id">
-                    <div class="mb-3">
-                        <label for="editarNombreLugar" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="editarNombreLugar" name="nombre" required>
+                <div class="row">
+                    <div class="col-md-6">
+                        <form id="formEditarLugar" onsubmit="event.preventDefault(); guardarCambiosLugar();">
+                            <input type="hidden" id="editarLugarId" name="id">
+                            <div class="mb-3">
+                                <label for="editarNombreLugar" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="editarNombreLugar" name="nombre" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editarDescripcionLugar" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="editarDescripcionLugar" name="descripcion" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editarDireccionLugar" class="form-label">Dirección</label>
+                                <input type="text" class="form-control" id="editarDireccionLugar" name="direccion" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editarLatitudLugar" class="form-label">Latitud</label>
+                                <input type="number" step="any" class="form-control" id="editarLatitudLugar" name="coordenadas_lat" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editarLongitudLugar" class="form-label">Longitud</label>
+                                <input type="number" step="any" class="form-control" id="editarLongitudLugar" name="coordenadas_lon" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editarCategoriaLugar" class="form-label">Categoría</label>
+                                <select class="form-select" id="editarCategoriaLugar" name="categoria_id" required>
+                                    <option value="">Seleccione una categoría</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editarImagen" class="form-label">Imagen</label>
+                                <input type="file" class="form-control" id="editarImagen" name="imagen">
+                            </div>
+                        </form>
                     </div>
-                    <div class="mb-3">
-                        <label for="editarDescripcionLugar" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="editarDescripcionLugar" name="descripcion" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editarDireccionLugar" class="form-label">Dirección</label>
-                        <input type="text" class="form-control" id="editarDireccionLugar" name="direccion" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editarLatitudLugar" class="form-label">Latitud</label>
-                        <input type="number" step="any" class="form-control" id="editarLatitudLugar" name="coordenadas_lat" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editarLongitudLugar" class="form-label">Longitud</label>
-                        <input type="number" step="any" class="form-control" id="editarLongitudLugar" name="coordenadas_lon" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editarCategoriaLugar" class="form-label">Categoría</label>
-                        <select class="form-select" id="editarCategoriaLugar" name="categoria_id" required>
-                            <option value="">Seleccione una categoría</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editarImagen" class="form-label">Imagen</label>
-                        <input type="file" class="form-control" id="editarImagen" name="imagen">
-                    </div>
-                    <div class="mb-3">
+                    <div class="col-md-6">
                         <label class="form-label">Selecciona la ubicación en el mapa</label>
                         <p class="text-muted small">Puedes hacer clic en el mapa o usar el buscador para ubicar el lugar</p>
                         <div id="editar-lugar-map" style="height: 350px;"></div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                    </div>
-                </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarCambiosLugar()">Guardar</button>
             </div>
         </div>
     </div>

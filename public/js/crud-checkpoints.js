@@ -152,6 +152,22 @@ function crearCheckpoint(e) {
         return;
     }
     
+    // Validar campos obligatorios
+    const pista = document.getElementById('checkpoint_pista');
+    const prueba = document.getElementById('checkpoint_prueba');
+    
+    if (!pista.value.trim()) {
+        pista.classList.add('is-invalid');
+        Swal.fire('Error', 'El campo Pista es obligatorio', 'error');
+        return;
+    }
+    
+    if (!prueba.value.trim()) {
+        prueba.classList.add('is-invalid');
+        Swal.fire('Error', 'El campo Prueba es obligatorio', 'error');
+        return;
+    }
+    
     // Obtener el formulario y comprobar que existe
     const formulario = document.getElementById('formCrearCheckpoint');
     if (!formulario) {
@@ -251,6 +267,33 @@ function cargarCheckpointsRecientes() {
         });
 }
 
+// Función para validar un campo
+function validarCampo(campo) {
+    if (!campo.value.trim()) {
+        campo.classList.add('is-invalid');
+        return false;
+    } else {
+        campo.classList.remove('is-invalid');
+        return true;
+    }
+}
+
+// Función para inicializar validaciones onblur
+function inicializarValidaciones() {
+    // Campos de creación de checkpoints
+    const crearCampos = [
+        'checkpoint_pista',  // Campo de pista
+        'checkpoint_prueba', // Campo de prueba
+    ];
+
+    crearCampos.forEach(id => {
+        const campo = document.getElementById(id);
+        if (campo) {
+            campo.addEventListener('blur', () => validarCampo(campo));
+        }
+    });
+}
+
 // Inicializar eventos cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
     // Activar mapa de checkpoints cuando se selecciona esa pestaña
@@ -270,4 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnCrearCheckpoint) {
         btnCrearCheckpoint.addEventListener('click', crearCheckpoint);
     }
+
+    // Inicializar validaciones
+    inicializarValidaciones();
 });
