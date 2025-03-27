@@ -8,7 +8,7 @@ class Checkpoint extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['place_id', 'pista', 'prueba', 'gimcana_id'];
+    protected $fillable = ['place_id', 'pista', 'prueba', 'respuesta', 'gimcana_id'];
 
     public function place()
     {
@@ -25,4 +25,3 @@ class Checkpoint extends Model
         return $this->belongsToMany(Gimcana::class, 'gimcana_checkpoint');
     }
 }
-

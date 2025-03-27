@@ -141,16 +141,6 @@
         <div class="logo-container">
             <div class="logo-text">TurGimcana</div>
         </div>
-        <div class="header-actions">
-            @auth
-            <a href="{{ route('favorites.index') }}" class="header-btn">
-                <i class="fas fa-heart text-danger"></i>
-            </a>
-            @endauth
-            <button class="header-btn" id="menuBtn">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
     </div>
 
     <!-- Contenido principal -->

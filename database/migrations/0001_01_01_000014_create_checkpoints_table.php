@@ -14,6 +14,7 @@ class CreateCheckpointsTable extends Migration
             $table->boolean('validado')->default(false);
             $table->text('pista');
             $table->text('prueba');
+            $table->text('respuesta');
             $table->timestamps();
 
             // Índice en la relación con lugares (places)

@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             FavoriteSeeder::class,
             GroupUserSeeder::class,
             GimcanaSeeder::class,
+            BellvitgeGimcanaSeeder::class, // Nueva gimcana de Bellvitge
         ]);
     }
 }
