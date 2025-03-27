@@ -122,6 +122,44 @@
             padding: 0 15px;
         }
         
+        /* Filtro de categorías desplegable */
+        .category-filter-container {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            background-color: white;
+            padding: 10px 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+        
+        .category-filter-container.visible {
+            transform: translateY(0);
+        }
+        
+        .category-badge {
+            display: inline-block;
+            margin: 5px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        
+        .category-badge.active {
+            border: 2px solid #000;
+            font-weight: bold;
+        }
+        
+        .category-badge i {
+            margin-right: 5px;
+        }
+        
         /* Footer móvil */
         .mobile-footer {
             position: fixed;
@@ -193,7 +231,7 @@
         }
         
         @media (min-width: 768px) {
-            .mobile-header, .mobile-footer, .search-container {
+            .mobile-header, .mobile-footer, .search-container, .category-filter-container {
                 display: none;
             }
             
@@ -302,6 +340,19 @@
         .route-info h5 {
             margin-bottom: 10px;
         }
+        
+        /* Estilos para filtros de categoría en desktop */
+        .category-filter-desktop {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .category-filter-desktop .category-badge {
+            margin: 3px;
+        }
     </style>
 </head>
 <body>
@@ -316,14 +367,9 @@
             <button id="toggleLocation" class="header-btn" title="Seguimiento de ubicación">
                 <i class="fas fa-location-arrow" id="locationIcon"></i>
             </button>
-            <button id="toggleSearch" class="header-btn" title="Buscar">
-                <i class="fas fa-search"></i>
+            <button id="toggleCategoryFilter" class="header-btn" title="Filtrar por categoría">
+                <i class="fas fa-filter"></i>
             </button>
-            @auth
-            <button id="toggleFavorites" class="header-btn" title="Mis favoritos">
-                <i class="fas fa-heart"></i>
-            </button>
-            @endauth
         </div>
     </div>
     
@@ -334,6 +380,20 @@
             <button id="searchButtonMobile" class="btn">
                 <i class="fas fa-search"></i>
             </button>
+        </div>
+    </div>
+    
+    <!-- Filtro de categorías desplegable para móvil -->
+    <div class="category-filter-container" id="mobileCategoryContainer">
+        <div class="d-flex flex-wrap justify-content-center">
+            <div class="category-badge all-categories active" style="background-color: #f8f9fa;" data-category="all">
+                <i class="fas fa-globe"></i> Todas
+            </div>
+            @foreach($categories as $category)
+            <div class="category-badge" style="background-color: {{ $category->color }};" data-category="{{ $category->id }}">
+                <i class="fas {{ $category->icon }}"></i> {{ $category->name }}
+            </div>
+            @endforeach
         </div>
     </div>
 
@@ -411,6 +471,21 @@
                 <i class="fas fa-search"></i>
             </button>
         </div>
+        
+        <!-- Filtro de categorías para desktop -->
+        <div class="category-filter-desktop">
+            <h6 class="mb-2"><i class="fas fa-filter me-1"></i> Filtrar por categoría:</h6>
+            <div class="d-flex flex-wrap">
+                <div class="category-badge all-categories active" style="background-color: #f8f9fa;" data-category="all">
+                    <i class="fas fa-globe"></i> Todas
+                </div>
+                @foreach($categories as $category)
+                <div class="category-badge" style="background-color: {{ $category->color }};" data-category="{{ $category->id }}">
+                    <i class="fas {{ $category->icon }}"></i> {{ $category->name }}
+                </div>
+                @endforeach
+            </div>
+        </div>
     </div>
     
     <button id="locateMe" class="btn btn-outline-primary locate-btn desktop-only">
@@ -439,11 +514,17 @@
             </button>
         </div>
     </div>
+    
+    <!-- Toast container para notificaciones -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="toastContainer"></div>
+    </div>
 
     <script>
         var placesData = @json($places);
         var defaultLocation = { lat: 41.3851, lng: 2.1734 }; // Barcelona por defecto
         var authCheck = @json(auth()->check());
+        var categoriesData = @json($categories);
     </script>
 
     <!-- Scripts -->
