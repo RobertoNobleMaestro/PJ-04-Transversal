@@ -12,7 +12,9 @@ document.getElementById('btnCerrarModal').addEventListener('click', () => {
 
 // Función para crear el grupo
 document.getElementById('formCrearGrupo').addEventListener('submit', (event) => {
-    event.preventDefault();
+    if (!validarfrmcreargrupo(event)) {
+        return;
+    }
     var form = document.getElementById("formCrearGrupo");
     var formData = new FormData(form);
     fetch('/creargrupo', {

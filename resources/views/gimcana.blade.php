@@ -38,14 +38,15 @@
             <span>Gimcana</span>
         </a>
         @auth
-        <a href="{{ route('favorites.index') }}" class="footer-tab">
-            <i class="fas fa-heart footer-icon"></i>
-            <span>Favoritos</span>
-        </a>
+            <a href="{{ route('favorites.index') }}" class="footer-tab">
+                <i class="fas fa-heart footer-icon"></i>
+                <span>Favoritos</span>
+            </a>
         @endauth
         <form action="{{ route('logout') }}" method="POST" class="footer-tab">
             @csrf
-            <button type="submit" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center;">
+            <button type="submit"
+                style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center;">
                 <i class="fas fa-sign-out-alt footer-icon"></i>
                 <span style="color: #666666;">Logout</span>
             </button>
@@ -87,14 +88,17 @@
                     <label for="nombreGrupo">Nombre del Grupo</label>
                     @csrf
                     <input type="hidden" name="id" id="id">
-                    <input type="text" name="nombreGrupo" id="nombreGrupo">
+                    <input type="text" name="nombreGrupo" id="nombregrupo" placeholder="nombre grupo">
+                    <span id="errornombregrupo"></span>
                     <label for="integrantes">Número de Integrantes:</label>
-                    <input type="text" name="integrantes" id="integrantes">
+                    <input type="text" name="integrantes" id="integrantes" placeholder="mínimo 2 y máximo 4">
+                    <span id="errorintegrantes"></span>
                     <label for="gimcana">Gimcana</label>
                     <input type="text" name="buscargimcana" id="buscargimcana" placeholder="Busca una gimcana">
                     <select name="gimcana" id="selectgimcana">
                         <option value="">Cargando..</option>
                     </select>
+                    <span id="errorselectgimcana"></span>
                     <button type="submit" id="btnCrearGrupo">Crear</button>
                     <button type="button" id="btnCerrarModal">Cancelar</button>
                 </form>
@@ -108,3 +112,4 @@
 <script src="{{ asset('js/gimcana/datos.js') }}"></script>
 <script src="{{ asset('js/gimcana/modal.js') }}"></script>
 <script src="{{ asset('js/gimcana/gimcana.js') }}"></script>
+<script src="{{ asset('js/gimcana/validacion.js') }}"></script>
