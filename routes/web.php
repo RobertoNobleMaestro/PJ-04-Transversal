@@ -13,10 +13,10 @@ use App\Http\Controllers\GimcanaGroupController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\CheckpointController;
 use App\Http\Controllers\GimcanaJuegoController;
+use App\Models\Role;
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/inicio', [AuthController::class, 'showDashboard'])->name('inicio');
-    Route::get('/inicioAdmin', [AuthController::class, 'showInicioAdmin'])->name('inicioAdmin');
     Route::get('/mapa', MapaController::class)->name('mapa');
     Route::get('/gimcana', [GimcanaGroupController::class, 'goGimcana'])->name('gimcana');
     // Route::get('/gimcana/juego', [GimcanaGroupController::class, 'gimcanagame'])->name('gimcana.juego');
@@ -44,6 +44,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/usuarios/crear', [UserController::class, 'store'])->name('admin.usuarios.store');
     Route::post('/admin/usuarios/editar/{id}', [UserController::class, 'update'])->name('admin.usuarios.update');
     Route::delete('/admin/usuarios/{id}', [UserController::class, 'destroy'])->name('admin.usuarios.destroy');
+    Route::get('/admin/roles', [UserController::class, 'getRoles'])->name('admin.roles');
     
     // Rutas para el CRUD de gimcanas (admin)
     Route::get('/admin/gimcanas', [GimcanaController::class, 'index'])->name('admin.gimcanas.index');

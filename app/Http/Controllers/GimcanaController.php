@@ -7,13 +7,15 @@ use App\Models\Gimcana;
 use App\Models\Checkpoint;
 use App\Models\Place;
 use Illuminate\Support\Facades\DB;
+use App\Models\Role;
 
 class GimcanaController extends Controller
 {
-    // Listar todas las gimcanas
+    // Método para mostrar el index de gimcanas
     public function index()
     {
-        return view('admin.gimcanas.index');
+        $roles = Role::all(); // Obtener los roles si los necesitas
+        return view('admin.gimcanas.index', compact('roles'));
     }
 
     public function getGimcanas(Request $request)
