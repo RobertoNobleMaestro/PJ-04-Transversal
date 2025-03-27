@@ -88,10 +88,10 @@
                     <label for="nombreGrupo">Nombre del Grupo</label>
                     @csrf
                     <input type="hidden" name="id" id="id">
-                    <input type="text" name="nombreGrupo" id="nombregrupo">
+                    <input type="text" name="nombreGrupo" id="nombregrupo" placeholder="nombre grupo">
                     <span id="errornombregrupo"></span>
                     <label for="integrantes">Número de Integrantes:</label>
-                    <input type="text" name="integrantes" id="integrantes">
+                    <input type="text" name="integrantes" id="integrantes" placeholder="mínimo 2 y máximo 4">
                     <span id="errorintegrantes"></span>
                     <label for="gimcana">Gimcana</label>
                     <input type="text" name="buscargimcana" id="buscargimcana" placeholder="Busca una gimcana">

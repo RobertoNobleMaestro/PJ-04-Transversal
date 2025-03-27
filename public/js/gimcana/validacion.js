@@ -6,56 +6,70 @@ var errornombregrupo = document.getElementById('errornombregrupo');
 var errorintegrantes = document.getElementById('errorintegrantes');
 var errorselectgimcana = document.getElementById('errorselectgimcana');
 
+nombregrupo.addEventListener('keyup', comprobarnombre);
+integrantes.addEventListener('blur', comprointegrantes);
+selectgimcana.addEventListener('change', comprogimcana);
 
-nombregrupo.addEventListener('keyup', () => {
+function comprobarnombre() {
     let texto = nombregrupo.value
-    //minimo 2 letras 
-    if (texto.length < 3) {
+    let minletra = 4
+    if (texto.length < minletra) {
         errornombregrupo.style.color = 'red';
-        errornombregrupo.innerText = "El nombre debe de tener al menos 3 caracteres"
+        errornombregrupo.innerText = "El nombre debe de tener al menos " + minletra + " caracteres"
         return false;
     } else {
         errornombregrupo.innerText = ""
-        console.log(true)
         return true
     }
-});
+}
 
-integrantes.addEventListener('keyup', () => {
+function comprointegrantes() {
     let texto = integrantes.value
-
-    //mayor a 1 y que solo sean numeros  
-    if (/[^0-9]/.test(texto)) {
+    let intminimos = 2
+    let intmaximos = 4
+    if (texto == "") {
         errorintegrantes.style.color = 'red';
-        errorintegrantes.innerText = "Escribe un nùmero"
+        errorintegrantes.innerText = "El campo no puede estar vacio"
+        return false;
+    } else if (/[^0-9]/.test(texto)) {
+        integrantes.value = "";
+        errorintegrantes.style.color = 'red';
+        errorintegrantes.innerText = "Escribe un número"
+        return false;
+    } else if (texto < intminimos) {
+        errorintegrantes.style.color = 'red';
+        errorintegrantes.innerText = "número de integrantes mínimo " + intminimos
         return false;
     }
-    if (texto.length < 2) {
+    else if (texto > intmaximos) {
         errorintegrantes.style.color = 'red';
-        errorintegrantes.innerText = "numero de integrantes minimo 2"
+        errorintegrantes.innerText = "número de integrantes máximos " + intmaximos
         return false;
     } else {
         errorintegrantes.innerText = ""
-        console.log(true)
         return true
     }
+}
 
-
-    console.log(texto)
-});
-
-selectgimcana.addEventListener('change', () => {
+function comprogimcana() {
     let texto = selectgimcana.value
-
-    if (texto === '0') {
-        selectgimcana.classList.add('error');
+    if (texto == 0) {
+        errorselectgimcana.style.color = 'red';
+        errorselectgimcana.innerText = "Escoge una gimcana"
         return false;
-    } else {
-        selectgimcana.classList.remove('error');
-        console.log(true)
-        return true
     }
+    else {
+        errorselectgimcana.style.color = 'red';
+        errorselectgimcana.innerText = ""
+        return true;
+    }
+}
 
-
-    console.log(texto)
-});
+function validarfrmcreargrupo(event) {
+    event.preventDefault();
+    const isValid =
+        comprobarnombre() &
+        comprointegrantes() &
+        comprogimcana()
+    return isValid;
+}
