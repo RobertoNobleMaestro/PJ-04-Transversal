@@ -21,13 +21,11 @@
 </head>
 
 <body>
-    <!-- Navegación -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="#"><i class="fas fa-map-marked-alt me-2"
-                    style="color: var(--primary-color);"></i>TurGimcana</a>
+<div class="mobile-header">
+        <div class="logo-container">
+            <div class="logo-text">TurGimcana</div>
         </div>
-    </nav>
+    </div>
 
     <!-- Footer móvil -->
     <div class="mobile-footer">

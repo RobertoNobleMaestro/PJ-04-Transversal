@@ -12,13 +12,17 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\GimcanaGroupController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\CheckpointController;
+use App\Http\Controllers\GimcanaJuegoController;
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/inicio', [AuthController::class, 'showDashboard'])->name('inicio');
     Route::get('/inicioAdmin', [AuthController::class, 'showInicioAdmin'])->name('inicioAdmin');
     Route::get('/mapa', MapaController::class)->name('mapa');
     Route::get('/gimcana', [GimcanaGroupController::class, 'goGimcana'])->name('gimcana');
-    Route::get('/gimcana/juego', [GimcanaGroupController::class, 'gimcanagame'])->name('gimcana.juego');
+    // Route::get('/gimcana/juego', [GimcanaGroupController::class, 'gimcanagame'])->name('gimcana.juego');
+    Route::get('/gimcana/juego', [GimcanaJuegoController::class, 'gimcanagame'])->name('gimcana.juego');
+    Route::get('/gimcana/juego/data', [GimcanaJuegoController::class, 'getCheckpointsForMap'])->name('gimcana.juego.data');
+    Route::post('/gimcana/juego/validar/{id}', [GimcanaJuegoController::class, 'validarCheckpoint'])->name('gimcana.juego.validar');
 });
 
 Route::get('/', [AuthController::class, 'showHome']);
