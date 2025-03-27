@@ -20,10 +20,8 @@
     <!-- Header móvil -->
     <div class="mobile-header">
         <div class="logo-container">
-            <a href="{{ route('index') }}">
-                <img src="{{ asset('img/logo.png') }}" alt="TurGimcana Logo">
-            </a>
-            <div class="logo-text">TurGimcana</div>
+            <i class="fas fa-map-marked-alt logo-icon"></i>
+            <span class="logo-text">TurGimcana</span>
         </div>
         <div class="header-actions">
             @auth
