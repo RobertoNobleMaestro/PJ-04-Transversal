@@ -63,8 +63,7 @@ class GimcanaController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
-            'group_id' => 'required|exists:groups,id',
-            'checkpoints' => 'nullable|array',
+            'checkpoints' => 'required|array|min:1',
         ]);
 
         DB::beginTransaction();
@@ -73,13 +72,10 @@ class GimcanaController extends Controller
             // Crear la gimcana
             $gimcana = new Gimcana();
             $gimcana->nombre = $request->nombre;
-            $gimcana->group_id = $request->group_id;
             $gimcana->save();
 
-            // Asignar checkpoints si existen
-            if ($request->has('checkpoints')) {
-                $gimcana->checkpoints()->sync($request->checkpoints);
-            }
+            // Asignar checkpoints
+            $gimcana->checkpoints()->sync($request->checkpoints);
 
             DB::commit();
 
@@ -95,22 +91,16 @@ class GimcanaController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
-            'group_id' => 'nullable|exists:groups,id', 
-            'checkpoints' => 'nullable|array', 
-            'completed' => 'boolean',
+            'checkpoints' => 'required|array|min:1',
         ]);
 
         $gimcana = Gimcana::findOrFail($id);
         $gimcana->update([
             'nombre' => $request->nombre,
-            'group_id' => $request->group_id,
-            'completed' => $request->filled('completed') ? $request->completed : 0,
         ]);
 
-        // Si se enviaron checkpoints, actualizarlos
-        if ($request->has('checkpoints')) {
-            $gimcana->checkpoints()->sync($request->checkpoints);
-        }
+        // Sincronizar checkpoints
+        $gimcana->checkpoints()->sync($request->checkpoints);
 
         return response()->json(['success' => true, 'gimcana' => $gimcana]);
     }
@@ -118,11 +108,24 @@ class GimcanaController extends Controller
     // Eliminar una gimcana
     public function destroy($id)
     {
-        $gimcana = Gimcana::find($id);
-        $gimcana->checkpoints()->delete();
-        $gimcana->delete();
+        DB::beginTransaction();
 
-        return response()->json(null, 204);
+        try {
+            $gimcana = Gimcana::findOrFail($id);
+
+            // Eliminar los checkpoints asociados a la gimcana
+            $gimcana->checkpoints()->detach();
+
+            // Eliminar la gimcana
+            $gimcana->delete();
+
+            DB::commit();
+
+            return response()->json(['success' => 'Gimcana eliminada correctamente'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Error al eliminar la gimcana: ' . $e->getMessage()], 500);
+        }
     }
 
     public function getCheckpoints($id)
@@ -134,9 +137,13 @@ class GimcanaController extends Controller
         // Mapear los checkpoints para devolver los datos necesarios
         $checkpoints = $gimcana->checkpoints->map(function($checkpoint) {
             return [
+                'id' => $checkpoint->id,
                 'pista' => $checkpoint->pista,
                 'prueba' => $checkpoint->prueba,
-                'place' => $checkpoint->place, // Si necesitas información del lugar
+                'place' => $checkpoint->place ? [
+                    'id' => $checkpoint->place->id,
+                    'nombre' => $checkpoint->place->nombre,
+                ] : null,
             ];
         });
 
