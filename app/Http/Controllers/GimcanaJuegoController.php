@@ -262,4 +262,62 @@ class GimcanaJuegoController extends Controller
                                               ->count()
         ]);
     }
+    
+    /**
+     * Elimina la relación del usuario con el grupo y la gimcana
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function abandonar()
+    {
+        // Obtener el usuario autenticado
+        $user = Auth::user();
+        
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Usuario no autenticado'
+            ]);
+        }
+        
+        // Obtener el grupo del usuario
+        $groupUser = GroupUser::where('user_id', $user->id)->first();
+        
+        if (!$groupUser) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No perteneces a ningún grupo'
+            ]);
+        }
+        
+        $groupId = $groupUser->group_id;
+        
+        try {
+            // Eliminar todos los checkpoints completados por el usuario
+            GroupCheckpoint::where('groupuser_id', $groupUser->id)->delete();
+            
+            // Eliminar la relación del usuario con el grupo
+            $groupUser->delete();
+            
+            // Verificar si el grupo se queda sin miembros
+            $remainingMembers = GroupUser::where('group_id', $groupId)->count();
+            
+            if ($remainingMembers === 0) {
+                // Si no quedan miembros, eliminar el grupo
+                Group::where('id', $groupId)->delete();
+            }
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Has abandonado la gimcana correctamente'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error al abandonar gimcana: ' . $e->getMessage());
+            
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Ha ocurrido un error al abandonar la gimcana: ' . $e->getMessage()
+            ]);
+        }
+    }
 }
