@@ -152,7 +152,7 @@
         @endauth
         <a href="{{ route('profile') }}" class="footer-tab">
             <i class="fas fa-user footer-icon"></i>
-            <span>Perfil</span>
+            <span>Log out</span>
         </a>
     </div>
 

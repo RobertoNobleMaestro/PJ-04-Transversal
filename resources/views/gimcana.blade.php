@@ -14,6 +14,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" rel="stylesheet">
     {{-- link estilos css --}}
     <link href="{{ asset('css/clientegimcana.css') }}" rel="stylesheet">
+    {{-- CSS para detalles de grupo --}}
+    <link href="{{ asset('css/grupo-detalle.css') }}" rel="stylesheet">
     {{-- SweetAlert --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>

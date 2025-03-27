@@ -1,0 +1,181 @@
+/* Estilos para la pu00e1gina de favoritos - optimizado para mu00f3vil */
+
+/* Estilos generales y header */
+body {
+    background-color: #F1FFDD !important;
+    padding-bottom: 60px; /* Espacio para el footer mu00f3vil */
+}
+
+.mobile-header {
+    background-color: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.logo-text {
+    font-weight: 600;
+    font-size: 18px;
+    color: #333;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+/* Contenido principal */
+.main-content {
+    padding-top: 15px;
+}
+
+.main-content h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.main-content p.text-muted {
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+/* Botu00f3n de au00f1adir favoritos */
+.btn-primary {
+    background-color: #2A4D14;
+    border-color: #2A4D14;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: #1a3610;
+    border-color: #1a3610;
+}
+
+/* Tarjetas de favoritos */
+#favorites-container .card {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+}
+
+#favorites-container .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+#favorites-container .card-body {
+    padding: 15px;
+}
+
+#favorites-container .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+#favorites-container .badge {
+    background-color: #2A4D14 !important;
+    font-weight: normal;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+#favorites-container .card-text {
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Botones en las tarjetas */
+#favorites-container .btn-outline-primary {
+    border-color: #2A4D14;
+    color: #2A4D14;
+}
+
+#favorites-container .btn-outline-primary:hover {
+    background-color: #2A4D14;
+    color: white;
+}
+
+#favorites-container .btn-outline-danger {
+    border-color: #4D1414;
+    color: #4D1414;
+}
+
+#favorites-container .btn-outline-danger:hover {
+    background-color: #4D1414;
+    color: white;
+}
+
+/* Contenedor del mapa */
+#map-container {
+    margin-bottom: 30px;
+}
+
+#map-container h4 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+
+#favorites-map {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Modal para au00f1adir favoritos */
+.modal-content {
+    border-radius: 10px;
+    border: none;
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+    padding: 15px 20px;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Footer mu00f3vil */
+.mobile-footer {
+    background-color: white;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.footer-tab {
+    color: #666;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-tab:hover, .footer-tab.active {
+    color: #2A4D14;
+}
+
+.footer-icon {
+    font-size: 1.2rem;
+    margin-bottom: 3px;
+}
+
+/* Estilos responsive - ajustes para escritorio */
+@media (min-width: 768px) {
+    .main-content {
+        padding-top: 30px;
+    }
+    
+    #favorites-map {
+        height: 500px !important;
+    }
+    
+    .btn-primary {
+        padding: 8px 16px;
+    }
+}
