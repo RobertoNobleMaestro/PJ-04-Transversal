@@ -28,13 +28,14 @@ class BellvitgeGimcanaSeeder extends Seeder
         // 2. Crear lugares emblemáticos de Bellvitge con coordenadas reales
         $places = [
             [
-                'nombre' => 'Hermita de Bellvitge',
-                'descripcion' => 'Antiguo santuario de origen románico, con una imagen de la Virgen del siglo XIII',
-                'direccion' => 'Carrer Ermita, s/n, 08907 L\'Hospitalet de Llobregat',
-                'coordenadas_lat' => 41.3459,
-                'coordenadas_lon' => 2.1011,
+                'nombre' => 'Colegio Juan XXIII - Jesuïtes Bellvitge',
+                'descripcion' => 'Centro educativo fundado en 1968, gestionado por los Jesuitas y uno de los colegios más emblemáticos de Bellvitge',
+                'direccion' => 'Av. Mare de Déu de Bellvitge 100-110, 08907 L\'Hospitalet de Llobregat',
+                'coordenadas_lat' => 41.3484,
+                'coordenadas_lon' => 2.1089,
                 'categoria_id' => $categoryId,
-                'imagen' => 'ermita_bellvitge.jpg',
+                'favorito' => false,
+                'imagen' => 'colegio_juan23.jpg',
             ],
             [
                 'nombre' => 'Hospital Universitario de Bellvitge',
@@ -84,11 +85,11 @@ class BellvitgeGimcanaSeeder extends Seeder
         // 3. Crear checkpoints con pistas y pruebas
         $checkpoints = [
             [
-                'place_id' => $createdPlaces[0]->id, // Ermita de Bellvitge
+                'place_id' => $createdPlaces[0]->id, // Colegio Juan XXIII
                 'validado' => false,
-                'pista' => 'Busca el antiguo santuario románico dedicado a una Virgen. Es uno de los monumentos más antiguos de la zona.',
-                'prueba' => '¿En qué siglo data la imagen de la Virgen que se guarda en este santuario?',
-                'respuesta' => '1234',
+                'pista' => 'Busca este centro educativo gestionado por los Jesuitas, un referente en Bellvitge desde 1968.',
+                'prueba' => '¿En qué año fue fundado este colegio?',
+                'respuesta' => '1968',
             ],
             [
                 'place_id' => $createdPlaces[1]->id, // Hospital Universitario
