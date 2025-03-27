@@ -225,8 +225,8 @@
         <button id="startTracking" class="action-btn">
             <i class="fas fa-location-arrow"></i> Activar ubicación
         </button>
-        <button id="listCheckpoints" class="action-btn">
-            <i class="fas fa-list"></i> Checkpoints
+        <button id="abandonarGimcana" class="action-btn danger">
+            <i class="fas fa-sign-out-alt"></i> Abandonar Gimcana
         </button>
     </div>
 
@@ -236,6 +236,74 @@
     <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/juego/mapa.js') }}"></script>
+    
+    <script>
+        // Añadir funcionalidad al botón de abandonar gimcana
+        document.getElementById('abandonarGimcana').addEventListener('click', function() {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Si abandonas la gimcana, perderás todo tu progreso actual.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, abandonar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Mostrar loading mientras se procesa
+                    Swal.fire({
+                        title: 'Abandonando gimcana...',
+                        text: 'Por favor espera mientras se procesa tu solicitud',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Hacer la petición para eliminar la relación del usuario con el grupo/gimcana
+                    fetch('/gimcana/juego/abandonar', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            Swal.fire({
+                                title: 'Gimcana abandonada',
+                                text: 'Has abandonado la gimcana correctamente',
+                                icon: 'success',
+                                confirmButtonColor: '#2A4D14'
+                            }).then(() => {
+                                // Redirigir al usuario a la página principal
+                                window.location.href = '/gimcana';
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error',
+                                text: data.message || 'Ha ocurrido un error al abandonar la gimcana',
+                                icon: 'error',
+                                confirmButtonColor: '#d33'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Ha ocurrido un error al abandonar la gimcana',
+                            icon: 'error',
+                            confirmButtonColor: '#d33'
+                        });
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

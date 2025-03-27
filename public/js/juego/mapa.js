@@ -484,7 +484,7 @@ document.addEventListener('DOMContentLoaded', function() {
         modalContent.innerHTML = `
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title">¡Has llegado al checkpoint!</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" id="closeModalBtn" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <h4>${checkpoint.name}</h4>
@@ -499,20 +499,50 @@ document.addEventListener('DOMContentLoaded', function() {
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" id="closeBtn">Cerrar</button>
                 <button type="button" class="btn btn-success" onclick="validarCheckpoint(${checkpoint.id})">Validar respuesta</button>
             </div>
         `;
         
         // Mostrar el modal usando Bootstrap
-        const bootstrapModal = new bootstrap.Modal(modal);
+        const bootstrapModal = new bootstrap.Modal(modal, {
+            backdrop: 'static',
+            keyboard: false
+        });
         bootstrapModal.show();
         
-        // Cuando se cierre el modal, permitir que se muestre nuevamente si el usuario se aleja y vuelve a acercarse
-        modal.addEventListener('hidden.bs.modal', function () {
+        // Manejar el evento de cierre para volver a abrir el modal
+        document.getElementById('closeBtn').addEventListener('click', function() {
+            // Cerrar el modal actual
+            bootstrapModal.hide();
+            
+            // Volver a abrir el modal después de un breve retraso
             setTimeout(() => {
-                checkpoint.alertShown = false;
-            }, 30000); // Esperar 30 segundos antes de permitir mostrar el modal nuevamente
+                showCheckpointProximityAlert(checkpoint);
+            }, 500);
+        });
+        
+        // Manejar el botón de cierre en la esquina superior derecha
+        document.getElementById('closeModalBtn').addEventListener('click', function() {
+            // Cerrar el modal actual
+            bootstrapModal.hide();
+            
+            // Volver a abrir el modal después de un breve retraso
+            setTimeout(() => {
+                showCheckpointProximityAlert(checkpoint);
+            }, 500);
+        });
+        
+        // Cuando se cierre el modal por otras razones, permitir que se muestre nuevamente
+        modal.addEventListener('hidden.bs.modal', function(event) {
+            // Solo reiniciar el estado si no fue cerrado por los botones que ya manejan la reapertura
+            if (!event.clickEvent || (event.clickEvent.target.id !== 'closeBtn' && event.clickEvent.target.id !== 'closeModalBtn')) {
+                setTimeout(() => {
+                    checkpoint.alertShown = false;
+                    // Volver a mostrar el modal
+                    showCheckpointProximityAlert(checkpoint);
+                }, 500);
+            }
         });
     }
 

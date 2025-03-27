@@ -24,6 +24,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/gimcana/juego/data', [GimcanaJuegoController::class, 'getCheckpointsForMap'])->name('gimcana.juego.data');
     Route::post('/gimcana/juego/validar/{id}', [GimcanaJuegoController::class, 'validarCheckpoint'])->name('gimcana.juego.validar');
     Route::post('/gimcana/juego/checkpoint/{id}/validar', [GimcanaJuegoController::class, 'validarCheckpoint'])->name('gimcana.juego.checkpoint.validar');
+    Route::post('/gimcana/juego/abandonar', [GimcanaJuegoController::class, 'abandonar'])->name('gimcana.juego.abandonar');
 });
 
 Route::get('/', [AuthController::class, 'showHome']);
