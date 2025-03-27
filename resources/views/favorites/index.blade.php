@@ -20,18 +20,7 @@
     <!-- Header móvil -->
     <div class="mobile-header">
         <div class="logo-container">
-            <i class="fas fa-map-marked-alt logo-icon"></i>
-            <span class="logo-text">TurGimcana</span>
-        </div>
-        <div class="header-actions">
-            @auth
-            <a href="{{ route('favorites.index') }}" class="header-btn">
-                <i class="fas fa-heart text-danger"></i>
-            </a>
-            @endauth
-            <button class="header-btn" id="menuBtn">
-                <i class="fas fa-bars"></i>
-            </button>
+            <div class="logo-text">TurGimcana</div>
         </div>
     </div>
 
@@ -152,7 +141,7 @@
         @endauth
         <a href="{{ route('profile') }}" class="footer-tab">
             <i class="fas fa-user footer-icon"></i>
-            <span>Perfil</span>
+            <span>Log out</span>
         </a>
     </div>
 
