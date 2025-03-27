@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // Función para validar un checkpoint
-    function validarCheckpoint(checkpointId) {
+    window.validarCheckpoint = function(checkpointId) {
         const formData = new FormData(document.getElementById('validationForm'));
         
         fetch(`/gimcana/juego/checkpoint/${checkpointId}/validar`, {
