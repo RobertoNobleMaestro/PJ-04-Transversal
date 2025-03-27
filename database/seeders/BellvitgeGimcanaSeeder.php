@@ -28,29 +28,30 @@ class BellvitgeGimcanaSeeder extends Seeder
         // 2. Crear lugares emblemáticos de Bellvitge con coordenadas reales
         $places = [
             [
-                'nombre' => 'Hermita de Bellvitge',
-                'descripcion' => 'Antiguo santuario de origen románico, con una imagen de la Virgen del siglo XIII',
-                'direccion' => 'Carrer Ermita, s/n, 08907 L\'Hospitalet de Llobregat',
-                'coordenadas_lat' => 41.3459,
-                'coordenadas_lon' => 2.1011,
+                'nombre' => 'Colegio Juan XXIII - Jesuïtes Bellvitge',
+                'descripcion' => 'Centro educativo fundado en 1968, gestionado por los Jesuitas y uno de los colegios más emblemáticos de Bellvitge',
+                'direccion' => 'Av. Mare de Déu de Bellvitge 100-110, 08907 L\'Hospitalet de Llobregat',
+                'coordenadas_lat' => 41.34984905147935,
+                'coordenadas_lon' => 2.1074580433202645,
                 'categoria_id' => $categoryId,
-                'imagen' => 'ermita_bellvitge.jpg',
-            ],
+                'favorito' => false,
+                'imagen' => 'colegio_juan23.jpg',
+            ], 
             [
                 'nombre' => 'Hospital Universitario de Bellvitge',
                 'descripcion' => 'Uno de los hospitales más importantes de Cataluña, referente en investigación médica',
                 'direccion' => 'Carrer de la Feixa Llarga, s/n, 08907 L\'Hospitalet de Llobregat',
-                'coordenadas_lat' => 41.3428,
-                'coordenadas_lon' => 2.1023,
+                'coordenadas_lat' => 41.34824793081372,
+                'coordenadas_lon' => 2.1081573272826857,
                 'categoria_id' => $categoryId,
                 'imagen' => 'hospital_bellvitge.jpg',
             ],
-            [
+            [ 
                 'nombre' => 'Parque de Bellvitge',
                 'descripcion' => 'Gran parque urbano con zonas verdes, áreas de recreo y espacios para actividades',
                 'direccion' => 'Avinguda d\'Amèrica, 08907 L\'Hospitalet de Llobregat',
-                'coordenadas_lat' => 41.3500,
-                'coordenadas_lon' => 2.1056,
+                'coordenadas_lat' => 41.34755383477665, 
+                'coordenadas_lon' => 2.1084691788862546,
                 'categoria_id' => $categoryId,
                 'imagen' => 'parque_bellvitge.jpg',
             ],
@@ -84,10 +85,10 @@ class BellvitgeGimcanaSeeder extends Seeder
         // 3. Crear checkpoints con pistas y pruebas
         $checkpoints = [
             [
-                'place_id' => $createdPlaces[0]->id, // Ermita de Bellvitge
+                'place_id' => $createdPlaces[0]->id, // Colegio Juan XXIII
                 'validado' => false,
-                'pista' => 'Busca el antiguo santuario románico dedicado a una Virgen. Es uno de los monumentos más antiguos de la zona.',
-                'prueba' => '¿En qué siglo data la imagen de la Virgen que se guarda en este santuario?',
+                'pista' => 'Busca este centro educativo gestionado por los Jesuitas, un referente en Bellvitge desde 1968.',
+                'prueba' => '¿En qué año fue fundado este colegio?',
                 'respuesta' => '1234',
             ],
             [
@@ -95,14 +96,14 @@ class BellvitgeGimcanaSeeder extends Seeder
                 'validado' => false,
                 'pista' => 'Este gran edificio salva vidas y es un centro de investigación médica de referencia. Busca el gigante blanco de Bellvitge.',
                 'prueba' => '¿Cuántos pisos tiene el edificio principal del Hospital de Bellvitge?',
-                'respuesta' => '11',
+                'respuesta' => '1234',
             ],
             [
                 'place_id' => $createdPlaces[2]->id, // Parque de Bellvitge
                 'validado' => false,
                 'pista' => 'Zona verde entre bloques de edificios. Un oasis urbano donde familias y niños disfrutan al aire libre.',
                 'prueba' => 'Cuenta el número de fuentes de agua potable que hay en el parque y suma todos los dígitos.',
-                'respuesta' => '4',
+                'respuesta' => '1234',
             ],
             [
                 'place_id' => $createdPlaces[3]->id, // Centro Comercial Gran Vía 2
