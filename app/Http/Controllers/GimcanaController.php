@@ -16,10 +16,23 @@ class GimcanaController extends Controller
         return view('admin.gimcanas.index');
     }
 
-    public function getGimcanas()
+    public function getGimcanas(Request $request)
     {
-        // Cargar las gimcanas con las relaciones necesarias
-        $gimcanas = Gimcana::with(['groups.creator', 'checkpoints.place'])->get();
+        $query = Gimcana::with(['groups.creator', 'checkpoints.place']);
+
+        // Filtro por nombre
+        if ($request->has('nombre') && !empty($request->nombre)) {
+            $query->where('nombre', 'LIKE', '%' . $request->nombre . '%');
+        }
+
+        // Filtro por creador
+        if ($request->has('creador') && !empty($request->creador)) {
+            $query->whereHas('creator', function($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->creador . '%');
+            });
+        }
+
+        $gimcanas = $query->get();
 
         // Mapear los datos para devolver solo lo necesario
         $gimcanas = $gimcanas->map(function($gimcana) {
@@ -47,6 +60,7 @@ class GimcanaController extends Controller
 
         return response()->json($gimcanas);
     }
+
     public function show($id)
     {
         $gimcana = Gimcana::with(['checkpoints.place'])->find($id);
@@ -140,6 +154,7 @@ class GimcanaController extends Controller
                 'id' => $checkpoint->id,
                 'pista' => $checkpoint->pista,
                 'prueba' => $checkpoint->prueba,
+                'respuesta' => $checkpoint->respuesta,
                 'place' => $checkpoint->place ? [
                     'id' => $checkpoint->place->id,
                     'nombre' => $checkpoint->place->nombre,

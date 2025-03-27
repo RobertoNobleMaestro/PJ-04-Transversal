@@ -155,6 +155,7 @@ function crearCheckpoint(e) {
     // Validar campos obligatorios
     const pista = document.getElementById('checkpoint_pista');
     const prueba = document.getElementById('checkpoint_prueba');
+    const respuesta = document.getElementById('checkpoint_respuesta');
     
     if (!pista.value.trim()) {
         pista.classList.add('is-invalid');
@@ -165,6 +166,12 @@ function crearCheckpoint(e) {
     if (!prueba.value.trim()) {
         prueba.classList.add('is-invalid');
         Swal.fire('Error', 'El campo Prueba es obligatorio', 'error');
+        return;
+    }
+    
+    if (!respuesta.value.trim()) {
+        respuesta.classList.add('is-invalid');
+        Swal.fire('Error', 'El campo Respuesta es obligatorio', 'error');
         return;
     }
     
@@ -252,7 +259,8 @@ function cargarCheckpointsRecientes() {
                     <div class="checkpoint-item mb-2 p-2 border rounded">
                         <strong>${checkpoint.place?.nombre ?? 'Lugar desconocido'}</strong>
                         <p class="mb-1"><small>Pista: ${checkpoint.pista}</small></p>
-                        <p class="mb-0"><small>Prueba: ${checkpoint.prueba}</small></p>
+                        <p class="mb-1"><small>Prueba: ${checkpoint.prueba}</small></p>
+                        <p class="mb-0"><small>Respuesta: ${checkpoint.respuesta}</small></p>
                         ${checkpoint.gimcana ? `<p class="mb-0 badge bg-info">Gimcana: ${checkpoint.gimcana.nombre}</p>` : ''}
                     </div>
                 `).join('');
@@ -284,6 +292,7 @@ function inicializarValidaciones() {
     const crearCampos = [
         'checkpoint_pista',  // Campo de pista
         'checkpoint_prueba', // Campo de prueba
+        'checkpoint_respuesta' // Nuevo campo de respuesta
     ];
 
     crearCampos.forEach(id => {

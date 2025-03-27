@@ -4,7 +4,14 @@
 
 // Función para cargar gimcanas
 function cargarGimcanas() {
-    fetch('/admin/gimcanas/getGimcanas')
+    const nombre = document.getElementById('filtroNombre-gimcanas').value;
+    const creador = document.getElementById('filtroCreador-gimcanas').value;
+    
+    const params = new URLSearchParams();
+    if (nombre) params.append('nombre', nombre);
+    if (creador) params.append('creador', creador);
+    
+    fetch(`/admin/gimcanas/getGimcanas?${params.toString()}`)
         .then(response => response.json())
         .then(data => {
             const tableBody = document.getElementById('tabla-gimcanas');
@@ -42,6 +49,8 @@ function verCheckpoints(gimcanaId) {
                     <strong>Checkpoint ${index + 1}:</strong> ${checkpoint.pista}
                     <br>
                     <small>Prueba: ${checkpoint.prueba}</small>
+                    <br>
+                    <small>Respuesta: ${checkpoint.respuesta}</small>
                     ${checkpoint.place ? `<br><small>Lugar: ${checkpoint.place.nombre}</small>` : ''}
                 </li>
             `).join('');
@@ -563,6 +572,15 @@ function inicializarValidaciones() {
     });
 }
 
+function limpiarFiltrosGimcanas() {
+    // Limpiar los campos de filtro
+    document.getElementById('filtroNombre-gimcanas').value = '';
+    document.getElementById('filtroCreador-gimcanas').value = '';
+    
+    // Recargar la tabla de gimcanas
+    cargarGimcanas();
+}
+
 // Inicializar eventos cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
     // Botón para actualizar gimcana en el modal de edición
@@ -582,5 +600,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Inicializar validaciones
     inicializarValidaciones();
+
+    // Inicializar eventos de filtros
+    const filtroNombre = document.getElementById('filtroNombre-gimcanas');
+    const filtroCreador = document.getElementById('filtroCreador-gimcanas');
+
+    if (filtroNombre) {
+        filtroNombre.addEventListener('input', cargarGimcanas);
+    }
+
+    if (filtroCreador) {
+        filtroCreador.addEventListener('input', cargarGimcanas);
+    }
+
+    // Inicializar el botón de limpiar filtros
+    const btnLimpiarFiltros = document.querySelector('#gimcanas .btn-secondary');
+    if (btnLimpiarFiltros) {
+        btnLimpiarFiltros.addEventListener('click', limpiarFiltrosGimcanas);
+    }
 });
 

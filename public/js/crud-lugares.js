@@ -4,7 +4,14 @@
 
 // Función para cargar lugares
 function cargarLugares() {
-    fetch('/admin/places/getPlaces')
+    const nombre = document.getElementById('filtroNombre-lugares').value;
+    const categoria = document.getElementById('filtroCategoria-lugares').value;
+    
+    const params = new URLSearchParams();
+    if (nombre) params.append('nombre', nombre);
+    if (categoria) params.append('categoria_id', categoria);
+    
+    fetch(`/admin/places/getPlaces?${params.toString()}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Error en la respuesta del servidor');
@@ -370,6 +377,12 @@ function inicializarValidaciones() {
     });
 }
 
+function limpiarFiltrosLugares() {
+    document.getElementById('filtroNombre-lugares').value = '';
+    document.getElementById('filtroCategoria-lugares').value = '';
+    cargarLugares();
+}
+
 // Inicializar eventos cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
     // Inicializar el botón de crear lugar
@@ -383,6 +396,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnGuardarLugar) {
         btnGuardarLugar.addEventListener('click', crearLugar);
     }
+
+    // Inicializar eventos de filtros
+    document.getElementById('filtroNombre-lugares').addEventListener('input', cargarLugares);
+    document.getElementById('filtroCategoria-lugares').addEventListener('change', cargarLugares);
 
     // Inicializar validaciones
     inicializarValidaciones();

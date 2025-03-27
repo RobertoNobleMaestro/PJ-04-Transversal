@@ -40,7 +40,6 @@
         </div>
         <div>
             <a href="/inicioAdmin" class="btn btn-outline-secondary me-2">Volver al Panel</a>
-            <a href="/mapa" class="btn btn-outline-primary">Ver Mapa</a>
         </div>
     </div>
 
@@ -68,13 +67,11 @@
                     <input type="text" id="filtroNombre-gimcanas" class="form-control" placeholder="Buscar por nombre...">
                 </div>
                 <div class="col-md-4">
-                    <label for="filtroCheckpoint-gimcanas" class="form-label">Filtrar por Checkpoint:</label>
-                    <select id="filtroCheckpoint-gimcanas" class="form-select">
-                        <option value="">Todos</option>
-                    </select>
+                    <label for="filtroCreador-gimcanas" class="form-label">Filtrar por Creador:</label>
+                    <input type="text" id="filtroCreador-gimcanas" class="form-control" placeholder="Buscar por creador...">
                 </div>
                 <div class="col-md-4 d-flex align-items-end">
-                    <button class="btn btn-secondary" >Limpiar Filtros</button>
+                    <button class="btn btn-secondary" onclick="limpiarFiltrosGimcanas()">Limpiar Filtros</button>
                 </div>
             </div>
             <div class="d-flex justify-content-end mb-3">
@@ -101,26 +98,19 @@
         <div class="tab-pane fade" id="lugares" role="tabpanel">
             <!-- Filtros para Lugares -->
             <div class="row mb-3">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label for="filtroNombre-lugares" class="form-label">Filtrar por Nombre:</label>
                     <input type="text" id="filtroNombre-lugares" class="form-control" placeholder="Buscar por nombre...">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label for="filtroCategoria-lugares" class="form-label">Filtrar por Categoría:</label>
                     <select id="filtroCategoria-lugares" class="form-select">
                         <option value="">Todas</option>
                         <!-- Opciones de categorías se cargarán dinámicamente -->
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label for="filtroEtiqueta-lugares" class="form-label">Filtrar por Etiqueta:</label>
-                    <select id="filtroEtiqueta-lugares" class="form-select">
-                        <option value="">Todas</option>
-                        <!-- Opciones de etiquetas se cargarán dinámicamente -->
-                    </select>
-                </div>
-                <div class="col-md-3 d-flex align-items-end justify-content-between">
-                    <button class="btn btn-secondary">Limpiar Filtros</button>
+                <div class="col-md-4 d-flex align-items-end justify-content-between">
+                    <button class="btn btn-secondary" onclick="limpiarFiltrosLugares()">Limpiar Filtros</button>
                     <button class="btn btn-primary" id="CrearPlaceBtn">Crear Lugar</button>
                 </div>
             </div>
@@ -177,6 +167,11 @@
                                     <label for="checkpoint_prueba" class="form-label">Prueba</label>
                                     <textarea class="form-control" id="checkpoint_prueba" name="prueba" required></textarea>
                                     <small class="text-muted">Describe la prueba que deberán realizar en este punto.</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="checkpoint_respuesta" class="form-label">Respuesta</label>
+                                    <input type="text" class="form-control" id="checkpoint_respuesta" name="respuesta" required>
+                                    <small class="text-muted">Escribe la respuesta correcta para esta prueba.</small>
                                 </div>
                                 <div class="mb-3">
                                     <label for="checkpoint_gimcana" class="form-label">Asignar a Gimcana</label>
