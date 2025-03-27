@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let watchId;
     let checkpointsData = [];
     let updateInterval; // Intervalo para actualizar la posición cada 10 segundos
-    let detectionRadius = 50; // Radio de detección en metros
+    let detectionRadius = 120000; // Radio de detección en metros
 
     const checkpointPendingIcon = L.icon({
         iconUrl: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-2x-red.png',
@@ -105,19 +105,27 @@ document.addEventListener('DOMContentLoaded', function() {
         // NO añadir el checkpoint al mapa inicialmente - se mostrará solo cuando esté en el radio
         // Solo mostrar la pista textual para ayudar a buscar
         
-        // Mostrar SOLO la pista del siguiente checkpoint (no la prueba)
-        document.getElementById('hintPanel').innerHTML = `
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> <strong>Pista para llegar al checkpoint:</strong> ${nextCheckpoint.pista}
-                <button class="btn-sm btn-primary float-end ms-2" id="verDetalleBtn">Ver detalles</button>
-            </div>
-        `;
-        document.getElementById('hintPanel').style.display = 'block';
+        // Verificar si el usuario ya completó el checkpoint actual pero está esperando al grupo
+        const currentUserCompletedButWaiting = nextCheckpoint.userCompleted && !nextCheckpoint.completed;
         
-        // Añadir el event listener al botón
-        document.getElementById('verDetalleBtn').addEventListener('click', function() {
-            showCheckpointDetail(nextCheckpoint.id);
-        });
+        // Mostrar SOLO la pista del siguiente checkpoint (no la prueba) si todos han completado el anterior
+        if (!currentUserCompletedButWaiting) {
+            document.getElementById('hintPanel').innerHTML = `
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> <strong>Pista para llegar al checkpoint:</strong> ${nextCheckpoint.pista}
+                    <button class="btn-sm btn-primary float-end ms-2" id="verDetalleBtn">Ver detalles</button>
+                </div>
+            `;
+            document.getElementById('hintPanel').style.display = 'block';
+            
+            // Añadir el event listener al botón
+            document.getElementById('verDetalleBtn').addEventListener('click', function() {
+                showCheckpointDetail(nextCheckpoint.id);
+            });
+        } else {
+            // Si el usuario ya completó pero está esperando al grupo, ocultar el panel de pistas
+            document.getElementById('hintPanel').style.display = 'none';
+        }
     }
     
     // Función para comprobar si estamos cerca del siguiente checkpoint
@@ -381,16 +389,58 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 } else {
                     // Si solo este usuario ha completado el checkpoint pero faltan otros miembros del grupo
+                    // Mostrar un modal bloqueante que no permite hacer nada hasta que todos completen
                     Swal.fire({
-                        title: '¡Respuesta correcta!',
-                        text: data.message + ' Espera a que el resto del grupo complete este checkpoint para avanzar al siguiente.',
+                        title: 'Esperando al grupo',
+                        html: `<p>${data.message}</p><p>Debes esperar a que todos los miembros del grupo completen este checkpoint para continuar.</p>`,
                         icon: 'info',
                         confirmButtonColor: '#2A4D14',
-                        confirmButtonText: 'Entendido'
+                        confirmButtonText: 'Entendido',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        allowEnterKey: false
                     });
                     
-                    // Recargar los datos para reflejar el progreso actualizado
-                    loadCheckpoints();
+                    // Ocultar el panel de pistas para el siguiente checkpoint
+                    document.getElementById('hintPanel').style.display = 'none';
+                    
+                    // Configurar un intervalo para verificar si el grupo ha completado
+                    const checkGroupCompletion = setInterval(() => {
+                        fetch('/gimcana/juego/data')
+                            .then(response => response.json())
+                            .then(refreshData => {
+                                if (refreshData.status === 'success') {
+                                    // Buscar el checkpoint actual
+                                    const updatedCheckpoint = refreshData.checkpoints.find(c => c.id === checkpointId);
+                                    
+                                    // Si el checkpoint ahora está completado por todo el grupo
+                                    if (updatedCheckpoint && updatedCheckpoint.completed) {
+                                        clearInterval(checkGroupCompletion);
+                                        
+                                        // Actualizar datos locales
+                                        checkpointsData = refreshData.checkpoints.sort((a, b) => a.id - b.id);
+                                        
+                                        // Cerrar el modal de espera
+                                        Swal.close();
+                                        
+                                        // Mostrar mensaje de éxito y avanzar
+                                        Swal.fire({
+                                            title: '¡Completado!',
+                                            text: '¡Todo el grupo ha completado el checkpoint! Avanzando al siguiente.',
+                                            icon: 'success',
+                                            confirmButtonColor: '#2A4D14',
+                                            confirmButtonText: 'Continuar'
+                                        }).then(() => {
+                                            // Actualizar el mapa para mostrar el siguiente checkpoint
+                                            updateMapWithNextGroupCheckpoint();
+                                        });
+                                    }
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error al verificar el estado del grupo:', error);
+                            });
+                    }, 5000); 
                 }
             } else {
                 // Mostrar el error con SweetAlert2 en vez de en el formulario
