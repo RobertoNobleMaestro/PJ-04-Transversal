@@ -194,9 +194,17 @@ function createUserMarker() {
 
 // Actualiza o crea una ruta entre la posición del usuario y un destino
 function updateRoute(endPoint) {
-    if (!userPosition) return;
+    if (!userPosition) {
+        showToast("Activa tu ubicación para crear una ruta", "warning");
+        return;
+    }
+    
     const end = endPoint || (routeControl ? routeControl.getWaypoints()[1] : null);
     if (!end) return;
+    
+    // Mostrar indicador de carga
+    showToast("Calculando ruta...", "info");
+    
     if (routeControl) {
         routeControl.setWaypoints([
             L.latLng(userPosition.lat, userPosition.lng),
@@ -208,7 +216,7 @@ function updateRoute(endPoint) {
                 L.latLng(userPosition.lat, userPosition.lng),
                 end
             ],
-            routeWhileDragging: true,
+            routeWhileDragging: false,
             show: false,
             addWaypoints: false,
             draggableWaypoints: false,
@@ -221,82 +229,55 @@ function updateRoute(endPoint) {
             }
         }).addTo(map);
         
-        // Mostrar información sobre la ruta cuando se encuentra
+        // Evento cuando la ruta se calcula
         routeControl.on('routesfound', function(e) {
             const routes = e.routes;
-            if (routes && routes.length > 0) {
-                const route = routes[0];
-                const distance = (route.summary.totalDistance / 1000).toFixed(1);
-                const time = Math.round(route.summary.totalTime / 60);
-                
-                // Obtener información del destino
-                let destinationName = "Destino";
-                let placeId = null;
-                
-                // Si el punto final es un marcador de un lugar, obtener su información
-                placeMarkers.forEach(marker => {
-                    const markerLatLng = marker.getLatLng();
-                    if (markerLatLng.lat === end.lat && markerLatLng.lng === end.lng) {
-                        const popupContent = marker.getPopup().getContent();
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = popupContent;
-                        
-                        const title = tempDiv.querySelector('h5');
-                        if (title) {
-                            destinationName = title.textContent;
-                        }
-                        
-                        const routeBtn = tempDiv.querySelector('.route-btn');
-                        if (routeBtn) {
-                            placeId = routeBtn.dataset.id;
-                        }
+            const summary = routes[0].summary;
+            
+            // Calcular distancia en km y tiempo en minutos
+            const distance = (summary.totalDistance / 1000).toFixed(1);
+            const time = Math.round(summary.totalTime / 60);
+            
+            // Buscar información del lugar de destino
+            const destinationLat = end.lat;
+            const destinationLng = end.lng;
+            const placeId = findPlaceIdByCoordinates(destinationLat, destinationLng);
+            let placeName = "destino";
+            
+            if (placeId) {
+                // Si encontramos el lugar, usar su nombre
+                const place = placesData.find(p => p.id === placeId);
+                if (place) {
+                    placeName = place.nombre;
+                }
+            }
+            
+            // Mostrar información de la ruta
+            showRouteInfo(placeName, distance, time);
+            
+            // Guardar datos de la ruta para posible uso posterior
+            routeControl._selectedRoute = {
+                coordinates: routes[0].coordinates,
+                summary: summary
+            };
+            
+            // Ocultar el toast de "Calculando ruta..."
+            const toastContainer = document.getElementById('toast-container');
+            if (toastContainer) {
+                const toasts = toastContainer.querySelectorAll('.toast');
+                toasts.forEach(toast => {
+                    if (toast.textContent.includes('Calculando ruta')) {
+                        toast.classList.remove('show');
+                        setTimeout(() => toast.remove(), 300);
                     }
                 });
-                
-                // Crear el contenedor para la información de la ruta si no existe
-                let routeInfoContainer = document.getElementById('route-info-container');
-                if (!routeInfoContainer) {
-                    routeInfoContainer = document.createElement('div');
-                    routeInfoContainer.id = 'route-info-container';
-                    routeInfoContainer.className = 'route-info-container';
-                    document.body.appendChild(routeInfoContainer);
-                }
-                
-                // Actualizar el contenido del contenedor
-                routeInfoContainer.innerHTML = `
-                    <div class="route-info-card">
-                        <div class="route-info-header">
-                            <h5>Ruta a ${destinationName}</h5>
-                            <button class="btn-close" id="close-route-info"></button>
-                        </div>
-                        <div class="route-info-body">
-                            <p><i class="fas fa-road me-2"></i>Distancia: ${distance} km</p>
-                            <p><i class="fas fa-clock me-2"></i>Tiempo estimado: ${time} min</p>
-                            ${placeId ? `
-                            <div class="route-actions mt-3">
-                                <button class="btn btn-sm btn-primary save-route-btn" data-id="${placeId}">
-                                    <i class="fas fa-heart me-1"></i>Guardar ruta en favoritos
-                                </button>
-                            </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-                
-                // Mostrar el contenedor
-                routeInfoContainer.style.display = 'block';
-                
-                // Evento para cerrar la información de la ruta
-                document.getElementById('close-route-info')?.addEventListener('click', function() {
-                    routeInfoContainer.style.display = 'none';
-                });
-                
-                // Evento para guardar la ruta como favorito
-                document.querySelector('.save-route-btn')?.addEventListener('click', function() {
-                    const placeId = this.dataset.id;
-                    saveRouteAsFavorite(placeId, route);
-                });
             }
+        });
+        
+        // Evento cuando hay un error al calcular la ruta
+        routeControl.on('routingerror', function(e) {
+            console.error('Error al calcular la ruta:', e.error);
+            showToast('No se pudo calcular la ruta. Intenta con otro destino.', 'error');
         });
     }
 }
@@ -430,8 +411,28 @@ function loadFavorites() {
         return;
     }
     
-    fetch('/favorites/list')
-        .then(response => response.json())
+    // Mostrar indicador de carga
+    document.getElementById('favorites-list').innerHTML = `
+        <div class="text-center py-3">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando tus favoritos...</p>
+        </div>
+    `;
+    
+    fetch('/favorites/list', {
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al cargar favoritos');
+            }
+            return response.json();
+        })
         .then(data => {
             const favoritesList = document.getElementById('favorites-list');
             
@@ -498,168 +499,262 @@ function loadFavorites() {
             favoritesList.innerHTML = html;
             
             // Añadir eventos a los botones
-            document.querySelectorAll('.show-location-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const lat = parseFloat(this.dataset.lat);
-                    const lng = parseFloat(this.dataset.lng);
-                    
-                    // Cerrar el panel de favoritos
-                    document.getElementById('favorites-panel').classList.remove('active');
-                    
-                    // Centrar el mapa en el lugar
-                    centerMap(lat, lng);
-                });
-            });
-            
-            document.querySelectorAll('.create-route-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const lat = parseFloat(this.dataset.lat);
-                    const lng = parseFloat(this.dataset.lng);
-                    const name = this.dataset.name;
-                    
-                    // Cerrar el panel de favoritos
-                    document.getElementById('favorites-panel').classList.remove('active');
-                    
-                    // Centrar el mapa en el lugar
-                    centerMap(lat, lng);
-                    
-                    // Crear la ruta
-                    if (userPosition) {
-                        updateRoute(L.latLng(lat, lng));
-                    } else {
-                        alert('No se ha podido obtener tu ubicación actual. Activa la ubicación para ver la ruta.');
-                    }
-                });
-            });
-            
-            document.querySelectorAll('.show-route-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const favoriteId = this.dataset.id;
-                    const placeId = this.dataset.placeId;
-                    const lat = parseFloat(this.dataset.lat);
-                    const lng = parseFloat(this.dataset.lng);
-                    const name = this.dataset.name;
-                    
-                    // Cerrar el panel de favoritos
-                    document.getElementById('favorites-panel').classList.remove('active');
-                    
-                    // Centrar el mapa en el lugar
-                    centerMap(lat, lng);
-                    
-                    // Buscar los datos de la ruta guardada
-                    const favorite = data.favorites.find(f => f.id == favoriteId);
-                    
-                    if (favorite && favorite.route_data) {
-                        try {
-                            const routeData = JSON.parse(favorite.route_data);
-                            
-                            // Eliminar la ruta actual si existe
-                            if (routeControl) {
-                                map.removeControl(routeControl);
-                            }
-                            
-                            // Crear la nueva ruta con los datos guardados
-                            const waypoints = [
-                                L.latLng(userPosition.lat, userPosition.lng),
-                                L.latLng(lat, lng)
-                            ];
-                            
-                            routeControl = L.Routing.control({
-                                waypoints: waypoints,
-                                routeWhileDragging: false,
-                                show: false,
-                                addWaypoints: false,
-                                draggableWaypoints: false,
-                                fitSelectedRoutes: true,
-                                lineOptions: {
-                                    styles: [
-                                        { color: '#3388ff', opacity: 0.8, weight: 6 },
-                                        { color: '#ffffff', opacity: 0.3, weight: 4 }
-                                    ]
-                                }
-                            }).addTo(map);
-                            
-                            // Mostrar información sobre la ruta
-                            const distance = (routeData.summary.totalDistance / 1000).toFixed(1);
-                            const time = Math.round(routeData.summary.totalTime / 60);
-                            
-                            // Crear el contenedor para la información de la ruta si no existe
-                            let routeInfoContainer = document.getElementById('route-info-container');
-                            if (!routeInfoContainer) {
-                                routeInfoContainer = document.createElement('div');
-                                routeInfoContainer.id = 'route-info-container';
-                                routeInfoContainer.className = 'route-info-container';
-                                document.body.appendChild(routeInfoContainer);
-                            }
-                            
-                            // Actualizar el contenido del contenedor
-                            routeInfoContainer.innerHTML = `
-                                <div class="route-info-card">
-                                    <div class="route-info-header">
-                                        <h5>Ruta guardada a ${name}</h5>
-                                        <button class="btn-close" id="close-route-info"></button>
-                                    </div>
-                                    <div class="route-info-body">
-                                        <p><i class="fas fa-road me-2"></i>Distancia: ${distance} km</p>
-                                        <p><i class="fas fa-clock me-2"></i>Tiempo estimado: ${time} min</p>
-                                    </div>
-                                </div>
-                            `;
-                            
-                            // Mostrar el contenedor
-                            routeInfoContainer.style.display = 'block';
-                            
-                            // Evento para cerrar la información de la ruta
-                            document.getElementById('close-route-info')?.addEventListener('click', function() {
-                                routeInfoContainer.style.display = 'none';
-                            });
-                            
-                        } catch (error) {
-                            console.error('Error al cargar la ruta guardada:', error);
-                            showToast('Error al cargar la ruta guardada', 'error');
-                        }
-                    } else {
-                        // Si no hay datos de ruta, crear una nueva
-                        if (userPosition) {
-                            updateRoute(L.latLng(lat, lng));
-                        } else {
-                            alert('No se ha podido obtener tu ubicación actual. Activa la ubicación para ver la ruta.');
-                        }
-                    }
-                });
-            });
-            
-            document.querySelectorAll('.remove-favorite-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const placeId = this.dataset.id;
-                    
-                    if (confirm('¿Estás seguro de que quieres eliminar este lugar de tus favoritos?')) {
-                        toggleFavorite(placeId, null, null, () => {
-                            // Eliminar el elemento de la lista
-                            const favoriteItem = this.closest('.favorite-item');
-                            favoriteItem.remove();
-                            
-                            // Si no quedan favoritos, mostrar mensaje
-                            if (document.querySelectorAll('.favorite-item').length === 0) {
-                                document.getElementById('favorites-list').innerHTML = `
-                                    <div class="alert alert-info">
-                                        <i class="fas fa-info-circle me-2"></i>No tienes lugares favoritos guardados.
-                                    </div>
-                                `;
-                            }
-                        });
-                    }
-                });
-            });
+            setupFavoriteButtonEvents();
         })
         .catch(error => {
             console.error('Error cargando favoritos:', error);
             document.getElementById('favorites-list').innerHTML = `
                 <div class="alert alert-danger">
                     <i class="fas fa-exclamation-circle me-2"></i>Error al cargar tus favoritos.
+                    <button class="btn btn-sm btn-outline-danger ms-2" onclick="loadFavorites()">
+                        <i class="fas fa-sync-alt me-1"></i>Reintentar
+                    </button>
                 </div>
             `;
         });
+}
+
+// Configura los eventos para los botones de favoritos
+function setupFavoriteButtonEvents() {
+    // Evento para ver ubicación
+    document.querySelectorAll('.show-location-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const lat = parseFloat(this.dataset.lat);
+            const lng = parseFloat(this.dataset.lng);
+            
+            // Cerrar el panel de favoritos
+            document.getElementById('favorites-panel').classList.remove('active');
+            
+            // Centrar el mapa en el lugar
+            centerMap(lat, lng);
+        });
+    });
+    
+    // Evento para crear ruta
+    document.querySelectorAll('.create-route-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const lat = parseFloat(this.dataset.lat);
+            const lng = parseFloat(this.dataset.lng);
+            const name = this.dataset.name;
+            
+            // Cerrar el panel de favoritos
+            document.getElementById('favorites-panel').classList.remove('active');
+            
+            // Centrar el mapa en el lugar
+            centerMap(lat, lng);
+            
+            // Crear la ruta
+            if (userPosition) {
+                updateRoute(L.latLng(lat, lng));
+            } else {
+                showToast('No se ha podido obtener tu ubicación actual. Activa la ubicación para ver la ruta.', 'warning');
+            }
+        });
+    });
+    
+    // Evento para ver ruta guardada
+    document.querySelectorAll('.show-route-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const favoriteId = this.dataset.id;
+            const placeId = this.dataset.placeId;
+            const lat = parseFloat(this.dataset.lat);
+            const lng = parseFloat(this.dataset.lng);
+            const name = this.dataset.name;
+            
+            // Cerrar el panel de favoritos
+            document.getElementById('favorites-panel').classList.remove('active');
+            
+            // Centrar el mapa en el lugar
+            centerMap(lat, lng);
+            
+            // Buscar los datos de la ruta guardada
+            fetch(`/favorites/get-route/${favoriteId}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al obtener la ruta');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.route_data) {
+                    try {
+                        const routeData = JSON.parse(data.route_data);
+                        
+                        // Eliminar la ruta actual si existe
+                        if (routeControl) {
+                            map.removeControl(routeControl);
+                        }
+                        
+                        // Crear la nueva ruta con los datos guardados
+                        const waypoints = [
+                            L.latLng(userPosition.lat, userPosition.lng),
+                            L.latLng(lat, lng)
+                        ];
+                        
+                        routeControl = L.Routing.control({
+                            waypoints: waypoints,
+                            routeWhileDragging: false,
+                            show: false,
+                            addWaypoints: false,
+                            draggableWaypoints: false,
+                            fitSelectedRoutes: true,
+                            lineOptions: {
+                                styles: [
+                                    { color: '#3388ff', opacity: 0.8, weight: 6 },
+                                    { color: '#ffffff', opacity: 0.3, weight: 4 }
+                                ]
+                            }
+                        }).addTo(map);
+                        
+                        // Mostrar información sobre la ruta
+                        const distance = (routeData.summary.totalDistance / 1000).toFixed(1);
+                        const time = Math.round(routeData.summary.totalTime / 60);
+                        
+                        showRouteInfo(name, distance, time);
+                        
+                    } catch (error) {
+                        console.error('Error al cargar la ruta guardada:', error);
+                        showToast('Error al cargar la ruta guardada', 'error');
+                        
+                        // Si hay error, crear una nueva ruta
+                        if (userPosition) {
+                            updateRoute(L.latLng(lat, lng));
+                        }
+                    }
+                } else {
+                    // Si no hay datos de ruta, crear una nueva
+                    if (userPosition) {
+                        updateRoute(L.latLng(lat, lng));
+                    } else {
+                        showToast('No se ha podido obtener tu ubicación actual. Activa la ubicación para ver la ruta.', 'warning');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error al obtener la ruta:', error);
+                showToast('Error al obtener la ruta guardada', 'error');
+                
+                // Si hay error, intentar crear una nueva ruta
+                if (userPosition) {
+                    updateRoute(L.latLng(lat, lng));
+                }
+            });
+        });
+    });
+    
+    // Evento para eliminar favorito
+    document.querySelectorAll('.remove-favorite-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const placeId = this.dataset.id;
+            
+            if (confirm('¿Estás seguro de que quieres eliminar este lugar de tus favoritos?')) {
+                toggleFavorite(placeId, null, null, () => {
+                    // Eliminar el elemento de la lista con animación
+                    const favoriteItem = this.closest('.favorite-item');
+                    favoriteItem.style.transition = 'all 0.3s ease';
+                    favoriteItem.style.opacity = '0';
+                    favoriteItem.style.transform = 'translateY(-10px)';
+                    
+                    setTimeout(() => {
+                        favoriteItem.remove();
+                        
+                        // Si no quedan favoritos, mostrar mensaje
+                        if (document.querySelectorAll('.favorite-item').length === 0) {
+                            document.getElementById('favorites-list').innerHTML = `
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>No tienes lugares favoritos guardados.
+                                </div>
+                            `;
+                        }
+                    }, 300);
+                });
+            }
+        });
+    });
+}
+
+// Muestra información sobre la ruta
+function showRouteInfo(name, distance, time) {
+    // Crear el contenedor para la información de la ruta si no existe
+    let routeInfoContainer = document.getElementById('route-info-container');
+    if (!routeInfoContainer) {
+        routeInfoContainer = document.createElement('div');
+        routeInfoContainer.id = 'route-info-container';
+        routeInfoContainer.className = 'route-info-container';
+        document.body.appendChild(routeInfoContainer);
+    }
+    
+    // Actualizar el contenido del contenedor
+    routeInfoContainer.innerHTML = `
+        <div class="route-info-card">
+            <div class="route-info-header">
+                <h5>Ruta a ${name}</h5>
+                <button class="btn-close" id="close-route-info"></button>
+            </div>
+            <div class="route-info-body">
+                <p><i class="fas fa-road me-2"></i>Distancia: ${distance} km</p>
+                <p><i class="fas fa-clock me-2"></i>Tiempo estimado: ${time} min</p>
+            </div>
+            <div class="route-info-footer">
+                <button class="btn btn-sm btn-outline-primary" id="save-route-btn">
+                    <i class="fas fa-heart me-1"></i>Guardar ruta
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Mostrar el contenedor
+    routeInfoContainer.style.display = 'block';
+    
+    // Evento para cerrar la información de la ruta
+    document.getElementById('close-route-info')?.addEventListener('click', function() {
+        routeInfoContainer.style.display = 'none';
+    });
+    
+    // Evento para guardar la ruta como favorito
+    document.getElementById('save-route-btn')?.addEventListener('click', function() {
+        // Obtener los datos de la ruta actual
+        if (routeControl && routeControl._selectedRoute) {
+            const route = {
+                waypoints: routeControl.getWaypoints(),
+                coordinates: routeControl._selectedRoute.coordinates,
+                summary: {
+                    totalDistance: routeControl._selectedRoute.summary.totalDistance,
+                    totalTime: routeControl._selectedRoute.summary.totalTime
+                }
+            };
+            
+            // Obtener el ID del lugar de destino
+            const destinationWaypoint = routeControl.getWaypoints()[1];
+            const placeId = findPlaceIdByCoordinates(destinationWaypoint.latLng.lat, destinationWaypoint.latLng.lng);
+            
+            if (placeId) {
+                saveRouteAsFavorite(placeId, route);
+            } else {
+                showToast('No se pudo identificar el lugar de destino', 'error');
+            }
+        } else {
+            showToast('No hay una ruta activa para guardar', 'warning');
+        }
+    });
+}
+
+// Encuentra el ID de un lugar por sus coordenadas
+function findPlaceIdByCoordinates(lat, lng, tolerance = 0.0001) {
+    if (!placesData || placesData.length === 0) return null;
+    
+    // Buscar un lugar que coincida con las coordenadas (con cierta tolerancia)
+    const place = placesData.find(p => 
+        Math.abs(p.coordenadas_lat - lat) < tolerance && 
+        Math.abs(p.coordenadas_lon - lng) < tolerance
+    );
+    
+    return place ? place.id : null;
 }
 
 // =====================================================================
@@ -687,8 +782,18 @@ function getCategoryIcon(category) {
 function checkIfFavorite(placeId, marker) {
     if (!authCheck) return;
     
-    fetch(`/favorites/check/${placeId}`)
-        .then(response => response.json())
+    fetch(`/favorites/check/${placeId}`, {
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al verificar favorito');
+            }
+            return response.json();
+        })
         .then(data => {
             const popup = marker.getPopup();
             if (popup) {
@@ -723,22 +828,34 @@ function checkIfFavorite(placeId, marker) {
                 popup.setContent(tempDiv.innerHTML);
             }
         })
-        .catch(error => console.error('Error verificando favorito:', error));
+        .catch(error => {
+            console.error('Error verificando favorito:', error);
+            showToast('Error al verificar estado de favorito', 'error');
+        });
 }
 
 // Alterna el estado de favorito de un lugar
 function toggleFavorite(placeId, button, textElement, callback) {
-    if (!authCheck) return;
+    if (!authCheck) {
+        showToast('Debes iniciar sesión para guardar favoritos', 'info');
+        return;
+    }
     
     fetch(`/favorites/toggle/${placeId}`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error al procesar la solicitud');
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             if (button && textElement) {
@@ -746,10 +863,12 @@ function toggleFavorite(placeId, button, textElement, callback) {
                     button.classList.remove('btn-outline-danger');
                     button.classList.add('btn-danger');
                     textElement.textContent = 'Quitar';
+                    showToast('Lugar añadido a favoritos', 'success');
                 } else {
                     button.classList.remove('btn-danger');
                     button.classList.add('btn-outline-danger');
                     textElement.textContent = 'Favorito';
+                    showToast('Lugar eliminado de favoritos', 'success');
                 }
             }
             
@@ -764,15 +883,21 @@ function toggleFavorite(placeId, button, textElement, callback) {
             }
         }
     })
-    .catch(error => console.error('Error al alternar favorito:', error));
+    .catch(error => {
+        console.error('Error al alternar favorito:', error);
+        showToast('Error al procesar la solicitud', 'error');
+    });
 }
 
 // Guarda una ruta como favorito
 function saveRouteAsFavorite(placeId, route) {
     if (!authCheck) {
-        alert("Debes iniciar sesión para guardar rutas como favoritos");
+        showToast("Debes iniciar sesión para guardar rutas como favoritos", "info");
         return;
     }
+    
+    // Mostrar indicador de carga
+    showToast("Guardando ruta...", "info");
     
     // Preparar los datos de la ruta para guardar
     const routeData = {
@@ -790,17 +915,37 @@ function saveRouteAsFavorite(placeId, route) {
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify({
             place_id: placeId,
             route_data: JSON.stringify(routeData)
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             showToast('Ruta guardada en favoritos correctamente', 'success');
+            
+            // Actualizar el botón de guardar ruta si existe
+            const saveRouteBtn = document.getElementById('save-route-btn');
+            if (saveRouteBtn) {
+                saveRouteBtn.classList.remove('btn-outline-primary');
+                saveRouteBtn.classList.add('btn-success');
+                saveRouteBtn.innerHTML = '<i class="fas fa-check me-1"></i>Ruta guardada';
+                
+                // Deshabilitar el botón temporalmente para evitar clics múltiples
+                saveRouteBtn.disabled = true;
+                setTimeout(() => {
+                    saveRouteBtn.disabled = false;
+                }, 2000);
+            }
             
             // Recargar la lista de favoritos si está visible
             if (document.getElementById('favorites-panel').classList.contains('active')) {
@@ -929,7 +1074,11 @@ document.getElementById('searchButton')?.addEventListener('click', function() {
                         iconSize: [30, 30]
                     })
                 }).addTo(map)
-                .bindPopup(`<b>${query}</b>`)
+                .bindPopup(`
+                    <div class="marker-popup">
+                        <h5>${query}</h5>
+                    </div>
+                `)
                 .openPopup();
             } else {
                 alert("No se encontraron resultados para la búsqueda");
@@ -960,7 +1109,11 @@ document.getElementById('searchButtonMobile')?.addEventListener('click', functio
                         iconSize: [30, 30]
                     })
                 }).addTo(map)
-                .bindPopup(`<b>${query}</b>`)
+                .bindPopup(`
+                    <div class="marker-popup">
+                        <h5>${query}</h5>
+                    </div>
+                `)
                 .openPopup();
                 // Ocultar la barra de búsqueda después de la búsqueda
                 document.getElementById('mobileSearchContainer').classList.remove('visible');
