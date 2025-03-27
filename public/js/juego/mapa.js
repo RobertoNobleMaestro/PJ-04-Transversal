@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let watchId;
     let checkpointsData = [];
     let updateInterval; // Intervalo para actualizar la posición cada 10 segundos
-    let detectionRadius = 400; // Radio de detección en metros
+    let detectionRadius = 200; // Radio de detección en metros
 
     const checkpointPendingIcon = L.icon({
         iconUrl: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-2x-red.png',
@@ -201,7 +201,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 positionUpdateHandler,
                 function(error) {
                     console.error('Error al obtener la ubicación:', error);
-                    alert('Error al obtener tu ubicación: ' + error.message);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Error al obtener tu ubicación: ' + error.message,
+                        icon: 'error',
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'Cerrar'
+                    });
                 },
                 {
                     enableHighAccuracy: true,
@@ -236,7 +242,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Cargar los checkpoints después de activar la ubicación
             loadCheckpoints();
         } else {
-            alert('Tu navegador no soporta geolocalización');
+            Swal.fire({
+                title: 'Error',
+                text: 'Tu navegador no soporta geolocalización',
+                icon: 'error',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Cerrar'
+            });
         }
     }
     
@@ -327,12 +339,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Función para validar un checkpoint
     window.validarCheckpoint = function(checkpointId) {
-        const formData = new FormData(document.getElementById('validationForm'));
+        // Obtenemos el valor de la respuesta directamente
+        const respuesta = document.getElementById('respuesta').value;
+        
+        const formData = new FormData();
+        formData.append('respuesta', respuesta);
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
         
         fetch(`/gimcana/juego/checkpoint/${checkpointId}/validar`, {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 'Accept': 'application/json'
             },
             body: formData
@@ -352,27 +368,50 @@ document.addEventListener('DOMContentLoaded', function() {
                         checkpointsData[index].completed = true;
                     }
                     
-                    // Mostrar mensaje de éxito grupal
-                    alert('¡Todo el grupo ha completado el checkpoint! Avanzando al siguiente.');
-                    
-                    // Actualizar el mapa para mostrar el siguiente checkpoint
-                    updateMapWithNextGroupCheckpoint();
+                    // Mostrar mensaje de éxito grupal con SweetAlert2
+                    Swal.fire({
+                        title: '¡Completado!',
+                        text: '¡Todo el grupo ha completado el checkpoint! Avanzando al siguiente.',
+                        icon: 'success',
+                        confirmButtonColor: '#2A4D14',
+                        confirmButtonText: 'Continuar'
+                    }).then(() => {
+                        // Actualizar el mapa para mostrar el siguiente checkpoint
+                        updateMapWithNextGroupCheckpoint();
+                    });
                 } else {
                     // Si solo este usuario ha completado el checkpoint pero faltan otros miembros del grupo
-                    alert(data.message + ' Espera a que el resto del grupo complete este checkpoint para avanzar al siguiente.');
+                    Swal.fire({
+                        title: '¡Respuesta correcta!',
+                        text: data.message + ' Espera a que el resto del grupo complete este checkpoint para avanzar al siguiente.',
+                        icon: 'info',
+                        confirmButtonColor: '#2A4D14',
+                        confirmButtonText: 'Entendido'
+                    });
                     
                     // Recargar los datos para reflejar el progreso actualizado
                     loadCheckpoints();
                 }
             } else {
-                // Mostrar el error en el formulario
-                document.getElementById('validationError').textContent = data.error;
-                document.getElementById('validationError').style.display = 'block';
+                // Mostrar el error con SweetAlert2 en vez de en el formulario
+                Swal.fire({
+                    title: 'Error',
+                    text: data.error,
+                    icon: 'error',
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Intentar de nuevo'
+                });
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error al validar el checkpoint');
+            Swal.fire({
+                title: 'Error',
+                text: 'Error al validar el checkpoint',
+                icon: 'error',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Cerrar'
+            });
         });
     }
 
