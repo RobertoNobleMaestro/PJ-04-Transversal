@@ -134,6 +134,8 @@
             transform: translateY(-100%);
             transition: transform 0.3s ease;
             z-index: 999;
+            max-height: 50vh;
+            overflow-y: auto;
         }
         
         .category-filter-container.visible {
@@ -142,13 +144,39 @@
         
         .category-badge {
             display: inline-block;
-            margin: 5px;
+            margin: 4px;
             padding: 5px 10px;
             border-radius: 20px;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
             transition: all 0.2s ease;
             border: 2px solid transparent;
+            white-space: nowrap;
+        }
+        
+        @media (max-width: 430px) {
+            /* Estilos específicos para iPhone 14 Pro Max y dispositivos similares */
+            .category-filter-container {
+                padding: 8px 10px;
+            }
+            
+            .category-badge {
+                margin: 3px;
+                padding: 4px 8px;
+                font-size: 12px;
+                border-width: 1px;
+            }
+            
+            .category-badge i {
+                margin-right: 3px;
+                font-size: 11px;
+            }
+            
+            /* Mejorar el layout de los badges en el contenedor */
+            .category-filter-container .d-flex {
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
         }
         
         .category-badge.active {
@@ -385,7 +413,7 @@
     
     <!-- Filtro de categorías desplegable para móvil -->
     <div class="category-filter-container" id="mobileCategoryContainer">
-        <div class="d-flex flex-wrap justify-content-center">
+        <div class="d-flex flex-wrap justify-content-start">
             <div class="category-badge all-categories active" style="background-color: #f8f9fa;" data-category="all">
                 <i class="fas fa-globe"></i> Todas
             </div>
