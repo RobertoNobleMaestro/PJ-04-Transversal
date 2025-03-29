@@ -20,7 +20,18 @@
     <!-- Header móvil -->
     <div class="mobile-header">
         <div class="logo-container">
-            <div class="logo-text">TurGimcana</div>
+            <i class="fas fa-map-marked-alt logo-icon"></i>
+            <span class="logo-text">TurGimcana</span>
+        </div>
+        <div class="header-actions">
+            @auth
+            <a href="{{ route('favorites.index') }}" class="header-btn">
+                <i class="fas fa-heart text-danger"></i>
+            </a>
+            @endauth
+            <button class="header-btn" id="menuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
     </div>
 
@@ -139,10 +150,14 @@
             <span>Favoritos</span>
         </a>
         @endauth
-        <a href="{{ route('profile') }}" class="footer-tab">
-            <i class="fas fa-user footer-icon"></i>
-            <span>Log out</span>
-        </a>
+        <form action="{{ route('logout') }}" method="POST" class="footer-tab">
+            @csrf
+            <button type="submit"
+                style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center;">
+                <i class="fas fa-sign-out-alt footer-icon"></i>
+                <span style="color: #666666;">Logout</span>
+            </button>
+        </form>
     </div>
 
     <!-- Bootstrap 5 JS -->

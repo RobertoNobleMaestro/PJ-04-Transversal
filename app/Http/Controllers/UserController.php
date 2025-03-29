@@ -26,13 +26,22 @@ class UserController extends Controller
     // Mostrar un usuario específico
     public function show($id)
     {
-        $user = User::find($id);
+        try {
+            $user = User::find($id);
 
-        if (!$user) {
-            return response()->json(['error' => 'Usuario no encontrado'], 404);
+            if (!$user) {
+                return response()->json(['error' => 'Usuario no encontrado'], 404);
+            }
+
+            // Depuración: Verifica que el usuario tenga el campo 'name'
+            // dd($user);
+
+            return response()->json($user);
+        } catch (\Exception $e) {
+            // Log del error
+            \Log::error('Error en UserController@show: ' . $e->getMessage());
+            return response()->json(['error' => 'Error interno del servidor'], 500);
         }
-
-        return response()->json($user);
     }
 
     // Crear un nuevo usuario
@@ -89,5 +98,12 @@ class UserController extends Controller
         $user->delete();
 
         return response()->json(null, 204);
+    }
+
+    // Obtener todos los roles para filtros
+    public function getRoles()
+    {
+        $roles = Role::all();
+        return response()->json($roles);
     }
 }

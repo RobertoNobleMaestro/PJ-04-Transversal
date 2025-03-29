@@ -21,6 +21,7 @@ class CheckpointController extends Controller
             'place_id' => 'required|exists:places,id',
             'pista' => 'required|string',
             'prueba' => 'required|string',
+            'respuesta' => 'required|string',
             'gimcana_id' => 'nullable|exists:gimcanas,id',
         ]);
 
@@ -32,6 +33,7 @@ class CheckpointController extends Controller
             $checkpoint->place_id = $request->place_id;
             $checkpoint->pista = $request->pista;
             $checkpoint->prueba = $request->prueba;
+            $checkpoint->respuesta = $request->respuesta;
             $checkpoint->save();
 
             // Si se proporcionó un ID de gimcana, asignar el checkpoint a esa gimcana
@@ -64,6 +66,7 @@ class CheckpointController extends Controller
             'place_id' => 'required|exists:places,id',
             'pista' => 'required|string',
             'prueba' => 'required|string',
+            'respuesta' => 'required|string',
         ]);
 
         DB::beginTransaction();
@@ -73,6 +76,7 @@ class CheckpointController extends Controller
             $checkpoint->place_id = $request->place_id;
             $checkpoint->pista = $request->pista;
             $checkpoint->prueba = $request->prueba;
+            $checkpoint->respuesta = $request->respuesta;
             $checkpoint->save();
 
             DB::commit();
@@ -110,7 +114,10 @@ class CheckpointController extends Controller
     }
     public function recientes()
     {
-        $checkpoints = Checkpoint::with('place')->orderBy('created_at', 'desc')->take(5)->get();
+        $checkpoints = Checkpoint::with('place')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
         return response()->json($checkpoints);
     }
 
@@ -122,5 +129,17 @@ class CheckpointController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function getCheckpoints($gimcanaId)
+    {
+        $checkpoints = Checkpoint::select('id', 'pista', 'prueba', 'respuesta', 'place_id')
+            ->with('place')
+            ->whereHas('gimcanas', function($query) use ($gimcanaId) {
+                $query->where('gimcana_id', $gimcanaId);
+            })
+            ->get();
+
+        return response()->json($checkpoints);
     }
 }

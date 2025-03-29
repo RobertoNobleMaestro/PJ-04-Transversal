@@ -9,11 +9,6 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // Mostrar formulario de login
-    public function showInicioAdmin()
-    {
-        return view('admin.inicioAdmin');
-    }
     public function showLoginForm()
     {
         return view('auth.login');
@@ -52,7 +47,7 @@ class AuthController extends Controller
             session(['nombre' => $user->name]); 
 
             if ($user->role_id == 1) { 
-                return redirect()->intended('/inicioAdmin');
+                return redirect()->route('admin.gimcanas.index');
             } elseif ($user->role_id == 2) { 
                 return redirect()->intended('/mapa');
             }
@@ -84,7 +79,7 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $request->name, 
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => bcrypt($request->password),
             'role_id' => 2, 
         ]);
 

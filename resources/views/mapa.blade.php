@@ -14,8 +14,374 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.2/leaflet-routing-machine.css" rel="stylesheet">
     <!-- Custom Route Styles -->
     <link href="{{ asset('css/route-styles.css') }}" rel="stylesheet">
-    <!-- Mapa CSS -->
-    <link href="{{ asset('css/mapa.css') }}" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        #map {
+            height: calc(100vh - 120px);
+            width: 100%;
+        }
+        
+        /* Header móvil */
+        .mobile-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background-color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-icon {
+            font-size: 24px;
+            color: #007AFF;
+            margin-right: 8px;
+        }
+        
+        .logo-text {
+            font-weight: 600;
+            font-size: 18px;
+            color: #333;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+        }
+        
+        .header-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #007AFF;
+            margin-left: 15px;
+            padding: 5px;
+            position: relative;
+        }
+        
+        .location-active {
+            color: #34C759;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+        
+        /* Barra de búsqueda desplegable */
+        .search-container {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            background-color: white;
+            padding: 10px 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+        
+        .search-container.visible {
+            transform: translateY(0);
+        }
+        
+        .search-input-container {
+            display: flex;
+        }
+        
+        #searchInputMobile {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 10px 0 0 10px;
+            padding: 8px 15px;
+            font-size: 16px;
+        }
+        
+        #searchButtonMobile {
+            background-color: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 0 10px 10px 0;
+            padding: 0 15px;
+        }
+        
+        /* Filtro de categorías desplegable */
+        .category-filter-container {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            background-color: white;
+            padding: 10px 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            z-index: 999;
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+        
+        .category-filter-container.visible {
+            transform: translateY(0);
+        }
+        
+        .category-badge {
+            display: inline-block;
+            margin: 4px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            white-space: nowrap;
+        }
+        
+        @media (max-width: 430px) {
+            /* Estilos específicos para iPhone 14 Pro Max y dispositivos similares */
+            .category-filter-container {
+                padding: 8px 10px;
+            }
+            
+            .category-badge {
+                margin: 3px;
+                padding: 4px 8px;
+                font-size: 12px;
+                border-width: 1px;
+            }
+            
+            .category-badge i {
+                margin-right: 3px;
+                font-size: 11px;
+            }
+            
+            /* Mejorar el layout de los badges en el contenedor */
+            .category-filter-container .d-flex {
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+        }
+        
+        .category-badge.active {
+            border: 2px solid #000;
+            font-weight: bold;
+        }
+        
+        .category-badge i {
+            margin-right: 5px;
+        }
+        
+        /* Footer móvil */
+        .mobile-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .footer-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        
+        .footer-tab.active {
+            color: #007AFF;
+        }
+        
+        .footer-icon {
+            font-size: 20px;
+            margin-bottom: 3px;
+        }
+        
+        /* Estilos para el mapa */
+        .leaflet-popup-content {
+            min-width: 200px;
+            max-width: 250px;
+        }
+        
+        .leaflet-popup-content h5 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+        
+        .leaflet-popup-content .badge {
+            font-size: 0.7rem;
+            padding: 3px 6px;
+        }
+        
+        .leaflet-popup-content p {
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .leaflet-popup-content img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 5px;
+        }
+        
+        .user-car-marker {
+            filter: drop-shadow(0 0 4px rgba(0,0,0,0.5));
+        }
+        
+        /* Estilos para desktop (ocultar en móvil) */
+        .desktop-only {
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .mobile-header, .mobile-footer, .search-container, .category-filter-container {
+                display: none;
+            }
+            
+            .desktop-only {
+                display: block;
+            }
+        }
+        
+        /* Estilos para el panel de favoritos */
+        .favorites-panel {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100%;
+            background-color: white;
+            z-index: 1000;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .favorites-panel.active {
+            right: 0;
+        }
+        
+        .favorites-header {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .favorites-content {
+            padding: 10px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .favorites-list {
+            max-height: 100%;
+            overflow-y: auto;
+        }
+        
+        .favorites-footer {
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .favorite-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+        
+        .favorite-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .favorite-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #f8f9fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+        
+        .favorite-icon i {
+            font-size: 20px;
+        }
+        
+        .favorite-info {
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .favorite-name {
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .favorite-address {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .favorite-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .route-info {
+            padding: 10px;
+        }
+        
+        .route-info h5 {
+            margin-bottom: 10px;
+        }
+        
+        /* Estilos para filtros de categoría en desktop */
+        .category-filter-desktop {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .category-filter-desktop .category-badge {
+            margin: 3px;
+        }
+    </style>
 </head>
 <body>
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -29,14 +395,9 @@
             <button id="toggleLocation" class="header-btn" title="Seguimiento de ubicación">
                 <i class="fas fa-location-arrow" id="locationIcon"></i>
             </button>
-            <button id="toggleSearch" class="header-btn" title="Buscar">
-                <i class="fas fa-search"></i>
+            <button id="toggleCategoryFilter" class="header-btn" title="Filtrar por categoría">
+                <i class="fas fa-filter"></i>
             </button>
-            @auth
-            <button id="toggleFavorites" class="header-btn" title="Mis favoritos">
-                <i class="fas fa-heart"></i>
-            </button>
-            @endauth
         </div>
     </div>
     
@@ -47,6 +408,20 @@
             <button id="searchButtonMobile" class="btn">
                 <i class="fas fa-search"></i>
             </button>
+        </div>
+    </div>
+    
+    <!-- Filtro de categorías desplegable para móvil -->
+    <div class="category-filter-container" id="mobileCategoryContainer">
+        <div class="d-flex flex-wrap justify-content-start">
+            <div class="category-badge all-categories active" style="background-color: #f8f9fa;" data-category="all">
+                <i class="fas fa-globe"></i> Todas
+            </div>
+            @foreach($categories as $category)
+            <div class="category-badge" style="background-color: {{ $category->color }};" data-category="{{ $category->id }}">
+                <i class="fas {{ $category->icon }}"></i> {{ $category->name }}
+            </div>
+            @endforeach
         </div>
     </div>
 
@@ -69,10 +444,14 @@
             <span>Favoritos</span>
         </a>
         @endauth
-        <a href="{{ route('profile') }}" class="footer-tab">
-            <i class="fas fa-user footer-icon"></i>
-            <span>Perfil</span>
-        </a>
+        <form action="{{ route('logout') }}" method="POST" class="footer-tab">
+            @csrf
+            <button type="submit"
+                style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center;">
+                <i class="fas fa-sign-out-alt footer-icon"></i>
+                <span style="color: #666666;">Logout</span>
+            </button>
+        </form>
     </div>
 
     <!-- Barra de navegación para desktop (oculta en móvil) -->
@@ -124,6 +503,21 @@
                 <i class="fas fa-search"></i>
             </button>
         </div>
+        
+        <!-- Filtro de categorías para desktop -->
+        <div class="category-filter-desktop">
+            <h6 class="mb-2"><i class="fas fa-filter me-1"></i> Filtrar por categoría:</h6>
+            <div class="d-flex flex-wrap">
+                <div class="category-badge all-categories active" style="background-color: #f8f9fa;" data-category="all">
+                    <i class="fas fa-globe"></i> Todas
+                </div>
+                @foreach($categories as $category)
+                <div class="category-badge" style="background-color: {{ $category->color }};" data-category="{{ $category->id }}">
+                    <i class="fas {{ $category->icon }}"></i> {{ $category->name }}
+                </div>
+                @endforeach
+            </div>
+        </div>
     </div>
     
     <button id="locateMe" class="btn btn-outline-primary locate-btn desktop-only">
@@ -152,11 +546,17 @@
             </button>
         </div>
     </div>
+    
+    <!-- Toast container para notificaciones -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="toastContainer"></div>
+    </div>
 
     <script>
         var placesData = @json($places);
         var defaultLocation = { lat: 41.3851, lng: 2.1734 }; // Barcelona por defecto
         var authCheck = @json(auth()->check());
+        var categoriesData = @json($categories);
     </script>
 
     <!-- Scripts -->
