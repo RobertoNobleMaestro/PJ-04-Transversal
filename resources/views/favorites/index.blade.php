@@ -150,10 +150,14 @@
             <span>Favoritos</span>
         </a>
         @endauth
-        <a href="{{ route('profile') }}" class="footer-tab">
-            <i class="fas fa-user footer-icon"></i>
-            <span>Log out</span>
-        </a>
+        <form action="{{ route('logout') }}" method="POST" class="footer-tab">
+            @csrf
+            <button type="submit"
+                style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center;">
+                <i class="fas fa-sign-out-alt footer-icon"></i>
+                <span style="color: #666666;">Logout</span>
+            </button>
+        </form>
     </div>
 
     <!-- Bootstrap 5 JS -->
