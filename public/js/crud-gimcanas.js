@@ -4,7 +4,14 @@
 
 // Función para cargar gimcanas
 function cargarGimcanas() {
-    fetch('/admin/gimcanas/getGimcanas')
+    const nombre = document.getElementById('filtroNombre-gimcanas').value;
+    const creador = document.getElementById('filtroCreador-gimcanas').value;
+    
+    const params = new URLSearchParams();
+    if (nombre) params.append('nombre', nombre);
+    if (creador) params.append('creador', creador);
+    
+    fetch(`/admin/gimcanas/getGimcanas?${params.toString()}`)
         .then(response => response.json())
         .then(data => {
             const tableBody = document.getElementById('tabla-gimcanas');
@@ -42,6 +49,8 @@ function verCheckpoints(gimcanaId) {
                     <strong>Checkpoint ${index + 1}:</strong> ${checkpoint.pista}
                     <br>
                     <small>Prueba: ${checkpoint.prueba}</small>
+                    <br>
+                    <small>Respuesta: ${checkpoint.respuesta}</small>
                     ${checkpoint.place ? `<br><small>Lugar: ${checkpoint.place.nombre}</small>` : ''}
                 </li>
             `).join('');
@@ -265,6 +274,13 @@ function actualizarGimcana() {
     const id = document.getElementById('editarIdGimcana').value;
     const nombre = document.getElementById('editarNombre').value;
     
+    // Validar que el campo no esté vacío
+    if (!nombre.trim()) {
+        document.getElementById('editarNombre').classList.add('is-invalid');
+        Swal.fire('Error', 'El campo Nombre es obligatorio', 'error');
+        return;
+    }
+    
     // Obtener todos los checkpoints seleccionados
     const checkpoints = Array.from(document.querySelectorAll('.checkpoint-select'))
         .map(select => select.value)
@@ -431,6 +447,13 @@ function abrirModalCrearGimcana() {
 function crearGimcana() {
     const nombre = document.getElementById('crearNombre').value;
     
+    // Validar que el campo no esté vacío
+    if (!nombre.trim()) {
+        document.getElementById('crearNombre').classList.add('is-invalid');
+        Swal.fire('Error', 'El campo Nombre es obligatorio', 'error');
+        return;
+    }
+
     // Obtener el checkpoint seleccionado
     const checkpoint = document.querySelector('#crearGimcanaModal .checkpoint-select').value;
 
@@ -511,6 +534,53 @@ function crearGimcana() {
     });
 }
 
+// Función para validar un campo
+function validarCampo(campo) {
+    if (!campo.value.trim()) {
+        campo.classList.add('is-invalid');
+        return false;
+    } else {
+        campo.classList.remove('is-invalid');
+        return true;
+    }
+}
+
+// Función para inicializar validaciones onblur
+function inicializarValidaciones() {
+    // Campos de creación
+    const crearCampos = [
+        'crearNombre',  // Campo de nombre en el modal de creación
+    ];
+
+    crearCampos.forEach(id => {
+        const campo = document.getElementById(id);
+        if (campo) {
+            campo.addEventListener('blur', () => validarCampo(campo));
+        }
+    });
+
+    // Campos de edición
+    const editarCampos = [
+        'editarNombre',  // Campo de nombre en el modal de edición
+    ];
+
+    editarCampos.forEach(id => {
+        const campo = document.getElementById(id);
+        if (campo) {
+            campo.addEventListener('blur', () => validarCampo(campo));
+        }
+    });
+}
+
+function limpiarFiltrosGimcanas() {
+    // Limpiar los campos de filtro
+    document.getElementById('filtroNombre-gimcanas').value = '';
+    document.getElementById('filtroCreador-gimcanas').value = '';
+    
+    // Recargar la tabla de gimcanas
+    cargarGimcanas();
+}
+
 // Inicializar eventos cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
     // Botón para actualizar gimcana en el modal de edición
@@ -527,5 +597,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Cargar gimcanas inicialmente
     cargarGimcanas();
+
+    // Inicializar validaciones
+    inicializarValidaciones();
+
+    // Inicializar eventos de filtros
+    const filtroNombre = document.getElementById('filtroNombre-gimcanas');
+    const filtroCreador = document.getElementById('filtroCreador-gimcanas');
+
+    if (filtroNombre) {
+        filtroNombre.addEventListener('input', cargarGimcanas);
+    }
+
+    if (filtroCreador) {
+        filtroCreador.addEventListener('input', cargarGimcanas);
+    }
+
+    // Inicializar el botón de limpiar filtros
+    const btnLimpiarFiltros = document.querySelector('#gimcanas .btn-secondary');
+    if (btnLimpiarFiltros) {
+        btnLimpiarFiltros.addEventListener('click', limpiarFiltrosGimcanas);
+    }
 });
 

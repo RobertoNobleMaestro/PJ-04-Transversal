@@ -1,0 +1,234 @@
+:root {
+    --primary-color: #4B7F52;    /* Verde bosque */
+    --secondary-color: #7EA172;  /* Verde hoja claro */
+    --dark-color: #2A4D14;       /* Verde oscuro */
+    --light-color: #F7F9F4;      /* Blanco hueso natural */
+    --accent-color: #D68C45;     /* Naranja tierra/atardecer */
+    --water-color: #5DA2D5;      /* Azul agua */
+    --stone-color: #8D8D8D;      /* Gris piedra */
+    --earth-color: #A67C52;      /* Marrón tierra */
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--dark-color);
+    background-color: var(--light-color);
+}
+
+/* Estilos del encabezado */
+.user-header {
+    background-color: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.user-info h4 {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+/* Estilos de navegación */
+.nav-tabs {
+    border-bottom: 2px solid var(--secondary-color);
+}
+
+.nav-tabs .nav-link {
+    color: var(--dark-color);
+    font-weight: 600;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px 5px 0 0;
+    margin-right: 5px;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--primary-color);
+    background-color: rgba(126, 161, 114, 0.1);
+}
+
+.nav-tabs .nav-link.active {
+    color: white;
+    background-color: var(--primary-color);
+    border: none;
+}
+
+/* Estilos para los contenedores de tabs */
+.tab-content {
+    background-color: white;
+    border-radius: 0 10px 10px 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.tab-pane {
+    padding: 15px 0;
+}
+
+/* Estilos para botones */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--dark-color);
+    border-color: var(--dark-color);
+}
+
+.btn-success {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.btn-success:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-warning {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+}
+
+.btn-warning:hover {
+    background-color: #c07a3a;
+    border-color: #c07a3a;
+    color: white;
+}
+
+.btn-danger {
+    background-color: #d9534f;
+    border-color: #d9534f;
+}
+
+.btn-danger:hover {
+    background-color: #c9302c;
+    border-color: #c9302c;
+}
+
+.btn-outline-secondary {
+    color: var(--stone-color);
+    border-color: var(--stone-color);
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--stone-color);
+    color: white;
+}
+
+/* Estilos para tablas */
+.table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table thead th {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px;
+}
+
+.table tbody tr:nth-child(odd) {
+    background-color: rgba(126, 161, 114, 0.1);
+}
+
+.table tbody tr:hover {
+    background-color: rgba(126, 161, 114, 0.2);
+}
+
+.table td {
+    padding: 12px;
+    vertical-align: middle;
+}
+
+/* Estilos para formularios */
+.form-control, .btn {
+    border-radius: 5px;
+    padding: 10px 15px;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(75, 127, 82, 0.25);
+    border-color: var(--primary-color);
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+/* Estilos para modales */
+.modal-content {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    background-color: var(--primary-color);
+    color: white;
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+}
+
+.modal-title {
+    font-weight: 600;
+}
+
+.modal-footer {
+    border-top: 1px solid #e9ecef;
+    border-radius: 0 0 10px 10px;
+}
+
+/* Estilos para mapas */
+#map, #checkpoint-map, #crear-lugar-map, #editar-lugar-map {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border: 2px solid var(--secondary-color);
+}
+
+/* Estilos para tarjetas */
+.card {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border: none;
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    border-bottom: none;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .tab-content {
+        padding: 15px;
+    }
+    
+    .user-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .user-header .d-flex {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
