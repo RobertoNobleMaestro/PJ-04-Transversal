@@ -69,13 +69,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/places/{id}/edit', [PlaceController::class, 'edit']);
     
     // Rutas para el CRUD de checkpoints (admin)
-    Route::get('/admin/checkpoints', [CheckpointController::class, 'index'])->name('admin.checkpoints.index');
+    Route::get('/admin/checkpoints', [CheckpointController::class, 'getAllCheckpoints'])->name('admin.checkpoints.index');
     Route::get('/admin/checkpoints/recientes', [CheckpointController::class, 'recientes'])->name('admin.checkpoints.recientes');
     Route::post('/admin/checkpoints', [CheckpointController::class, 'store'])->name('admin.checkpoints.store');
     Route::get('/admin/checkpoints/{id}', [CheckpointController::class, 'show'])->name('admin.checkpoints.show');
     Route::put('/admin/checkpoints/{id}', [CheckpointController::class, 'update'])->name('admin.checkpoints.update');
     Route::delete('/admin/checkpoints/{id}', [CheckpointController::class, 'destroy'])->name('admin.checkpoints.destroy');
-    Route::get('/admin/checkpoints', [CheckpointController::class, 'getAllCheckpoints']);
     
     // Rutas para el CRUD de categorías (admin)
     Route::get('/admin/categories', [CategoryController::class, 'index']);
