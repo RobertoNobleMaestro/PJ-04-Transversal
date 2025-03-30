@@ -63,8 +63,26 @@ class GimcanaJuegoController extends Controller
                                             ->toArray();
         
         // Agregar información sobre completado a cada checkpoint
-        $checkpointsWithStatus = $checkpoints->map(function($checkpoint) use ($completedCheckpoints) {
+        $checkpointsWithStatus = $checkpoints->map(function($checkpoint) use ($completedCheckpoints, $group, $groupUser) {
             $checkpoint->completed = in_array($checkpoint->id, $completedCheckpoints);
+            
+            // Verificar si este checkpoint está completado por todo el grupo
+            $groupCompleted = true;
+            $groupMembers = GroupUser::where('group_id', $group->id)->get();
+            
+            foreach ($groupMembers as $member) {
+                $memberCompleted = GroupCheckpoint::where('groupuser_id', $member->id)
+                                               ->where('checkpoint_id', $checkpoint->id)
+                                               ->exists();
+                if (!$memberCompleted) {
+                    $groupCompleted = false;
+                    break;
+                }
+            }
+            
+            $checkpoint->groupCompleted = $groupCompleted;
+            $checkpoint->userCompleted = in_array($checkpoint->id, $completedCheckpoints);
+            
             return $checkpoint;
         });
         
@@ -154,11 +172,28 @@ class GimcanaJuegoController extends Controller
                                             ->toArray();
         
         // Formatear datos para el mapa
-        $mapData = $checkpoints->map(function($checkpoint) use ($completedCheckpoints) {
+        $mapData = $checkpoints->map(function($checkpoint) use ($completedCheckpoints, $group, $groupUser) {
             if (!$checkpoint->place) {
                 \Log::error('Checkpoint sin lugar asociado: ' . $checkpoint->id);
                 return null;
             }
+            
+            // Verificar si este checkpoint está completado por todo el grupo
+            $groupCompleted = true;
+            $groupMembers = GroupUser::where('group_id', $group->id)->get();
+            
+            foreach ($groupMembers as $member) {
+                $memberCompleted = GroupCheckpoint::where('groupuser_id', $member->id)
+                                               ->where('checkpoint_id', $checkpoint->id)
+                                               ->exists();
+                if (!$memberCompleted) {
+                    $groupCompleted = false;
+                    break;
+                }
+            }
+            
+            $userCompleted = in_array($checkpoint->id, $completedCheckpoints);
+            
             return [
                 'id' => $checkpoint->id,
                 'name' => $checkpoint->place->nombre,
@@ -166,7 +201,9 @@ class GimcanaJuegoController extends Controller
                 'lng' => (float) $checkpoint->place->coordenadas_lon,
                 'pista' => $checkpoint->pista ?? 'Sin pista disponible',
                 'prueba' => $checkpoint->prueba ?? 'Sin prueba disponible',
-                'completed' => in_array($checkpoint->id, $completedCheckpoints)
+                'completed' => $groupCompleted, // Ahora 'completed' indica si TODO el grupo ha completado el checkpoint
+                'userCompleted' => $userCompleted, // Indica si el usuario actual ha completado el checkpoint
+                'groupCompleted' => $groupCompleted // Redundante pero explícito
             ];
         })->filter()->values();
         
@@ -244,8 +281,8 @@ class GimcanaJuegoController extends Controller
         
         foreach ($groupMembers as $member) {
             $completed = GroupCheckpoint::where('groupuser_id', $member->id)
-                                     ->where('checkpoint_id', $id)
-                                     ->exists();
+                                      ->where('checkpoint_id', $id)
+                                      ->exists();
             if (!$completed) {
                 $allMembersCompleted = false;
                 break;
@@ -258,8 +295,8 @@ class GimcanaJuegoController extends Controller
             'groupCompleted' => $allMembersCompleted,
             'totalMembers' => $groupMembers->count(),
             'completedMembers' => GroupCheckpoint::where('checkpoint_id', $id)
-                                              ->whereIn('groupuser_id', $groupMembers->pluck('id'))
-                                              ->count()
+                                               ->whereIn('groupuser_id', $groupMembers->pluck('id'))
+                                               ->count()
         ]);
     }
     
