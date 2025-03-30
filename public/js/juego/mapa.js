@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let watchId;
     let checkpointsData = [];
     let updateInterval; // Intervalo para actualizar la posición cada 10 segundos
-    let detectionRadius = 100; // Radio de detección en metros
+    let detectionRadius = 102220; // Radio de detección en metros
 
     const checkpointPendingIcon = L.icon({
         iconUrl: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-2x-red.png',
@@ -34,8 +34,6 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => {
                 if (data.status === 'success') {
-                    console.log('Datos recibidos de la API:', data.checkpoints);
-                    
                     // Ordenar los checkpoints por ID para asegurar el orden
                     checkpointsData = data.checkpoints.sort((a, b) => a.id - b.id);
                     
@@ -59,16 +57,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 } else if (data.status === 'warning') {
                     // Mostrar mensaje de advertencia
-                    console.warn('Advertencia:', data.message);
                     showNoCheckpointsMessage(data.message);
                 } else {
                     // Mostrar error
-                    console.error('Error:', data.error);
                     showNoCheckpointsMessage(data.error || 'Error al cargar los checkpoints');
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
                 showNoCheckpointsMessage('Error de conexión al cargar los checkpoints');
             });
     }
@@ -93,20 +88,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Encontrar el primer checkpoint no completado por el grupo
-        const nextCheckpoint = checkpointsData.find(checkpoint => !checkpoint.completed);
+        const nextCheckpoint = checkpointsData.find(checkpoint => !checkpoint.groupCompleted);
         
         if (!nextCheckpoint) {
             showNoCheckpointsMessage('¡Tu grupo ha completado todos los checkpoints de la gimcana!'); 
             return;
         }
         
+        // Mantener este console.log porque está relacionado con la validación de grupo
         console.log('Siguiente checkpoint para el grupo:', nextCheckpoint);
         
         // NO añadir el checkpoint al mapa inicialmente - se mostrará solo cuando esté en el radio
         // Solo mostrar la pista textual para ayudar a buscar
         
         // Verificar si el usuario ya completó el checkpoint actual pero está esperando al grupo
-        const currentUserCompletedButWaiting = nextCheckpoint.userCompleted && !nextCheckpoint.completed;
+        const currentUserCompletedButWaiting = nextCheckpoint.userCompleted && !nextCheckpoint.groupCompleted;
         
         // Mostrar SOLO la pista del siguiente checkpoint (no la prueba) si todos han completado el anterior
         if (!currentUserCompletedButWaiting) {
@@ -124,22 +120,39 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         } else {
             // Si el usuario ya completó pero está esperando al grupo, ocultar el panel de pistas
-            document.getElementById('hintPanel').style.display = 'none';
+            document.getElementById('hintPanel').innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-clock"></i> <strong>Esperando al grupo:</strong> Ya has completado este checkpoint. Espera a que todos los miembros de tu grupo lo completen para continuar.
+                </div>
+            `;
+            document.getElementById('hintPanel').style.display = 'block';
         }
     }
     
     // Función para comprobar si estamos cerca del siguiente checkpoint
     function checkProximityToNextCheckpoint() {
-        if (!userMarker) return;
+        if (!userMarker || checkpointsData.length === 0) return;
         
-        const nextCheckpoint = checkpointsData.find(checkpoint => !checkpoint.completed);
-        if (!nextCheckpoint) return;
+        // Encontrar el primer checkpoint no completado por el grupo
+        const nextCheckpoint = checkpointsData.find(checkpoint => !checkpoint.groupCompleted);
         
+        if (!nextCheckpoint) {
+            showNoCheckpointsMessage('¡Tu grupo ha completado todos los checkpoints de la gimcana!'); 
+            return;
+        }
+        
+        // Verificar si el usuario ya completó este checkpoint pero está esperando al grupo
+        if (nextCheckpoint.userCompleted && !nextCheckpoint.groupCompleted) {
+            // Mostrar el modal de espera
+            showCheckpointProximityAlert(nextCheckpoint);
+            return;
+        }
+        
+        // Obtener la posición actual del usuario
         const userLat = userMarker.getLatLng().lat;
         const userLng = userMarker.getLatLng().lng;
         
         const distance = calculateDistance(userLat, userLng, nextCheckpoint.lat, nextCheckpoint.lng);
-        console.log(`Distancia al siguiente checkpoint: ${distance.toFixed(2)} metros`);
         
         // Actualizar el círculo de detección para que siempre tenga el radio definido
         if (userLocationCircle) {
@@ -160,7 +173,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Si no existe el marcador, crearlo
             if (!markerExists) {
-                console.log('Mostrando checkpoint en el mapa - estás en el radio de detección');
                 const marker = L.marker([nextCheckpoint.lat, nextCheckpoint.lng], { icon: checkpointPendingIcon })
                     .addTo(map);
 
@@ -208,7 +220,6 @@ document.addEventListener('DOMContentLoaded', function() {
             watchId = navigator.geolocation.watchPosition(
                 positionUpdateHandler,
                 function(error) {
-                    console.error('Error al obtener la ubicación:', error);
                     Swal.fire({
                         title: 'Error',
                         text: 'Error al obtener tu ubicación: ' + error.message,
@@ -229,7 +240,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 navigator.geolocation.getCurrentPosition(
                     positionUpdateHandler,
                     function(error) {
-                        console.error('Error en actualización periódica:', error);
                     },
                     {
                         enableHighAccuracy: true,
@@ -373,7 +383,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Marcar el checkpoint como completado en nuestros datos locales
                     const index = checkpointsData.findIndex(c => c.id === checkpointId);
                     if (index !== -1) {
-                        checkpointsData[index].completed = true;
+                        checkpointsData[index].groupCompleted = true;
+                        checkpointsData[index].userCompleted = true;
                     }
                     
                     // Mostrar mensaje de éxito grupal con SweetAlert2
@@ -389,6 +400,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 } else {
                     // Si solo este usuario ha completado el checkpoint pero faltan otros miembros del grupo
+                    // Actualizar datos locales para reflejar que el usuario ha completado este checkpoint
+                    const index = checkpointsData.findIndex(c => c.id === checkpointId);
+                    if (index !== -1) {
+                        checkpointsData[index].userCompleted = true;
+                    }
+                    
                     // Mostrar un modal bloqueante que no permite hacer nada hasta que todos completen
                     Swal.fire({
                         title: 'Esperando al grupo',
@@ -414,7 +431,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     const updatedCheckpoint = refreshData.checkpoints.find(c => c.id === checkpointId);
                                     
                                     // Si el checkpoint ahora está completado por todo el grupo
-                                    if (updatedCheckpoint && updatedCheckpoint.completed) {
+                                    if (updatedCheckpoint && updatedCheckpoint.groupCompleted) {
                                         clearInterval(checkGroupCompletion);
                                         
                                         // Actualizar datos locales
@@ -438,6 +455,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 }
                             })
                             .catch(error => {
+                                // Mantener este console.error porque está relacionado con la verificación del estado del grupo
                                 console.error('Error al verificar el estado del grupo:', error);
                             });
                     }, 5000); 
@@ -454,7 +472,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .catch(error => {
-            console.error('Error:', error);
             Swal.fire({
                 title: 'Error',
                 text: 'Error al validar el checkpoint',
@@ -467,8 +484,79 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Función para mostrar una alerta cuando estamos cerca de un checkpoint
     function showCheckpointProximityAlert(checkpoint) {
-        // Evitar mostrar alertas innecesarias si el checkpoint ya está completado
-        if (checkpoint.completed) return;
+        // Evitar mostrar alertas innecesarias si el checkpoint ya está completado por todo el grupo
+        if (checkpoint.groupCompleted) return;
+        
+        // Si el usuario ya completó este checkpoint pero está esperando al grupo, mostrar un mensaje diferente
+        if (checkpoint.userCompleted && !checkpoint.groupCompleted) {
+            // Control para no mostrar repetidamente el modal
+            if (checkpoint.waitingAlertShown) return;
+            
+            // Marcar que ya se ha mostrado la alerta de espera para este checkpoint
+            checkpoint.waitingAlertShown = true;
+            
+            // Usar Bootstrap modal en lugar de SweetAlert2 para mantener consistencia con el diseño original
+            const modal = document.getElementById('validationModal');
+            const modalContent = document.getElementById('validationModalContent');
+            
+            // Contenido del modal
+            modalContent.innerHTML = `
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Esperando al grupo</h5>
+                    <button type="button" class="btn-close btn-close-white" id="closeModalBtn" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h4>${checkpoint.name}</h4>
+                    <p class="alert alert-info">Ya has completado este checkpoint. Debes esperar a que todos los miembros de tu grupo lo completen para continuar al siguiente.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="closeBtn">Cerrar</button>
+                </div>
+            `;
+            
+            // Mostrar el modal usando Bootstrap
+            const bootstrapModal = new bootstrap.Modal(modal, {
+                backdrop: 'static',
+                keyboard: false
+            });
+            bootstrapModal.show();
+            
+            // Manejar el evento de cierre para volver a abrir el modal
+            document.getElementById('closeBtn').addEventListener('click', function() {
+                // Cerrar el modal actual
+                bootstrapModal.hide();
+                
+                // Volver a abrir el modal después de un breve retraso
+                setTimeout(() => {
+                    showCheckpointProximityAlert(checkpoint);
+                }, 500);
+            });
+            
+            // Manejar el botón de cierre en la esquina superior derecha
+            document.getElementById('closeModalBtn').addEventListener('click', function() {
+                // Cerrar el modal actual
+                bootstrapModal.hide();
+                
+                // Volver a abrir el modal después de un breve retraso
+                setTimeout(() => {
+                    showCheckpointProximityAlert(checkpoint);
+                }, 500);
+            });
+            
+            // Cuando se cierre el modal por otras razones, permitir que se muestre nuevamente
+            modal.addEventListener('hidden.bs.modal', function(event) {
+                // Solo reiniciar el estado si no fue cerrado por los botones que ya manejan la reapertura
+                if (!event.clickEvent || (event.clickEvent.target.id !== 'closeBtn' && event.clickEvent.target.id !== 'closeModalBtn')) {
+                    setTimeout(() => {
+                        checkpoint.waitingAlertShown = false;
+                        // Volver a mostrar el modal
+                        showCheckpointProximityAlert(checkpoint);
+                    }, 500);
+                }
+            });
+            
+            return;
+        }
         
         // Control para no mostrar repetidamente el modal
         if (checkpoint.alertShown) return;
