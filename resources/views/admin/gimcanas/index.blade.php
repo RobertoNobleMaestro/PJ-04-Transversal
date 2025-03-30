@@ -431,6 +431,11 @@
                         <input type="text" class="form-control" id="crearNombre" name="nombre" required>
                     </div>
                     <div class="checkpoints-container"></div>
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-secondary" id="btnAddCheckpointCrear">
+                            <i class="fas fa-plus"></i> Añadir checkpoint
+                        </button>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
