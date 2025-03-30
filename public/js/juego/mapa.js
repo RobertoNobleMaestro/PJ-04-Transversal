@@ -501,7 +501,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Contenido del modal
             modalContent.innerHTML = `
-                <div class="modal-header bg-primary text-white">
+                <div class="modal-header bg-success text-white">
                     <h5 class="modal-title">Esperando al grupo</h5>
                     <button type="button" class="btn-close btn-close-white" id="closeModalBtn" aria-label="Close"></button>
                 </div>
