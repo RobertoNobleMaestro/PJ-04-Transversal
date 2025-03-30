@@ -162,16 +162,35 @@ function addCheckpointField(selectedValue = '', index = 1) {
         // Limpiar opciones existentes
         select.innerHTML = '<option value="">Seleccione un checkpoint</option>';
         
+        console.log(`Añadiendo ${window.checkpointsData.length} checkpoints al select`);
+        
         // Añadir nuevas opciones
         window.checkpointsData.forEach(checkpoint => {
-            const option = document.createElement('option');
-            option.value = checkpoint.id;
-            option.textContent = `${checkpoint.pista} (${checkpoint.place?.nombre || 'Sin lugar'})`;
-            select.appendChild(option);
+            if (checkpoint && checkpoint.id) {
+                const option = document.createElement('option');
+                option.value = checkpoint.id;
+                
+                // Asegurarse de que la pista existe y es accesible
+                const pista = checkpoint.pista || 'Sin pista';
+                
+                // Asegurarse de que place existe y tiene nombre
+                const lugarNombre = checkpoint.place && checkpoint.place.nombre 
+                    ? checkpoint.place.nombre 
+                    : 'Sin lugar';
+                
+                option.textContent = `${pista} (${lugarNombre})`;
+                select.appendChild(option);
+                
+                // Verificar si esta opción debería estar seleccionada
+                if (selectedValue && selectedValue == checkpoint.id) {
+                    option.selected = true;
+                }
+            }
         });
 
         if (selectedValue) {
             select.value = selectedValue;
+            console.log(`Seleccionado checkpoint con ID: ${selectedValue}`);
         }
     } else {
         console.error('No hay checkpoints disponibles para mostrar');
@@ -189,9 +208,24 @@ function addCheckpointField(selectedValue = '', index = 1) {
     updateCheckpointLabels();
 }
 
+// Función para actualizar las etiquetas de los checkpoints
 function updateCheckpointLabels() {
-    document.querySelectorAll('.checkpoint-item').forEach((item, index) => {
-        item.querySelector('label').textContent = `Checkpoint ${index + 1}`;
+    // Actualizar las etiquetas en el modal de creación
+    const createItems = document.querySelectorAll('#crearGimcanaModal .checkpoint-item');
+    createItems.forEach((item, index) => {
+        const label = item.querySelector('.form-label');
+        if (label) {
+            label.textContent = `Checkpoint ${index + 1}`;
+        }
+    });
+    
+    // Actualizar las etiquetas en el modal de edición
+    const editItems = document.querySelectorAll('#editarGimcanaModal .checkpoint-item');
+    editItems.forEach((item, index) => {
+        const label = item.querySelector('.form-label');
+        if (label) {
+            label.textContent = `Checkpoint ${index + 1}`;
+        }
     });
 }
 
@@ -365,8 +399,10 @@ function actualizarGimcana() {
 
 // Función para cargar checkpoints disponibles
 function cargarCheckpointsDisponibles() {
+    console.log('Iniciando carga de checkpoints...');
     return fetch('/admin/checkpoints')
         .then(response => {
+            console.log('Respuesta recibida:', response.status, response.statusText);
             if (!response.ok) {
                 throw new Error('Error al cargar checkpoints: ' + response.status);
             }
@@ -375,7 +411,13 @@ function cargarCheckpointsDisponibles() {
         .then(data => {
             // Guardar los datos de checkpoints en una variable global
             window.checkpointsData = data;
-            console.log('Checkpoints cargados correctamente:', data);
+            console.log('Checkpoints cargados correctamente. Total:', data.length);
+            console.log('Primer checkpoint:', data[0]);
+            
+            if (!data || data.length === 0) {
+                console.warn('No se encontraron checkpoints en la respuesta');
+                return [];
+            }
 
             // Llenar todos los selects existentes
             document.querySelectorAll('.checkpoint-select').forEach(select => {
@@ -383,22 +425,48 @@ function cargarCheckpointsDisponibles() {
                 select.innerHTML = '<option value="">Seleccione un checkpoint</option>';
                 
                 // Añadir nuevas opciones
-                data.forEach(checkpoint => {
-                    const option = document.createElement('option');
-                    option.value = checkpoint.id;
-                    option.textContent = `${checkpoint.pista} (${checkpoint.place?.nombre || 'Sin lugar'})`;
-                    select.appendChild(option);
-                });
+                if (data && data.length > 0) {
+                    data.forEach(checkpoint => {
+                        // Verificar que el checkpoint tenga los datos necesarios
+                        if (checkpoint && checkpoint.id) {
+                            const option = document.createElement('option');
+                            option.value = checkpoint.id;
+                            
+                            // Asegurarse de que la pista existe y es accesible
+                            const pista = checkpoint.pista || 'Sin pista';
+                            
+                            // Asegurarse de que place existe y tiene nombre
+                            const lugarNombre = checkpoint.place && checkpoint.place.nombre 
+                                ? checkpoint.place.nombre 
+                                : 'Sin lugar';
+                            
+                            option.textContent = `${pista} (${lugarNombre})`;
+                            select.appendChild(option);
+                        }
+                    });
+                } else {
+                    console.error('No hay checkpoints disponibles para mostrar');
+                }
             });
+            
+            // Verificar si se han añadido opciones a los selects
+            document.querySelectorAll('.checkpoint-select').forEach(select => {
+                console.log(`Select ${select.id || 'sin ID'} tiene ${select.options.length} opciones`);
+            });
+            
+            return data;
         })
         .catch(error => {
             console.error('Error al cargar checkpoints:', error);
             Swal.fire('Error', 'No se pudieron cargar los checkpoints disponibles', 'error');
+            return [];
         });
 }
 
 // Función para abrir el modal de creación de gimcana
 function abrirModalCrearGimcana() {
+    console.log('Checkpoints cargados inicialmente:', window.checkpointsData);
+    
     // Limpiar el formulario
     document.getElementById('formCrearGimcana').reset();
     
@@ -414,33 +482,195 @@ function abrirModalCrearGimcana() {
     const modal = new bootstrap.Modal(document.getElementById('crearGimcanaModal'));
     modal.show();
 
-    // Cargar checkpoints disponibles
-    cargarCheckpointsDisponibles().then(() => {
-        // Añadir el dropdown de checkpoints
-        const template = `
-            <div class="mb-3">
-                <label class="form-label">Checkpoint</label>
-                <select class="form-select checkpoint-select" name="checkpoint" required>
+    // Configurar el botón de añadir checkpoint en el modal de creación
+    const btnAddCheckpoint = document.getElementById('btnAddCheckpointCrear');
+    if (btnAddCheckpoint) {
+        // Eliminar cualquier listener previo para evitar duplicados
+        btnAddCheckpoint.removeEventListener('click', handleAddCheckpointCrear);
+        // Añadir el nuevo listener
+        btnAddCheckpoint.addEventListener('click', handleAddCheckpointCrear);
+    }
+
+    // Cargar checkpoints disponibles primero, y luego mostrarlos
+    console.log('Cargando checkpoints para el modal...');
+    fetch('/admin/checkpoints')
+        .then(response => {
+            console.log('Respuesta recibida:', response.status, response.statusText);
+            if (!response.ok) {
+                throw new Error('Error al cargar checkpoints: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Guardar los datos de checkpoints en una variable global
+            window.checkpointsData = data;
+            console.log('Checkpoints cargados correctamente. Total:', data.length);
+            if (data.length > 0) {
+                console.log('Primer checkpoint:', data[0]);
+            }
+            
+            // Una vez que tenemos los datos, mostrar los checkpoints en el modal
+            mostrarCheckpointsEnModalCreacion();
+        })
+        .catch(error => {
+            console.error('Error al cargar checkpoints:', error);
+            Swal.fire('Error', 'No se pudieron cargar los checkpoints disponibles', 'error');
+        });
+}
+
+// Función para mostrar los checkpoints en el modal de creación
+function mostrarCheckpointsEnModalCreacion() {
+    const container = document.querySelector('#crearGimcanaModal .checkpoints-container');
+    if (!container) {
+        console.error('Contenedor de checkpoints no encontrado');
+        return;
+    }
+
+    // Verificar que tenemos datos de checkpoints
+    if (!window.checkpointsData || window.checkpointsData.length === 0) {
+        console.error('No hay datos de checkpoints disponibles para mostrar');
+        return;
+    }
+
+    console.log('Mostrando checkpoints en modal de creación. Total disponibles:', window.checkpointsData.length);
+
+    // Añadir el primer checkpoint
+    const template = `
+        <div class="mb-3 checkpoint-item">
+            <label class="form-label">Checkpoint 1</label>
+            <div class="d-flex gap-2">
+                <select class="form-select checkpoint-select" name="checkpoints[]" required>
                     <option value="">Seleccione un checkpoint</option>
                 </select>
+                <button type="button" class="btn btn-danger btn-remove-checkpoint">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
-        `;
-        container.insertAdjacentHTML('beforeend', template);
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', template);
 
-        // Llenar el dropdown con los checkpoints disponibles
-        const select = container.querySelector('.checkpoint-select');
-        if (select && window.checkpointsData && window.checkpointsData.length > 0) {
-            window.checkpointsData.forEach(checkpoint => {
+    const select = container.querySelector('.checkpoint-select');
+    if (!select) {
+        console.error('Select no encontrado en el modal de creación');
+        return;
+    }
+
+    // Llenar el select con los checkpoints disponibles
+    console.log(`Añadiendo ${window.checkpointsData.length} checkpoints al select en modal de creación`);
+    
+    window.checkpointsData.forEach(checkpoint => {
+        if (checkpoint && checkpoint.id) {
+            const option = document.createElement('option');
+            option.value = checkpoint.id;
+            
+            // Asegurarse de que la pista existe y es accesible
+            const pista = checkpoint.pista || 'Sin pista';
+            
+            // Asegurarse de que place existe y tiene nombre
+            const lugarNombre = checkpoint.place && checkpoint.place.nombre 
+                ? checkpoint.place.nombre 
+                : 'Sin lugar';
+            
+            option.textContent = `${pista} (${lugarNombre})`;
+            select.appendChild(option);
+        }
+    });
+    
+    console.log(`Select en modal de creación tiene ${select.options.length} opciones`);
+
+    // Configurar el botón de eliminar
+    const removeButton = container.querySelector('.btn-remove-checkpoint');
+    if (removeButton) {
+        removeButton.onclick = () => {
+            if (document.querySelectorAll('#crearGimcanaModal .checkpoint-item').length > 1) {
+                container.removeChild(removeButton.closest('.checkpoint-item'));
+                updateCheckpointLabels();
+            } else {
+                Swal.fire('Info', 'Debe haber al menos un checkpoint', 'info');
+            }
+        };
+    }
+}
+
+// Función para manejar el evento de añadir checkpoint en el modal de creación
+function handleAddCheckpointCrear() {
+    const count = document.querySelectorAll('#crearGimcanaModal .checkpoint-item').length;
+    addCheckpointFieldCrear('', count + 1);
+}
+
+// Función para añadir un campo de checkpoint en el modal de creación
+function addCheckpointFieldCrear(selectedValue = '', index = 1) {
+    const container = document.querySelector('#crearGimcanaModal .checkpoints-container');
+    if (!container) {
+        console.error('Contenedor de checkpoints no encontrado en el modal de creación');
+        return;
+    }
+
+    const template = `
+        <div class="mb-3 checkpoint-item">
+            <label class="form-label">Checkpoint ${index}</label>
+            <div class="d-flex gap-2">
+                <select class="form-select checkpoint-select" name="checkpoints[]" required>
+                    <option value="">Seleccione un checkpoint</option>
+                </select>
+                <button type="button" class="btn btn-danger btn-remove-checkpoint">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', template);
+
+    const select = container.lastElementChild.querySelector('select');
+    if (!select) {
+        console.error('Select no encontrado en el nuevo campo de checkpoint');
+        return;
+    }
+
+    // Llenar el select con los checkpoints disponibles
+    if (window.checkpointsData && window.checkpointsData.length > 0) {
+        console.log(`Añadiendo ${window.checkpointsData.length} checkpoints al nuevo select`);
+        
+        window.checkpointsData.forEach(checkpoint => {
+            if (checkpoint && checkpoint.id) {
                 const option = document.createElement('option');
                 option.value = checkpoint.id;
-                option.textContent = `${checkpoint.pista} (${checkpoint.place?.nombre || 'Sin lugar'})`;
+                
+                // Asegurarse de que la pista existe y es accesible
+                const pista = checkpoint.pista || 'Sin pista';
+                
+                // Asegurarse de que place existe y tiene nombre
+                const lugarNombre = checkpoint.place && checkpoint.place.nombre 
+                    ? checkpoint.place.nombre 
+                    : 'Sin lugar';
+                
+                option.textContent = `${pista} (${lugarNombre})`;
                 select.appendChild(option);
-            });
+            }
+        });
+
+        if (selectedValue) {
+            select.value = selectedValue;
         }
-    }).catch(error => {
-        console.error('Error al cargar checkpoints:', error);
-        Swal.fire('Error', 'No se pudieron cargar los checkpoints disponibles', 'error');
-    });
+    } else {
+        console.error('No hay checkpoints disponibles para mostrar');
+    }
+
+    // Configurar el botón de eliminar
+    const removeButton = container.lastElementChild.querySelector('.btn-remove-checkpoint');
+    if (removeButton) {
+        removeButton.onclick = () => {
+            if (document.querySelectorAll('#crearGimcanaModal .checkpoint-item').length > 1) {
+                container.removeChild(container.lastElementChild);
+                updateCheckpointLabels();
+            } else {
+                Swal.fire('Info', 'Debe haber al menos un checkpoint', 'info');
+            }
+        };
+    }
+
+    updateCheckpointLabels();
 }
 
 // Función para crear una gimcana
@@ -583,6 +813,28 @@ function limpiarFiltrosGimcanas() {
 
 // Inicializar eventos cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Página cargada, cargando checkpoints iniciales...');
+    // Cargar checkpoints disponibles al inicio
+    fetch('/admin/checkpoints')
+        .then(response => {
+            console.log('Respuesta inicial recibida:', response.status, response.statusText);
+            if (!response.ok) {
+                throw new Error('Error al cargar checkpoints iniciales: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Guardar los datos de checkpoints en una variable global
+            window.checkpointsData = data;
+            console.log('Checkpoints iniciales cargados correctamente. Total:', data.length);
+            if (data.length > 0) {
+                console.log('Primer checkpoint inicial:', data[0]);
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar checkpoints iniciales:', error);
+        });
+
     // Botón para actualizar gimcana en el modal de edición
     const actualizarGimcanaBtn = document.getElementById('actualizarGimcanaBtn');
     if (actualizarGimcanaBtn) {
@@ -619,4 +871,3 @@ document.addEventListener('DOMContentLoaded', function() {
         btnLimpiarFiltros.addEventListener('click', limpiarFiltrosGimcanas);
     }
 });
-
