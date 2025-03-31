@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Laravel\Pail\ValueObjects\Origin\Console;
+use App\Models\Checkpoint;
 
 class GimcanaGroupController extends Controller
 {
@@ -126,10 +127,12 @@ class GimcanaGroupController extends Controller
     public function unirseagrupo(Request $request)
     {
         try {
+            DB::beginTransaction();
             $grupo = Group::where('id', $request->id)->get();
 
             if ($grupo[0]->miembros == 0) {
                 echo "error El grupo " . $request->nombre . " está lleno";
+                DB::rollback();
                 die();
             } else {
                 $grupoUsuario = new GroupUser();
@@ -137,14 +140,32 @@ class GimcanaGroupController extends Controller
                 $grupoUsuario->user_id = Auth::user()->id;
                 $grupoUsuario->save();
 
+                // Get all checkpoints associated with this group's gimcana
+                $checkpoints = Checkpoint::whereHas('gimcanas', function($query) use ($request) {
+                    $query->where('gimcanas.id', $request->gimcana);
+                })->get();
+                
+                // Create group_checkpoint relationships for each checkpoint
+                foreach ($checkpoints as $checkpoint) {
+                    DB::table('group_checkpoint')->insert([
+                        'groupuser_id' => $grupoUsuario->id,
+                        'checkpoint_id' => $checkpoint->id,
+                        'validado' => false,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
+
                 $grupo[0]->miembros = $grupo[0]->miembros - 1;
                 if ($grupo[0]->miembros == 0) {
                     $grupo[0]->estado = 'Completo';
                 }
                 $grupo[0]->save();
             }
+            DB::commit();
             echo "success Te has unido al grupo " . $request->nombre;
         } catch (\PDOException $e) {
+            DB::rollback();
             echo "error No se ha podido unir al grupo " . $request->nombre;
         }
     }
@@ -172,6 +193,15 @@ class GimcanaGroupController extends Controller
     {
         DB::beginTransaction();
         try {
+            // Delete related group_checkpoint records first
+            DB::table('group_checkpoint')
+                ->whereIn('groupuser_id', function ($query) use ($request) {
+                    $query->select('id')
+                        ->from('group_users')
+                        ->where('group_id', $request->id);
+                })
+                ->delete();
+
             GroupUser::where('group_id', $request->id)->delete();
             Group::where('id', $request->id)->delete();
             DB::commit();
@@ -243,6 +273,23 @@ class GimcanaGroupController extends Controller
                 $grupoUsuario->group_id = $resultado->id;
                 $grupoUsuario->user_id = Auth::user()->id;
                 $grupoUsuario->save();
+
+                // Get all checkpoints associated with this group's gimcana
+                $checkpoints = Checkpoint::whereHas('gimcanas', function($query) use ($request) {
+                    $query->where('gimcanas.id', $request->gimcana);
+                })->get();
+                
+                // Create group_checkpoint relationships for each checkpoint
+                foreach ($checkpoints as $checkpoint) {
+                    DB::table('group_checkpoint')->insert([
+                        'groupuser_id' => $grupoUsuario->id,
+                        'checkpoint_id' => $checkpoint->id,
+                        'validado' => false,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
+                
                 // Confirmar éxito
                 echo "success Has creado el grupo " . $request->nombreGrupo . " correctamente";
             }
@@ -251,6 +298,7 @@ class GimcanaGroupController extends Controller
         } catch (\PDOException $e) {
             // Si hay un error, deshacer todos los cambios de la transacción
             DB::rollback();
+            echo $e;
             // Mostrar el mensaje de error
             echo "error No se pudo crear el grupo " . $request->nombreGrupo;
             die();
