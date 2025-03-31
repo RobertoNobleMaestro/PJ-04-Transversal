@@ -141,8 +141,20 @@ class GimcanaGroupController extends Controller
                 $grupoUsuario->save();
 
                 // Get all checkpoints associated with this group's gimcana
-                $checkpoints = Checkpoint::whereHas('gimcanas', function($query) use ($request) {
-                    $query->where('gimcanas.id', $request->gimcana);
+                // First ensure we have a valid gimcana_id from the group
+                $group = Group::with('gimcana')->find($request->id);
+                
+                // Get the group's gimcana
+                if (!$group || !$group->gimcana_id) {
+                    // Handle case where gimcana isn't set
+                    DB::commit();
+                    echo "success Te has unido al grupo " . $request->nombre . " (sin checkpoints)";
+                    return;
+                }
+                
+                // Get checkpoints for this gimcana through the many-to-many relationship
+                $checkpoints = Checkpoint::whereHas('gimcanas', function($query) use ($group) {
+                    $query->where('gimcanas.id', $group->gimcana_id);
                 })->get();
                 
                 // Create group_checkpoint relationships for each checkpoint
@@ -166,26 +178,46 @@ class GimcanaGroupController extends Controller
             echo "success Te has unido al grupo " . $request->nombre;
         } catch (\PDOException $e) {
             DB::rollback();
-            echo "error No se ha podido unir al grupo " . $request->nombre;
+            echo "error No se ha podido unir al grupo " . $request->nombre . ": " . $e->getMessage();
         }
     }
 
     public function salirgrupo(Request $request)
     {
+        DB::beginTransaction();
         try {
+            // Get the group
             $grupo = Group::where('id', $request->id)->get();
+            
+            // Get the GroupUser record for the current user in this group
+            $grupoUsuario = GroupUser::where('user_id', Auth::user()->id)
+                                 ->where('group_id', $request->id)
+                                 ->first();
+            
+            if ($grupoUsuario) {
+                // Delete related group_checkpoint records for this user
+                DB::table('group_checkpoint')
+                    ->where('groupuser_id', $grupoUsuario->id)
+                    ->delete();
+            }
+            
+            // Update group status
             $grupo[0]->miembros = $grupo[0]->miembros + 1;
             if ($grupo[0]->miembros >= 1) {
                 $grupo[0]->estado = 'Espera';
             }
             $grupo[0]->save();
 
-            GroupUser::where('user_id', Auth::user()->id)->delete();
+            // Delete the GroupUser relationship
+            GroupUser::where('user_id', Auth::user()->id)
+                     ->where('group_id', $request->id)
+                     ->delete();
 
+            DB::commit();
             echo "success Has abandonado el grupo " . $request->nombre;
         } catch (\PDOException $e) {
-            echo "error No se ha abandonar el grupo " . $request->nombre;
-            // echo $e;
+            DB::rollback();
+            echo "error No se ha podido abandonar el grupo " . $request->nombre . ": " . $e->getMessage();
         }
     }
 

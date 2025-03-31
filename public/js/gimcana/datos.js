@@ -35,7 +35,7 @@ function compronargrupousuario() {
                     clearInterval(myInterval);
                     myInterval = null;
                 }
-                // myInterval = setInterval(compronargrupousuario, 1000);
+                myInterval = setInterval(compronargrupousuario, 1000);
             }
         })
 }
