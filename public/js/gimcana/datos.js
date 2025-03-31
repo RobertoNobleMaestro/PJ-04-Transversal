@@ -1,3 +1,22 @@
+// Initialize the game status checking interval
+let gameCheckInterval = null;
+
+// Call comprobarjuego when the page loads
+comprobarjuego();
+
+// Start the periodic game status check
+function startGameStatusCheck() {
+    // Clear existing interval if any
+    if (gameCheckInterval) {
+        clearInterval(gameCheckInterval);
+    }
+    // Set new interval to check every 3 seconds
+    gameCheckInterval = setInterval(comprobarjuego, 3000);
+}
+
+// Start checking game status immediately
+// startGameStatusCheck();
+
 compronargrupousuario();
 
 let myInterval = null;
@@ -24,7 +43,7 @@ function compronargrupousuario() {
                     clearInterval(myInterval);
                     myInterval = null;
                 }
-                // myInterval = setInterval(mostrardatos, 1000);
+                myInterval = setInterval(mostrardatos, 5000);
                 mostrardatos();
             } else {
                 document.getElementById('infogrupos').style.display = 'none';
@@ -36,6 +55,16 @@ function compronargrupousuario() {
                     myInterval = null;
                 }
                 // myInterval = setInterval(compronargrupousuario, 1000);
+                
+                // Clear any existing game check interval
+                if (gameCheckInterval) {
+                    clearInterval(gameCheckInterval);
+                    gameCheckInterval = null;
+                }
+                // Set up game status checking every 3 seconds
+                gameCheckInterval = setInterval(comprobarjuego, 3000);
+                // Run an initial check immediately
+                comprobarjuego();
             }
         })
 }
